@@ -1,203 +1,256 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en" id="root">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trinetra Master Control</title>
-    <style>
-        :root {
-            --bg: #000000;
-            --card: #111111;
-            --gold: #ffcf00;
-            --text-main: #ffffff;
-            --border: #ffcf00;
-            --blue: #0056b3;
-            --red: #8b0000;
-            --nav-bg: #000000;
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Trishul Pro – Master Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --gold:#FFD000;--gold2:#FFA500;--green:#00E676;--g2:#00C853;
+  --red:#FF3D57;--blue:#29B6F6;
+  --bg:#0A0C0F;--bg2:#111418;--bg3:#181C22;
+  --bdr:#252D3A;--bdr2:#2A3545;--txt:#E8ECF0;--dim:#6A7490;
+}
+[data-theme="day"]{
+  --gold:#B8860B;--gold2:#9A7209;--green:#1B7A3E;--red:#C0392B;--blue:#1565C0;
+  --bg:#F0F2F5;--bg2:#FFFFFF;--bg3:#F5F6FA;--bdr:#D0D5E0;--bdr2:#B8C0D0;--txt:#1A1E2A;--dim:#6B7280;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:'Rajdhani',sans-serif;transition:background .3s,color .3s;}
+#app{display:flex;flex-direction:column;height:100vh;width:100vw;overflow:hidden;}
 
-        .light-mode {
-            --bg: #ffffff;
-            --card: #f8f9fa;
-            --gold: #ffcf00;
-            --text-main: #000000;
-            --border: #ffcf00;
-            --blue: #007bff;
-            --red: #dc3545;
-            --nav-bg: #f1f1f1;
-        }
+/* HEADER */
+#hdr{height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:var(--bg2);border-bottom:2px solid var(--gold);}
+.logo-hold{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;-webkit-user-select:none;position:relative;}
+.logo-hold .bolt{font-size:20px;filter:drop-shadow(0 0 5px #FFD00077);transition:filter .2s;}
+.logo-hold.pressing .bolt{filter:drop-shadow(0 0 14px #FFD000) drop-shadow(0 0 8px #FF4400);}
+.hring{position:absolute;top:-4px;left:-4px;width:30px;height:30px;border-radius:50%;background:conic-gradient(var(--gold) var(--p,0deg),transparent var(--p,0deg));opacity:0;pointer-events:none;z-index:2;transition:opacity .15s;}
+.logo-hold.pressing .hring{opacity:1;}
+.lbrand{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;color:var(--gold);letter-spacing:1.2px;line-height:1.25;}
+.lsub{font-size:8px;color:var(--dim);letter-spacing:1.5px;}
+.hdr-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--txt);letter-spacing:1px;}
+.theme-btn{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:1px solid var(--bdr2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;}
 
-        * { border-radius: 0 !important; margin: 0; padding: 0; box-sizing: border-box; }
+/* BODY */
+#body{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px 8px 10px;display:flex;flex-direction:column;gap:5px;}
+#body::-webkit-scrollbar{width:2px;}
+#body::-webkit-scrollbar-thumb{background:var(--bdr);}
 
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: sans-serif;
-            padding: 12px;
-            transition: 0.3s;
-            padding-bottom: 80px; /* Space for Bottom Nav */
-        }
+/* PROFILE CARD */
+#profile-card{background:var(--bg2);border:1px solid var(--gold);border-radius:8px;padding:8px 10px;}
+.profile-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.avatar-wrap{position:relative;flex-shrink:0;}
+.avatar{width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:#000;}
+.avatar-pro{position:absolute;top:-7px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,var(--red),#FF6B35);color:#fff;font-size:8px;font-weight:800;padding:1px 6px;border-radius:3px;letter-spacing:.5px;white-space:nowrap;}
+.avatar-dot{position:absolute;bottom:2px;right:2px;width:9px;height:9px;border-radius:50%;background:var(--green);border:2px solid var(--bg2);}
+.pinfo{flex:1;min-width:0;}
+.puid{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--gold);}
+.pstatus{font-size:10px;color:var(--green);font-weight:700;display:flex;align-items:center;gap:4px;margin-top:1px;}
+.prow{font-size:10px;color:var(--dim);margin-top:1px;display:flex;align-items:center;gap:4px;}
+.pactions{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.pact{padding:5px;border-radius:5px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;cursor:pointer;text-align:center;border:1px solid var(--bdr2);background:var(--bg3);color:var(--txt);}
+.pact.save{border-color:var(--green);color:var(--green);}
 
-        /* 1. प्रोफाइल कार्ड */
-        .profile-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+/* PNL */
+#pnl-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;}
+.period-tabs{display:flex;gap:3px;margin-bottom:6px;}
+.ptab{flex:1;padding:4px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;border:1px solid var(--bdr);background:var(--bg3);color:var(--dim);cursor:pointer;text-align:center;}
+.ptab.on{background:var(--gold);color:#000;border-color:var(--gold);}
+.pnl-big{font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:700;color:var(--green);text-align:center;margin:4px 0;text-shadow:0 0 10px #00E67633;}
+.pnl-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
+.pst{background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:4px;text-align:center;}
+.pst-lbl{font-size:8px;color:var(--dim);font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.pst-val{font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;margin-top:1px;}
 
-        .info-group { display: flex; flex-direction: column; gap: 2px; }
-        .id-label { font-weight: 800; color: var(--gold); font-size: 1rem; }
-        .phone-email { font-size: 0.75rem; opacity: 0.8; }
+/* SECTION HEADER */
+.sec-hdr{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:var(--gold);letter-spacing:1.5px;padding:4px 2px 3px;border-bottom:1px solid var(--bdr);margin-bottom:3px;}
 
-        .theme-btn {
-            background: var(--gold);
-            color: black;
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 0.7rem;
-        }
+/* 7 PAGE ROWS */
+#pages-grid{display:flex;flex-direction:column;gap:3px;}
+.page-row{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:6px 10px;transition:all .15s;}
+.page-row:active{border-color:var(--gold);background:var(--bg3);}
+.page-left{display:flex;align-items:center;gap:8px;}
+.page-icon{font-size:15px;}
+.page-name{font-size:12px;font-weight:700;letter-spacing:.3px;}
+.page-btns{display:flex;gap:4px;}
+.go-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-family:'Share Tech Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;border-radius:4px;border:none;cursor:pointer;}
+.edit-btn{background:var(--bg3);color:var(--blue);font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;padding:3px 7px;border-radius:4px;border:1px solid var(--bdr2);cursor:pointer;}
 
-        /* 2. P&L समरी कार्ड */
-        .summary-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 15px;
-            margin-bottom: 12px;
-        }
+/* THEME */
+#theme-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;}
+.theme-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;}
+.theme-opt{padding:8px;border-radius:6px;border:2px solid var(--bdr);cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.theme-opt.selected{border-color:var(--gold);box-shadow:0 0 8px #FFD00033;}
+.th-icon{font-size:18px;}
+.th-lbl{font-size:10px;font-weight:700;letter-spacing:.5px;}
+.th-desc{font-size:8px;color:var(--dim);}
+.th-night{background:linear-gradient(135deg,#0A0C0F,#111418);}
+.th-night .th-lbl{color:#FFD000;}
+.th-day{background:linear-gradient(135deg,#F0F2F5,#FFFFFF);}
+.th-day .th-lbl{color:#B8860B;}
 
-        .tabs { display: flex; gap: 5px; margin-bottom: 12px; }
-        .tab {
-            flex: 1; padding: 10px; font-size: 0.7rem;
-            background: #222; border: none; color: var(--gold);
-            cursor: pointer; font-weight: 800;
-        }
-        .tab.active { background: var(--gold); color: black; }
+/* NOTIFICATIONS */
+#notif-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;}
+.notif-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bdr);}
+.notif-row:last-of-type{border-bottom:none;}
+.notif-left{display:flex;align-items:center;gap:7px;}
+.notif-icon{font-size:15px;}
+.notif-name{font-size:11px;font-weight:700;}
+.notif-desc{font-size:9px;color:var(--dim);}
+.toggle{position:relative;width:34px;height:19px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.tslider{position:absolute;inset:0;background:var(--bdr2);border-radius:20px;cursor:pointer;transition:background .2s;}
+.tslider:before{content:'';position:absolute;width:13px;height:13px;background:#fff;border-radius:50%;bottom:3px;left:3px;transition:transform .2s;}
+.toggle input:checked+.tslider{background:var(--green);}
+.toggle input:checked+.tslider:before{transform:translateX(15px);}
+.notif-inp{width:100%;margin-top:3px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:4px;color:var(--txt);font-family:'Share Tech Mono',monospace;font-size:10px;padding:4px 8px;outline:none;display:none;}
+.notif-inp:focus{border-color:var(--gold);}
+.notif-inp.show{display:block;}
+.send-btn{margin-top:3px;width:100%;padding:4px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;border:none;border-radius:4px;cursor:pointer;display:none;}
+.send-btn.show{display:block;}
 
-        .pnl-row { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
-        .pnl-value { color: #00ff41; font-weight: 900; font-size: 1.2rem; }
-        .bot-stats { font-size: 0.8rem; opacity: 0.8; margin-top: 8px; }
+/* BOTTOM */
+.pwd-row{background:var(--bg3);border:1px solid var(--bdr2);border-radius:6px;padding:8px;text-align:center;cursor:pointer;font-size:11px;font-weight:700;color:var(--gold);display:flex;align-items:center;justify-content:center;gap:6px;}
+.logout-btn{background:linear-gradient(135deg,#C0392B,#E74C3C);color:#fff;border:none;border-radius:6px;padding:9px;width:100%;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
 
-        /* 3. कंट्रोल एडिटर */
-        .control-grid { border: 1px solid var(--border); }
-        .edit-item {
-            background: var(--card);
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
-        .item-name { font-size: 0.85rem; font-weight: 700; }
+/* INJECT MODAL */
+#inject-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.9);backdrop-filter:blur(8px);align-items:flex-end;justify-content:center;}
+#inject-modal.show{display:flex;}
+.inject-box{background:var(--bg2);border-top:2px solid var(--gold);border-radius:12px 12px 0 0;padding:14px;width:100%;}
+.inj-title{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--gold);text-align:center;margin-bottom:6px;letter-spacing:1px;}
+.inj-page{font-size:10px;color:var(--blue);font-weight:700;text-align:center;margin-bottom:6px;}
+.inj-area{width:100%;height:130px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:5px;color:var(--txt);font-family:'Share Tech Mono',monospace;font-size:10px;padding:8px;outline:none;resize:none;}
+.inj-area:focus{border-color:var(--gold);}
+.inj-hint{font-size:9px;color:var(--dim);margin:4px 0;text-align:center;line-height:1.5;}
+.inj-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;}
+.inj-apply{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;padding:9px;border:none;border-radius:5px;cursor:pointer;}
+.inj-cancel{background:var(--bg3);color:var(--txt);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;padding:9px;border-radius:5px;border:1px solid var(--bdr2);cursor:pointer;}
 
-        .change-btn {
-            background-color: var(--blue);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 800;
-            width: 100px;
-            height: 35px;
-        }
+/* OTP */
+#otp-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);align-items:center;justify-content:center;}
+#otp-modal.show{display:flex;}
+.otp-box{background:var(--bg2);border:2px solid var(--gold);border-radius:12px;padding:18px;width:88%;max-width:310px;}
+.otp-title{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--gold);text-align:center;margin-bottom:10px;letter-spacing:1px;}
+.otp-inp{width:100%;background:var(--bg3);border:1px solid var(--bdr2);border-radius:5px;color:var(--txt);font-family:'Share Tech Mono',monospace;font-size:20px;padding:8px;text-align:center;outline:none;letter-spacing:8px;margin-bottom:8px;}
+.otp-inp:focus{border-color:var(--gold);}
+.otp-send-btn{width:100%;background:var(--bg3);border:1px solid var(--bdr2);border-radius:5px;color:var(--dim);font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;padding:6px;cursor:pointer;margin-bottom:8px;}
+.otp-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.otp-ok{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;padding:9px;border-radius:5px;border:none;cursor:pointer;}
+.otp-cl{background:var(--bg3);color:var(--txt);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;padding:9px;border-radius:5px;border:1px solid var(--bdr2);cursor:pointer;}
 
-        /* 4. लॉगआउट बटन */
-        .exit-btn {
-            width: 100%;
-            height: 50px;
-            background-color: var(--red);
-            color: white;
-            border: none;
-            margin-top: 15px;
-            font-weight: 900;
-            font-size: 1rem;
-            cursor: pointer;
-        }
+/* EXIT OVERLAY */
+#exit-ov{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+#exit-ov.show{display:flex;}
+.ev-icon{font-size:46px;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+.ev-title{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:var(--red);letter-spacing:2px;}
+.ev-msg{font-size:11px;color:var(--dim);text-align:center;padding:0 28px;line-height:1.6;}
+.ev-btns{display:flex;gap:10px;margin-top:4px;}
+.ev-yes{background:linear-gradient(135deg,#C0392B,#E74C3C);color:#fff;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;padding:10px 20px;border-radius:6px;border:none;cursor:pointer;box-shadow:0 0 14px #FF3D5755;}
+.ev-no{background:var(--bg3);color:var(--txt);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;padding:10px 20px;border-radius:6px;border:1px solid var(--bdr2);cursor:pointer;}
 
-        /* BOTTOM NAVIGATION - 5 Tabs */
-        nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            height: 70px; background: var(--nav-bg);
-            display: grid; grid-template-columns: repeat(5, 1fr);
-            border-top: 1px solid #333; z-index: 1000;
-        }
-        .n-tab {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; color: #666;
-            text-decoration: none; font-size: 10px; font-weight: 700;
-        }
-        .n-tab i { font-size: 20px; margin-bottom: 4px; }
-        .n-tab.active { color: var(--gold); }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+/* TOAST */
+#toast{position:fixed;top:52px;left:50%;transform:translateX(-50%) translateY(-6px);background:var(--bg3);border:1px solid var(--gold);border-radius:5px;padding:6px 16px;font-size:11px;font-weight:700;color:var(--gold);opacity:0;transition:all .25s;z-index:400;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
 </head>
 <body>
+<div id="app">
 
-    <div class="profile-card">
-        <div class="info-group">
-            <span class="id-label">ID: CLIENT001</span>
-            <span class="phone-email">📞 +91 98XXX XXXXX</span>
-            <span class="phone-email">📧 user@trinetra.ai</span>
-        </div>
-        <button onclick="document.body.classList.toggle('light-mode')" class="theme-btn">MODE</button>
+<!-- HEADER -->
+<div id="hdr">
+  <div class="logo-hold" id="logo-hold">
+    <div class="hring" id="hring"></div>
+    <span class="bolt">⚡</span>
+    <div><div class="lbrand">TRISHUL PRO</div><div class="lsub">HOLD→EXIT</div></div>
+  </div>
+  <div class="hdr-title">⚙ MASTER CONTROL</div>
+  <div class="theme-btn" id="theme-btn" onclick="toggleTheme()">🌙</div>
+</div>
+
+<div id="body">
+
+  <!-- PROFILE -->
+  <div id="profile-card">
+    <div class="profile-top">
+      <div class="avatar-wrap">
+        <div class="avatar-pro">PRO</div>
+        <div class="avatar" id="av-letter">C</div>
+        <div class="avatar-dot"></div>
+      </div>
+      <div class="pinfo">
+        <div class="puid" id="uid-disp">ID: Charan007</div>
+        <div class="pstatus"><span>●</span><span id="broker-disp">ACTIVE · SHOONYA</span></div>
+        <div class="prow">📞 <span id="phone-disp">+91 98XXX XXXXX</span></div>
+        <div class="prow">📧 <span id="email-disp">charan@trishul.ai</span></div>
+      </div>
     </div>
-
-    <div class="summary-card">
-        <div class="tabs">
-            <button class="tab active">1 DAY</button>
-            <button class="tab">1 WEEK</button>
-            <button class="tab">1 MONTH</button>
-        </div>
-        <div class="pnl-row">
-            <span style="font-size: 0.9rem; font-weight: 700;">NET P&L:</span>
-            <span class="pnl-value">+₹12,450.00</span>
-        </div>
-        <div class="pnl-row bot-stats">
-            <span>Trades: 14</span>
-            <span style="color: #00ff41;">Accuracy: 78%</span>
-        </div>
+    <div class="pactions">
+      <button class="pact" onclick="toggleTheme()" id="theme-pact">☀ LIGHT MODE</button>
+      <button class="pact save" onclick="saveProfile()">💾 SAVE</button>
     </div>
+  </div>
 
-    <div class="control-grid">
-        <div class="edit-item">
-            <div class="item-name">🏠 HOME SETTINGS</div>
-            <button class="change-btn" onclick="editSettings('Home')">CHANGE</button>
-        </div>
-        <div class="edit-item">
-            <div class="item-name">📡 SIGNAL DATA</div>
-            <button class="change-btn" onclick="editSettings('Signal')">CHANGE</button>
-        </div>
-        <div class="edit-item">
-            <div class="item-name">📋 WATCHLIST DATA</div>
-            <button class="change-btn" onclick="editSettings('Watchlist')">CHANGE</button>
-        </div>
-        <div class="edit-item">
-            <div class="item-name">📊 CHART LINKS</div>
-            <button class="change-btn" onclick="editSettings('Chart')">CHANGE</button>
-        </div>
+  <!-- PNL -->
+  <div id="pnl-card">
+    <div class="period-tabs">
+      <button class="ptab on" onclick="setPeriod(this,'1D')">1 DAY</button>
+      <button class="ptab"    onclick="setPeriod(this,'1W')">1 WEEK</button>
+      <button class="ptab"    onclick="setPeriod(this,'1M')">1 MONTH</button>
     </div>
+    <div class="pnl-big" id="pnl-big">+₹12,450.00</div>
+    <div class="pnl-stats">
+      <div class="pst"><div class="pst-lbl">TRADES</div><div class="pst-val" style="color:var(--txt)" id="ps-t">14</div></div>
+      <div class="pst"><div class="pst-lbl">WIN</div><div class="pst-val" style="color:var(--green)" id="ps-w">11</div></div>
+      <div class="pst"><div class="pst-lbl">LOSS</div><div class="pst-val" style="color:var(--red)" id="ps-l">3</div></div>
+      <div class="pst"><div class="pst-lbl">ACCURACY</div><div class="pst-val" style="color:var(--gold)" id="ps-a">78%</div></div>
+    </div>
+  </div>
 
-    <button class="exit-btn" onclick="window.location.href='login.html'">LOGOUT (निकास)</button>
+  <!-- 7 PAGE SETTINGS -->
+  <div class="sec-hdr">⚡ PAGE SETTINGS — INJECT SCRIPT</div>
+  <div id="pages-grid">
+    <div class="page-row"><div class="page-left"><div class="page-icon">🔐</div><div class="page-name">LOGIN PAGE</div></div><div class="page-btns"><button class="edit-btn" onclick="openInject('Login Page','login.html')">✏ INJECT</button><button class="go-btn" onclick="nav('login.html')">GO →</button></div></div>
+    <div class="page-row"><div class="page-left"><div class="page-icon">🏠</div><div class="page-name">HOME PAGE</div></div><div class="page-btns"><button class="edit-btn" onclick="openInject('Home Page','index.html')">✏ INJECT</button><button class="go-btn" onclick="nav('index.html')">GO →</button></div></div>
+    <div class="page-row"><div class="page-left"><div class="page-icon">⚡</div><div class="page-name">POWER BOX</div></div><div class="page-btns"><button class="edit-btn" onclick="openInject('Power Box','powerbox.html')">✏ INJECT</button><button class="go-btn" onclick="nav('powerbox.html')">GO →</button></div></div>
+    <div class="page-row"><div class="page-left"><div class="page-icon">📈</div><div class="page-name">CHART PAGE</div></div><div class="page-btns"><button class="edit-btn" onclick="openInject('Chart Page','chart.html')">✏ INJECT</button><button class="go-btn" onclick="nav('chart.html')">GO →</button></div></div>
+    <div class="page-row"><div class="page-left"><div class="page-icon">📡</div><div class="page-name">SCANNER PAGE</div></div><div class="page-btns"><button class="edit-btn" onclick="openInject('Scanner','scanner.html')">✏ INJECT</button><button class="go-btn" onclick="nav('scanner.html')">GO →</button></div></div>
+    <div class="page-row"><div class="page-left"><div class="page-icon">⭐</div><div class="page-name">WATCHLIST</div></div><div class="page-btns"><button class="edit-btn" onclick="openInject('Watchlist','watchlist.html')">✏ INJECT</button><button class="go-btn" onclick="nav('watchlist.html')">GO →</button></div></div>
+    <div class="page-row"><div class="page-left"><div class="page-icon">⚙</div><div class="page-name">MASTER CONTROL</div></div><div class="page-btns"><button class="edit-btn" onclick="openInject('Master Control','mastercontrol.html')">✏ INJECT</button><button class="go-btn" onclick="toast('Already here!')">GO →</button></div></div>
+  </div>
 
-    <nav>
-        <a href="home.html" class="n-tab"><i class="fas fa-home"></i>HOME</a>
-        <a href="signal.html" class="n-tab"><i class="fas fa-satellite-dish"></i>SIGNAL</a>
-        <a href="chart.html" class="n-tab"><i class="fas fa-chart-bar"></i>CHART</a>
-        <a href="watchlist.html" class="n-tab"><i class="fas fa-list-ul"></i>LIST</a>
-        <a href="control.html" class="n-tab active"><i class="fas fa-cog"></i>ADMIN</a>
-    </nav>
+  <!-- THEME -->
+  <div id="theme-card">
+    <div class="sec-hdr" style="border:none;padding:0 0 4px;">🎨 THEME ENGINE</div>
+    <div class="theme-row">
+      <div class="theme-opt th-night selected" id="th-night" onclick="setTheme('night')">
+        <div class="th-icon">🌙</div><div class="th-lbl">NIGHT</div><div class="th-desc">Dark Gold Premium</div>
+      </div>
+      <div class="theme-opt th-day" id="th-day" onclick="setTheme('day')">
+        <div class="th-icon">☀</div><div class="th-lbl">DAY</div><div class="th-desc">High Contrast White</div>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        function editSettings(section) {
-            let msg = prompt(section + " में क्या डेटा बदलना चाहते हैं?");
-            if(msg) alert(section + " का डेटा अपडेट किया जा रहा है...");
-        }
-    </script>
-</body>
-          </html>
-          
+  <!-- NOTIFICATIONS -->
+  <div id="notif-card">
+    <div class="sec-hdr" style="border:none;padding:0 0 4px;">🔔 NOTIFICATIONS & ALERTS</div>
+    <!-- WhatsApp -->
+    <div class="notif-row">
+      <div class="notif-left"><div class="notif-icon">💬</div><div><div class="notif-name">WhatsApp</div><div class="notif-desc">Trade alerts on WhatsApp</div></div></div>
+      <label class="toggle"><input type="checkbox" id="wa-chk" onchange="toggleNotif('wa')"/><span class="tslider"></span></label>
+    </div>
+    <input class="notif-inp" id="wa-inp" placeholder="WhatsApp: +91 XXXXX XXXXX"/>
+    <button class="send-btn" id="wa-btn" onclick="sendAlert('whatsapp','wa')">📤 Send Test via WhatsApp</button>
+    <!-- Telegram -->
+    <div class="notif-row">
+      <div class="notif-left"><div class="notif-icon">✈</div><div><div class="notif-name">Telegram</div><div class="notif-desc">Alerts via Telegram Bot</div></div></div>
+      <label class="toggle"><input type="checkbox" id="tg-chk" onchange="toggleNotif('tg')"/><span class="tslider"></span></label>
+    </div>
+    <input class="notif-inp" id="tg-inp" placeholder="Telegram Chat ID or @username"/>
+    <button class="send-btn" id="tg-btn" onclick="sendAlert('telegram','tg')">📤 Send Test via Telegram</button>
+    <!-- SMS -->
+    <div class="notif-row">
+      <div class="notif-left"><div class="notif-icon">📱</div><div><div class="notif-name">SMS</div><div class="notif-desc">Trade alerts via SMS</div></div></div>
+      <label class="toggle"><input type="checkbox" id="sms-chk" onchange="toggleNotif('sms')"/><span cl
