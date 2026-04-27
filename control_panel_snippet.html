@@ -1,0 +1,161 @@
+<!--
+============================================================
+RAKSHA CONTROL PANEL UI - Watchdog + Tracker Dashboard
+File: control_panel_snippet.html
+============================================================
+Ye snippet 6_control_panel.html ke <body> ke andar paste karo.
+Yellow Dark theme (Trishul) ke saath compatible.
+
+Required scripts (HEAD mein):
+  <script src="raksha-core.js"></script>
+  <script src="raksha-watchdog.js"></script>
+  <script src="raksha-tracker.js"></script>
+============================================================
+-->
+
+<style>
+  .raksha-panel { background:#0a0a0a; color:#f5f5f5; font-family:system-ui; padding:16px; border-radius:12px; }
+  .raksha-panel h2 { color:#FFD700; margin:0 0 12px; font-size:18px; border-bottom:1px solid #333; padding-bottom:8px; }
+  .health-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+  .health-card { background:#1a1a1a; padding:10px; border-radius:8px; border-left:3px solid #555; }
+  .health-card.ok       { border-left-color:#22c55e; }
+  .health-card.warn     { border-left-color:#f59e0b; }
+  .health-card.down     { border-left-color:#ef4444; }
+  .health-card .label   { font-size:11px; color:#999; text-transform:uppercase; }
+  .health-card .value   { font-size:14px; font-weight:600; margin-top:4px; }
+  .scanner-row { display:grid; grid-template-columns:1.4fr 0.6fr 0.6fr 1fr 0.5fr; gap:6px; padding:8px; background:#1a1a1a; border-radius:6px; margin-bottom:4px; align-items:center; font-size:12px; }
+  .scanner-row.trusted   { border-left:3px solid #22c55e; }
+  .scanner-row.good      { border-left:3px solid #84cc16; }
+  .scanner-row.evaluating{ border-left:3px solid #f59e0b; }
+  .scanner-row.weak      { border-left:3px solid #f97316; }
+  .scanner-row.disabled  { border-left:3px solid #ef4444; opacity:0.6; }
+  .scanner-row .name     { font-weight:600; color:#FFD700; }
+  .scanner-row .winrate  { font-size:14px; font-weight:700; }
+  .scanner-row .verdict  { font-size:11px; color:#aaa; }
+  .scanner-row button    { background:#333; color:#fff; border:0; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; }
+  .repair-log { max-height:140px; overflow-y:auto; background:#0f0f0f; padding:8px; border-radius:6px; font-family:monospace; font-size:11px; }
+  .repair-log .ok  { color:#22c55e; }
+  .repair-log .err { color:#ef4444; }
+  .pulse { display:inline-block; width:8px; height:8px; border-radius:50%; background:#22c55e; animation:pulse 1.5s infinite; margin-right:6px; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+</style>
+
+<!-- ========== WATCHDOG STATUS ========== -->
+<section class="raksha-panel">
+  <h2><span class="pulse"></span>System Health <small id="lastCheck" style="color:#666;font-weight:normal;font-size:11px;float:right"></small></h2>
+  <div class="health-grid">
+    <div class="health-card" id="hcBackend">
+      <div class="label">Backend API</div>
+      <div class="value">--</div>
+    </div>
+    <div class="health-card" id="hcWS">
+      <div class="label">Live Stream</div>
+      <div class="value">--</div>
+    </div>
+    <div class="health-card" id="hcSession">
+      <div class="label">Broker Session</div>
+      <div class="value">--</div>
+    </div>
+    <div class="health-card" id="hcStorage">
+      <div class="label">Storage</div>
+      <div class="value">--</div>
+    </div>
+  </div>
+
+  <h2>🔧 Recent Self-Repair Actions</h2>
+  <div class="repair-log" id="repairLog">koi repair abhi tak nahi...</div>
+</section>
+
+<!-- ========== SCANNER ACCURACY ========== -->
+<section class="raksha-panel" style="margin-top:12px">
+  <h2>📊 Scanner Performance Ranking</h2>
+  <div style="display:grid;grid-template-columns:1.4fr 0.6fr 0.6fr 1fr 0.5fr;gap:6px;padding:6px;font-size:10px;color:#666;text-transform:uppercase">
+    <span>Scanner</span><span>Win %</span><span>Trades</span><span>Verdict</span><span></span>
+  </div>
+  <div id="rankingList"></div>
+  <div style="margin-top:12px;display:flex;gap:8px">
+    <button onclick="Raksha.Tracker.evaluateNow()" style="flex:1;padding:10px;background:#FFD700;color:#000;border:0;border-radius:6px;font-weight:600">Evaluate Now</button>
+    <button onclick="if(confirm('Saari history clear?'))Raksha.Tracker.resetAll()" style="padding:10px;background:#ef4444;color:#fff;border:0;border-radius:6px">Reset</button>
+  </div>
+</section>
+
+<!-- ========== SCRIPT ========== -->
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function setCard(id, status, value, sub) {
+    const el = $(id);
+    el.className = 'health-card ' + (status === 'ok' ? 'ok' : status === 'down' ? 'down' : 'warn');
+    el.querySelector('.value').innerHTML = `${value}${sub ? `<div style="font-size:10px;color:#888;margin-top:2px">${sub}</div>` : ''}`;
+  }
+
+  function renderHealth() {
+    const h = Raksha.Watchdog.Health;
+    const fmt = (ms) => ms ? new Date(ms).toLocaleTimeString() : '--';
+
+    setCard('hcBackend',
+      h.backend.status,
+      h.backend.status === 'ok' ? `✓ ${h.backend.latencyMs || '?'}ms` : '✗ Down',
+      `Last OK: ${fmt(h.backend.lastOk)}`
+    );
+    setCard('hcWS',
+      h.websocket.status,
+      h.websocket.status === 'ok' ? '✓ Streaming' : h.websocket.status === 'stale' ? '⚠ Stale' : 'Idle',
+      `Last tick: ${fmt(h.websocket.lastTick)}`
+    );
+    setCard('hcSession',
+      h.session.status,
+      h.session.status === 'ok' ? '✓ Active' :
+      h.session.status === 'expiring' ? '⚠ Expiring' :
+      h.session.status === 'logged_out' ? '✗ Logged out' : 'Unknown',
+      Raksha.Session.broker?.name || ''
+    );
+    setCard('hcStorage',
+      h.storage?.status || 'unknown',
+      `${h.storage?.usedKB || 0} KB`,
+      'localStorage'
+    );
+
+    $('lastCheck').textContent = `Last check: ${fmt(h.lastCheck)}`;
+    renderRepairs(h.repairs || []);
+  }
+
+  function renderRepairs(repairs) {
+    if (!repairs.length) { $('repairLog').textContent = 'koi repair abhi tak nahi...'; return; }
+    $('repairLog').innerHTML = repairs.slice(0, 12).map(r =>
+      `<div class="${r.success ? 'ok' : 'err'}">[${new Date(r.ts).toLocaleTimeString()}] ${r.success?'✓':'✗'} ${r.action} - ${r.detail}</div>`
+    ).join('');
+  }
+
+  function renderRanking() {
+    const rank = Raksha.Tracker.getRanking();
+    if (!rank.length) {
+      $('rankingList').innerHTML = '<div style="padding:16px;text-align:center;color:#666">Abhi tak koi signal evaluate nahi hua. Trade signals aane par yahan ranking dikhegi.</div>';
+      return;
+    }
+    $('rankingList').innerHTML = rank.map(r => `
+      <div class="scanner-row ${r.status}">
+        <span class="name">${r.name.replace(/_/g, ' ')}</span>
+        <span class="winrate">${r.winRate}%</span>
+        <span>${r.wins}W / ${r.losses}L</span>
+        <span class="verdict">${r.verdict}</span>
+        <span>
+          ${r.status === 'disabled'
+            ? `<button onclick="Raksha.Tracker.enableScanner('${r.name}');renderRanking()">Enable</button>`
+            : `<button onclick="if(confirm('Reset ${r.name}?'))Raksha.Tracker.resetScanner('${r.name}')">Reset</button>`
+          }
+        </span>
+      </div>
+    `).join('');
+  }
+
+  // Initial render + live updates
+  renderHealth(); renderRanking();
+  Raksha.Bus.on('watchdog:cycle',    renderHealth);
+  Raksha.Bus.on('watchdog:repair',   renderHealth);
+  Raksha.Bus.on('tracker:stats',     renderRanking);
+  Raksha.Bus.on('tracker:evaluated', renderRanking);
+
+  // 30s pe forced refresh (in case events miss ho)
+  setInterval(() => { renderHealth(); renderRanking(); }, 30000);
+</script>
