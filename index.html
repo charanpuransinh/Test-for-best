@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>🔱 Trishul Pro — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Rajdhani',sans-serif;}
+:root{--gold:#f5c518;--g2:#c9a000;--g3:#fde047;--bg:#000;--b2:#0a0a0a;--b3:#121212;--br:#222;--bg2:#3d3000;--tx:#eee;--dm:#888;--gn:#00c853;--rd:#ff3d3d;--or:#ff6d00;}
+html,body{height:100%;background:#000;overflow:hidden;}
+
+/* Subtle grid backdrop */
+body::before{content:"";position:fixed;inset:0;background-image:radial-gradient(rgba(245,197,24,.04) 1px,transparent 1px);background-size:22px 22px;pointer-events:none;z-index:0;}
+body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(245,197,24,.08),transparent 60%);pointer-events:none;z-index:0;}
+
+.wrap{width:100%;max-width:430px;height:100vh;height:100dvh;margin:0 auto;display:flex;flex-direction:column;border:2px solid var(--gold);background:#000;position:relative;z-index:1;box-shadow:0 0 40px rgba(245,197,24,.12);}
+.sc{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;}
+.sc::-webkit-scrollbar{display:none;}
+
+/* HEADER */
+.lhd{text-align:center;padding:16px 0 10px;background:linear-gradient(180deg,rgba(245,197,24,.09),transparent);border-bottom:1px solid rgba(245,197,24,.12);}
+.trisym{font-size:38px;display:block;animation:fl 3s ease-in-out infinite;filter:drop-shadow(0 0 12px rgba(245,197,24,.5));}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.brand{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold);letter-spacing:5px;text-shadow:0 0 18px rgba(245,197,24,.35);}
+.sub{font-size:9px;color:var(--dm);letter-spacing:2.5px;margin-top:3px;}
+
+/* TABS */
+.tabs{display:flex;margin:10px 12px 0;border:1px solid var(--bg2);background:var(--b2);}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:700;color:var(--dm);cursor:pointer;letter-spacing:1.2px;border:none;background:none;transition:all .2s;}
+.tab.on{background:linear-gradient(135deg,var(--g2),var(--gold));color:#000;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2);}
+.tab:not(.on):active{background:rgba(245,197,24,.08);}
+
+/* FORM */
+.form-wrap{padding:8px 12px;}
+.flbl{font-size:9px;color:var(--dm);letter-spacing:1.5px;display:block;margin-bottom:4px;margin-top:9px;}
+.fi{position:relative;}
+.fi .ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;}
+.fi input,.fi select{width:100%;background:var(--b3);border:1px solid var(--bg2);padding:10px 10px 10px 32px;color:var(--tx);font-size:12px;outline:none;transition:all .2s;}
+.fi input:focus,.fi select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,24,.1);}
+.fi input::placeholder{color:#444;}
+.fi select{appearance:none;cursor:pointer;}
+.arr{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--dm);pointer-events:none;font-size:10px;}
+
+/* BROKERS GRID */
+.broker-ttl{font-size:9px;color:var(--gold);letter-spacing:2.5px;font-weight:700;padding:10px 12px 6px;border-bottom:1px solid var(--bg2);background:linear-gradient(90deg,rgba(245,197,24,.04),transparent);}
+.broker-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:6px 12px;}
+.bk-card{background:var(--b2);border:1px solid var(--br);padding:11px 8px;cursor:pointer;text-align:center;position:relative;transition:all .2s;}
+.bk-card.sel{border-color:var(--gold);background:#0d0b00;box-shadow:0 0 0 1px var(--gold) inset,0 0 16px rgba(245,197,24,.18);}
+.bk-card:active{border-color:var(--gold);transform:scale(.98);}
+.bk-ico{font-size:19px;margin-bottom:3px;}
+.bk-nm{font-size:11px;font-weight:700;color:var(--tx);letter-spacing:.3px;}
+.bk-tag{font-size:8px;color:var(--dm);letter-spacing:.5px;}
+.bk-con{position:absolute;top:5px;right:6px;font-size:9px;color:var(--gn);display:none;}
+.bk-card.connected .bk-con{display:block;}
+.bk-card.connected{border-color:rgba(0,200,83,.4);}
+
+/* BROKER DETAIL PANEL */
+.bk-panel{background:var(--b2);border:1px solid var(--gold);margin:0 12px 8px;padding:13px;display:none;box-shadow:0 0 24px rgba(245,197,24,.1);}
+.bk-panel.show{display:block;animation:slideDown .25s ease-out;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.bk-ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bg2);}
+.bk-pnm{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--gold);letter-spacing:1px;}
+.bk-pst{font-size:9px;display:flex;align-items:center;gap:5px;}
+.bkdot{width:7px;height:7px;border-radius:50%;background:#333;flex-shrink:0;}
+.bkdot.on{background:var(--gn);box-shadow:0 0 8px var(--gn);animation:bk 1s infinite;}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.4}}
+.api-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.api-field label{font-size:8px;color:var(--dm);letter-spacing:1.2px;display:block;margin-bottom:3px;}
+.api-field input{width:100%;background:#050505;border:1px solid var(--br);padding:8px 9px;color:var(--tx);font-size:10px;outline:none;font-family:'Courier New',monospace;transition:all .2s;}
+.api-field input:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(245,197,24,.1);}
+.api-field input::placeholder{color:#333;}
+.full{grid-column:span 2;}
+.tok-row{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:7px;}
+.tok-row input{background:#050505;border:1px solid var(--br);padding:8px 9px;color:var(--tx);font-size:10px;outline:none;font-family:'Courier New',monospace;width:100%;}
+.gen-btn{background:linear-gradient(135deg,var(--g2),var(--gold));border:none;color:#000;padding:7px 11px;font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap;letter-spacing:.5px;}
+.gen-btn:active{transform:scale(.96);}
+.con-btn{width:100%;margin-top:9px;padding:10px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1.5px;background:var(--b3);border:1px solid var(--bg2);color:var(--gold);transition:all .2s;}
+.con-btn:active{background:rgba(245,197,24,.08);}
+.con-btn.done{background:#002a14;border-color:var(--gn);color:var(--gn);}
+
+/* LOGIN MAIN */
+.login-btn{width:100%;background:linear-gradient(135deg,var(--g2),var(--gold) 50%,var(--g3));color:#000;border:none;padding:13px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:2.5px;margin-top:11px;box-shadow:0 4px 16px rgba(245,197,24,.25);transition:all .2s;}
+.login-btn:active{transform:translateY(1px);box-shadow:0 2px 8px rgba(245,197,24,.2);}
+.div-row{display:flex;align-items:center;gap:10px;margin:10px 12px;}
+.dl{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--br),transparent);}
+.dt{font-size:9px;color:var(--dm);letter-spacing:2px;}
+.alt-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 12px;}
+.alt-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--b3);border:1px solid var(--br);padding:11px;color:var(--tx);font-size:12px;cursor:pointer;font-weight:600;transition:all .2s;}
+.alt-btn:active{border-color:var(--gold);background:rgba(245,197,24,.05);}
+.bio-box{display:flex;align-items:center;gap:13px;background:var(--b2);border:1px solid var(--bg2);padding:11px 14px;cursor:pointer;margin:7px 12px;transition:all .2s;}
+.bio-box:active{border-color:var(--gold);}
+.bio-btn{width:46px;height:46px;background:#000;border:2px solid var(--bg2);display:flex;align-items:center;justify-content:center;font-size:23px;animation:bp 2.5s ease-in-out infinite;border-radius:50%;}
+@keyframes bp{0%,100%{box-shadow:0 0 0 0 rgba(245,197,24,.35)}50%{box-shadow:0 0 0 10px rgba(245,197,24,0)}}
+.panic-btn{width:calc(100% - 24px);margin:7px 12px;background:linear-gradient(135deg,#8b0000,var(--rd));color:#fff;border:none;padding:12px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:2.5px;animation:pp 2s ease-in-out infinite;}
+@keyframes pp{0%,100%{box-shadow:0 4px 18px rgba(255,61,61,.25)}50%{box-shadow:0 4px 26px rgba(255,61,61,.55)}}
+.secure{text-align:center;padding:9px;font-size:9px;color:var(--dm);display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;letter-spacing:.5px;}
+.sdot{width:6px;height:6px;background:var(--gn);border-radius:50%;box-shadow:0 0 6px var(--gn);animation:bk 1s infinite;}
+
+/* LOAD */
+.lov{position:fixed;inset:0;background:rgba(0,0,0,.96);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:999;backdrop-filter:blur(4px);}
+.lov.sh{display:flex;}
+.sp{width:44px;height:44px;border:3px solid #222;border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ltxt{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--gold);letter-spacing:2.5px;}
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);background:var(--b3);border:1px solid var(--gold);padding:9px 18px;font-size:11px;color:var(--tx);z-index:9999;display:none;white-space:nowrap;box-shadow:0 4px 20px rgba(245,197,24,.2);}
+.toast.sh{display:block;animation:slideDown .25s ease-out;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="sc">
+  <div class="lhd">
+    <span class="trisym">🔱</span>
+    <div class="brand">MAA AADISHAKTI</div>
+    <div class="sub">TRISHUL PRO · INDIAN MARKET · 2026</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="setTab('login',this)">🔐 LOGIN</button>
+    <button class="tab" onclick="setTab('register',this)">📝 REGISTER</button>
+    <button class="tab" onclick="setTab('broker',this)">🏦 BROKER</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="t_login" class="form-wrap">
+    <label class="flbl">PHONE / EMAIL</label>
+    <div class="fi"><span class="ico">📱</span><input type="text" placeholder="+91 XXXXX or email" value="9800000000"></div>
+    <label class="flbl">PASSWORD</label>
+    <div class="fi"><span class="ico">🔒</span><input type="password" placeholder="Password" value="demo123"></div>
+    <label class="flbl">SELECT BROKER</label>
+    <div class="fi"><span class="ico">🏦</span>
+      <select id="lb">
+        <option>Shoonya (Finvasia)</option><option>Zerodha (Kite)</option><option>Angel One</option>
+        <option>Upstox</option><option>Kotak Securities</option><option>ICICI Direct</option>
+        <option>HDFC Sky</option><option>Dhan</option><option>Motilal Oswal</option><option>Groww</option>
+      </select><span class="arr">▼</span>
+    </div>
+    <button class="login-btn" onclick="doLogin()">🔱 LOGIN</button>
+    <div class="div-row"><div class="dl"></div><div class="dt">OR</div><div class="dl"></div></div>
+    <div class="alt-row">
+      <button class="alt-btn" onclick="doBio()"><svg width="14" height="14" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Gmail</button>
+      <button class="alt-btn" onclick="doBio()">👆 Biometric</button>
+    </div>
+    <div class="bio-box" onclick="doBio()">
+      <div class="bio-btn">👆</div>
+      <div><div style="font-size:13px;font-weight:700">TOUCH TO UNLOCK</div><div style="font-size:10px;color:var(--dm)">Fingerprint / Face ID</div></div>
+    </div>
+    <button class="panic-btn" onclick="panicExit()">🚨 PANIC EXIT — सब CLOSE</button>
+    <div class="secure"><div class="sdot"></div><span>Biometric · TOTP · Broker API · AWS Mumbai · Gemini AI</span></div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="t_register" class="form-wrap" style="display:none">
+    <label class="flbl">FULL NAME</label>
+    <div class="fi"><span class="ico">👤</span><input type="text" placeholder="Apna naam"></div>
+    <label class="flbl">PHONE</label>
+    <div class="fi"><span class="ico">📱</span><input type="tel" placeholder="+91 XXXXX XXXXX"></div>
+    <label class="flbl">EMAIL</label>
+    <div class="fi"><span class="ico">✉️</span><input type="email" placeholder="your@email.com"></div>
+    <label class="flbl">PASSWORD</label>
+    <div class="fi"><span class="ico">🔒</span><input type="password" placeholder="Strong password"></div>
+    <label class="flbl">CONFIRM PASSWORD</label>
+    <div class="fi"><span class="ico">🔒</span><input type="password" placeholder="Repeat password"></div>
+    <button class="login-btn" onclick="doReg()">📝 REGISTER NOW</button>
+    <div style="height:10px"></div>
+  </div>
+
+  <!-- BROKER -->
+  <div id="t_broker" style="display:none">
+    <div class="broker-ttl">🏦 SELECT BROKER — TAP TO CONFIGURE</div>
+    <div class="broker-grid" id="bkGrid"></div>
+    <div class="bk-panel" id="bkPanel">
+      <div class="bk-ph">
+        <div class="bk-pnm" id="bkPnm">SHOONYA</div>
+        <div class="bk-pst"><div class="bkdot" id="bkDot"></div><span id="bkSt" style="font-size:9px;color:var(--dm)">Not Connected</span></div>
+      </div>
+      <div class="api-grid">
+        <div class="api-field"><label>USER ID / CLIENT ID</label><input id="aUid" placeholder="FA12345 / AB1234"></div>
+        <div class="api-field"><label>PASSWORD</label><input type="password" id="aPwd" placeholder="••••••••"></div>
+        <div class="api-field"><label>API KEY</label><input id="aKey" placeholder="Enter API Key"></div>
+        <div class="api-field"><label>API SECRET</label><input type="password" id="aSec" placeholder="Secret Key"></div>
+        <div class="api-field full"><label>VENDOR CODE (optional)</label><input id="aVend" placeholder="Vendor/App Code"></div>
+        <div class="api-field full"><label>TOTP SECRET (2FA)</label><input id="aTotp" placeholder="Base32 TOTP Secret"></div>
+      </div>
+      <div class="tok-row">
+        <input id="aTok" placeholder="Access Token (auto-generated)">
+        <button class="gen-btn" onclick="genToken()">🔑 GET TOKEN</button>
+      </div>
+      <button class="con-btn" id="conBtn" onclick="connectBroker()">🔗 CONNECT BROKER</button>
+    </div>
+
+    <div class="broker-ttl" style="margin-top:4px">⚙️ TRADING SETTINGS</div>
+    <div class="form-wrap" style="padding-top:4px">
+      <label class="flbl">DEFAULT QTY</label>
+      <div class="fi"><span class="ico">📊</span><input type="number" placeholder="Quantity" value="1"></div>
+      <label class="flbl">MAX RISK PER TRADE (%)</label>
+      <div class="fi"><span class="ico">🛡</span><input type="number" placeholder="e.g. 2" value="2"></div>
+      <label class="flbl">PRODUCT TYPE</label>
+      <div class="fi"><span class="ico">📋</span>
+        <select><option>MIS (Intraday)</option><option>NRML (Overnight)</option><option>CNC (Delivery)</option></select>
+        <span class="arr">▼</span>
+      </div>
+      <button class="login-btn" onclick="saveSett()">💾 SAVE ALL SETTINGS</button>
+      <div style="height:12px"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="lov" id="lov"><div class="sp"></div><div class="ltxt" id="ltxt">VERIFYING...</div></div>
+<div class="toast" id="toast"></div>
+<script>
+const BROKERS=[
+  {id:'shoonya',nm:'Shoonya',ico:'⚡',tag:'Finvasia'},
+  {id:'zerodha',nm:'Zerodha',ico:'🟢',tag:'Kite Connect'},
+  {id:'angel',nm:'Angel One',ico:'😇',tag:'SmartAPI'},
+  {id:'upstox',nm:'Upstox',ico:'🔵',tag:'Upstox API v2'},
+  {id:'kotak',nm:'Kotak',ico:'🔴',tag:'Neo API'},
+  {id:'icici',nm:'ICICI Direct',ico:'🟠',tag:'Breeze API'},
+  {id:'hdfc',nm:'HDFC Sky',ico:'🔷',tag:'Sky API'},
+  {id:'dhan',nm:'Dhan',ico:'💙',tag:'DhanHQ API'},
+  {id:'motilal',nm:'Motilal',ico:'🟡',tag:'MO API'},
+  {id:'groww',nm:'Groww',ico:'🌱',tag:'Groww API'},
+];
+let selBroker=null,conStatus={};
+
+function renderBrokers(){
+  document.getElementById('bkGrid').innerHTML=BROKERS.map((b,i)=>`
+    <div class="bk-card${conStatus[b.id]?' connected':''}" onclick="selBrok(${i})">
+      <div class="bk-con">✅</div>
+      <div class="bk-ico">${b.ico}</div>
+      <div class="bk-nm">${b.nm}</div>
+      <div class="bk-tag">${b.tag}</div>
+    </div>`).join('');
+}
+function selBrok(i){
+  selBroker=BROKERS[i];
+  document.querySelectorAll('.bk-card').forEach((c,j)=>c.classList.toggle('sel',j===i));
+  document.getElementById('bkPnm').textContent=selBroker.ico+' '+selBroker.nm.toUpperCase()+' — '+selBroker.tag;
+  const dot=document.getElementById('bkDot'),st=document.getElementById('bkSt');
+  if(conStatus[selBroker.id]){dot.classList.add('on');st.textContent='Connected ✅';st.style.color='var(--gn)';}
+  else{dot.classList.remove('on');st.textContent='Not Connected';st.style.color='var(--dm)';}
+  document.getElementById('bkPanel').classList.add('show');
+  document.getElementById('bkPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function genToken(){
+  if(!document.getElementById('aUid').value){showToast('⚠️ Enter User ID first');return;}
+  showLoad('🔑 GENERATING TOKEN...');
+  setTimeout(()=>{hideLoad();document.getElementById('aTok').value='TK'+Math.random().toString(36).substr(2,18).toUpperCase();showToast('✅ Token generated!');},1500);
+}
+function connectBroker(){
+  if(!document.getElementById('aUid').value){showToast('⚠️ Enter User ID');return;}
+  showLoad('🔗 CONNECTING '+selBroker.nm.toUpperCase()+'...');
+  setTimeout(()=>{
+    hideLoad();conStatus[selBroker.id]=true;
+    document.getElementById('bkDot').classList.add('on');
+    document.getElementById('bkSt').textContent='Connected ✅';
+    document.getElementById('bkSt').style.color='var(--gn)';
+    document.getElementById('conBtn').className='con-btn done';
+    document.getElementById('conBtn').textContent='✅ '+selBroker.nm.toUpperCase()+' CONNECTED';
+    renderBrokers();showToast('✅ '+selBroker.nm+' connected!');
+  },2000);
+}
+function saveSett(){showLoad('💾 SAVING...');setTimeout(()=>{hideLoad();showToast('✅ Settings saved!');},1000);}
+function setTab(t,el){
+  ['login','register','broker'].forEach(x=>{document.getElementById('t_'+x).style.display='none';});
+  document.getElementById('t_'+t).style.display='block';
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
+function doLogin(){
+  showLoad('🔐 LAYER 1 — BIOMETRIC...');
+  setTimeout(()=>{showLoad('🔐 LAYER 2 — TOTP...');
+  setTimeout(()=>{showLoad('🔐 LAYER 3 — BROKER...');
+  setTimeout(()=>{hideLoad();window.location.href='page2_home.html';},700);},700);},700);
+}
+function doReg(){showLoad('📝 REGISTERING...');setTimeout(()=>{hideLoad();showToast('✅ Done! Login karo');setTab('login',document.querySelectorAll('.tab')[0]);},1500);}
+function doBio(){showLoad('👆 BIOMETRIC SCAN...');setTimeout(()=>{hideLoad();window.location.href='page2_home.html';},1200);}
+function panicExit(){if(confirm('🚨 PANIC EXIT — All positions close?'))showToast('🚨 All CLOSED!');}
+function showLoad(t){document.getElementById('ltxt').textContent=t;document.getElementById('lov').classList.add('sh');}
+function hideLoad(){document.getElementById('lov').classList.remove('sh');}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('sh');setTimeout(()=>t.classList.remove('sh'),2500);}
+renderBrokers();
+</script>
+</body>
+</html>
