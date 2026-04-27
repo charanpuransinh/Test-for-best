@@ -1,0 +1,85 @@
+<!-- POWER PAGE -->
+<div class="page" id="page-power">
+  <div class="topbar">
+    <div class="tb-title">⚡ POWER CONTROL</div>
+    <div class="tb-pill"><div class="live-dot"></div>HYBRID</div>
+  </div>
+  <div class="pw-main">
+    <div class="pb">
+      <div class="pb-head">
+        <div class="pb-ttl">⚡ POWER BOX — HYBRID</div>
+        <span class="prob-c" id="probChip">85%</span>
+      </div>
+      <div class="pb-body">
+        <div class="modes">
+          <div class="mode active" id="m_average" onclick="setMode('average')"><div class="mode-i">📊</div><div class="mode-n">AVERAGE</div></div>
+          <div class="mode" id="m_intraday" onclick="setMode('intraday')"><div class="mode-i">🔵</div><div class="mode-n">INTRADAY</div></div>
+          <div class="mode" id="m_intradayfixed" onclick="setMode('intradayfixed')"><div class="mode-i">🟠</div><div class="mode-n">FIXED</div></div>
+          <div class="mode" id="m_scalp" onclick="setMode('scalp')"><div class="mode-i">⚡</div><div class="mode-n">SCALP</div></div>
+        </div>
+        <div class="inp-row">
+          <input class="inp" id="iName" value="EUR/USD"/>
+          <input class="inp" id="iPrice" value="1.0845" type="number" step="0.0001"/>
+          <input class="inp" id="iATR" value="0.0035" type="number" step="0.0001"/>
+          <input class="inp" id="iAvgV" value="10" type="number"/>
+          <input class="inp" id="iCurV" value="18" type="number"/>
+          <input class="inp" id="iQty" value="100000" type="number"/>
+          <button class="run-btn" onclick="runPower()">⚡ RUN</button>
+        </div>
+        <div class="cdl">
+          <input class="inp" id="iCL" value="1.0820" type="number" step="0.0001" placeholder="Low"/>
+          <input class="inp" id="iCH" value="1.0870" type="number" step="0.0001" placeholder="High"/>
+        </div>
+        <div class="res">
+          <div class="res-l">
+            <div class="res-stk" id="rStock">👁 EUR/USD</div>
+            <div class="res-md" id="rMode">AVERAGE MODE</div>
+            <div class="bars">
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            </div>
+            <div class="res-sig cg" id="rSig">✅ NORMAL</div>
+            <div class="prob">
+              <div class="prob-l">PROBABILITY</div>
+              <div class="prob-bar"><div class="prob-fill" id="probFill" style="width:85%"></div></div>
+            </div>
+          </div>
+          <div class="ee">
+            <div class="ee-c" style="border-color:var(--gold)"><div class="ee-l co">ENTRY</div><div class="ee-v co" id="vEntry">$1.0845</div></div>
+            <div class="ee-c" style="border-color:var(--red)"><div class="ee-l" style="color:var(--red)">STOP LOSS</div><div class="ee-v" style="color:var(--red)" id="vSL">$1.0810</div></div>
+            <div class="ee-c" style="border-color:var(--green)"><div class="ee-l cg">TARGET</div><div class="ee-v cg" id="vT1">$1.0890</div></div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="st"><div class="st-l">💰 P&L</div><div class="st-v cg">+$0</div></div>
+          <div class="st"><div class="st-l">📊 POS</div><div class="st-v co" id="posSize">$108K</div></div>
+          <div class="st"><div class="st-l">🎯 RR</div><div class="st-v co" id="rrLive">1:1.2</div></div>
+        </div>
+        <button class="pop-btn" onclick="toast('🚀 Full Signal — coming')">🚀 FULL SIGNAL POPUP</button>
+      </div>
+    </div>
+    <div class="meters">
+      <div class="met">
+        <div class="met-h">🛡 SECURE</div>
+        <div class="met-b">
+          <div class="met-v" id="secVal">72%</div>
+          <div class="met-bd b-buy">✅ BUY</div>
+        </div>
+      </div>
+      <div class="met">
+        <div class="met-h">📊 VOLUME</div>
+        <div class="met-b">
+          <div class="met-v" id="volVal">2.1x</div>
+          <div class="met-bd b-buy">🚀 SPIKE</div>
+        </div>
+      </div>
+      <div class="met">
+        <div class="met-h">⏱ TIMEFRAME</div>
+        <div class="met-b">
+          <div style="font-size:9px;color:var(--green);font-weight:800">5M ↑ BULL</div>
+          <div style="font-size:9px;color:var(--green);font-weight:800">15M ↑ BULL</div>
+          <div style="font-size:9px;color:var(--red);font-weight:800">30M ↓ BEAR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

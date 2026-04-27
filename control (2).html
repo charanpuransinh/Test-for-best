@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trinetra Master Control</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --card: #111111;
+            --gold: #ffcf00;
+            --text-main: #ffffff;
+            --border: #ffcf00;
+            --blue: #0056b3;
+            --red: #8b0000;
+            --nav-bg: #000000;
+        }
+
+        .light-mode {
+            --bg: #ffffff;
+            --card: #f8f9fa;
+            --gold: #ffcf00;
+            --text-main: #000000;
+            --border: #ffcf00;
+            --blue: #007bff;
+            --red: #dc3545;
+            --nav-bg: #f1f1f1;
+        }
+
+        * { border-radius: 0 !important; margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: sans-serif;
+            padding: 12px;
+            transition: 0.3s;
+            padding-bottom: 80px; /* Space for Bottom Nav */
+        }
+
+        /* 1. प्रोफाइल कार्ड */
+        .profile-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .info-group { display: flex; flex-direction: column; gap: 2px; }
+        .id-label { font-weight: 800; color: var(--gold); font-size: 1rem; }
+        .phone-email { font-size: 0.75rem; opacity: 0.8; }
+
+        .theme-btn {
+            background: var(--gold);
+            color: black;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.7rem;
+        }
+
+        /* 2. P&L समरी कार्ड */
+        .summary-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .tabs { display: flex; gap: 5px; margin-bottom: 12px; }
+        .tab {
+            flex: 1; padding: 10px; font-size: 0.7rem;
+            background: #222; border: none; color: var(--gold);
+            cursor: pointer; font-weight: 800;
+        }
+        .tab.active { background: var(--gold); color: black; }
+
+        .pnl-row { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+        .pnl-value { color: #00ff41; font-weight: 900; font-size: 1.2rem; }
+        .bot-stats { font-size: 0.8rem; opacity: 0.8; margin-top: 8px; }
+
+        /* 3. कंट्रोल एडिटर */
+        .control-grid { border: 1px solid var(--border); }
+        .edit-item {
+            background: var(--card);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        .item-name { font-size: 0.85rem; font-weight: 700; }
+
+        .change-btn {
+            background-color: var(--blue);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 800;
+            width: 100px;
+            height: 35px;
+        }
+
+        /* 4. लॉगआउट बटन */
+        .exit-btn {
+            width: 100%;
+            height: 50px;
+            background-color: var(--red);
+            color: white;
+            border: none;
+            margin-top: 15px;
+            font-weight: 900;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* BOTTOM NAVIGATION - 5 Tabs */
+        nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            height: 70px; background: var(--nav-bg);
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            border-top: 1px solid #333; z-index: 1000;
+        }
+        .n-tab {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; color: #666;
+            text-decoration: none; font-size: 10px; font-weight: 700;
+        }
+        .n-tab i { font-size: 20px; margin-bottom: 4px; }
+        .n-tab.active { color: var(--gold); }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="profile-card">
+        <div class="info-group">
+            <span class="id-label">ID: CLIENT001</span>
+            <span class="phone-email">📞 +91 98XXX XXXXX</span>
+            <span class="phone-email">📧 user@trinetra.ai</span>
+        </div>
+        <button onclick="document.body.classList.toggle('light-mode')" class="theme-btn">MODE</button>
+    </div>
+
+    <div class="summary-card">
+        <div class="tabs">
+            <button class="tab active">1 DAY</button>
+            <button class="tab">1 WEEK</button>
+            <button class="tab">1 MONTH</button>
+        </div>
+        <div class="pnl-row">
+            <span style="font-size: 0.9rem; font-weight: 700;">NET P&L:</span>
+            <span class="pnl-value">+₹12,450.00</span>
+        </div>
+        <div class="pnl-row bot-stats">
+            <span>Trades: 14</span>
+            <span style="color: #00ff41;">Accuracy: 78%</span>
+        </div>
+    </div>
+
+    <div class="control-grid">
+        <div class="edit-item">
+            <div class="item-name">🏠 HOME SETTINGS</div>
+            <button class="change-btn" onclick="editSettings('Home')">CHANGE</button>
+        </div>
+        <div class="edit-item">
+            <div class="item-name">📡 SIGNAL DATA</div>
+            <button class="change-btn" onclick="editSettings('Signal')">CHANGE</button>
+        </div>
+        <div class="edit-item">
+            <div class="item-name">📋 WATCHLIST DATA</div>
+            <button class="change-btn" onclick="editSettings('Watchlist')">CHANGE</button>
+        </div>
+        <div class="edit-item">
+            <div class="item-name">📊 CHART LINKS</div>
+            <button class="change-btn" onclick="editSettings('Chart')">CHANGE</button>
+        </div>
+    </div>
+
+    <button class="exit-btn" onclick="window.location.href='login.html'">LOGOUT (निकास)</button>
+
+    <nav>
+        <a href="home.html" class="n-tab"><i class="fas fa-home"></i>HOME</a>
+        <a href="signal.html" class="n-tab"><i class="fas fa-satellite-dish"></i>SIGNAL</a>
+        <a href="chart.html" class="n-tab"><i class="fas fa-chart-bar"></i>CHART</a>
+        <a href="watchlist.html" class="n-tab"><i class="fas fa-list-ul"></i>LIST</a>
+        <a href="control.html" class="n-tab active"><i class="fas fa-cog"></i>ADMIN</a>
+    </nav>
+
+    <script>
+        function editSettings(section) {
+            let msg = prompt(section + " में क्या डेटा बदलना चाहते हैं?");
+            if(msg) alert(section + " का डेटा अपडेट किया जा रहा है...");
+        }
+    </script>
+</body>
+          </html>
+          
