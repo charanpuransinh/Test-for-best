@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>🔱 Trishul Pro — Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Rajdhani',sans-serif;}
+:root{--gold:#f5c518;--g2:#c9a000;--bg:#000;--b2:#0a0a0a;--b3:#121212;--br:#222;--bg2:#3d3000;--tx:#fff;--dm:#888;--gn:#00c853;--rd:#ff3d3d;--or:#ff6d00;--blu:#4a90d9;}
+html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
+.wrap{width:100%;max-width:430px;height:100vh;height:100dvh;margin:0 auto;display:flex;flex-direction:column;background:#000;position:relative;}
+.sc{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:60px;}
+.sc::-webkit-scrollbar{display:none;}
+
+.stat-strip{display:flex;align-items:center;gap:6px;padding:6px 10px;font-size:9px;color:var(--dm);letter-spacing:.5px;border-bottom:1px solid #1a1a1a;}
+.stat-strip b{color:var(--gn);font-weight:700;}
+
+.thd-box{margin:8px 10px 0;border:2px solid var(--gold);padding:14px 12px;display:flex;align-items:center;justify-content:space-between;background:#000;position:relative;gap:8px;}
+.thd-spacer{width:36px;flex-shrink:0;}
+.thd-l{display:flex;align-items:center;gap:10px;flex:1;justify-content:center;}
+.tri-sym{font-size:28px;color:var(--gold);filter:drop-shadow(0 0 8px rgba(245,197,24,.6));}
+.thd-tx{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--gold);letter-spacing:6px;text-shadow:0 0 12px rgba(245,197,24,.5);}
+.stop-btn{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle,#ff5050,#a00000);border:2px solid #ff8080;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 14px rgba(255,61,61,.5);flex-shrink:0;}
+.stop-btn::after{content:"";width:11px;height:11px;background:#fff;}
+.stop-btn:active{transform:scale(.92);}
+
+.idx-ticker{display:flex;gap:14px;padding:7px 10px;border-bottom:1px solid #1a1a1a;overflow-x:auto;scrollbar-width:none;font-size:11px;}
+.idx-ticker::-webkit-scrollbar{display:none;}
+.idx-itm{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.idx-itm .tt{color:var(--gold);font-size:13px;}
+.idx-itm .nm{color:var(--dm);letter-spacing:.5px;font-weight:600;}
+.idx-itm .vl{color:var(--gn);font-weight:700;}
+
+.cards-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:8px 10px;}
+.card{background:var(--b2);border:1px solid var(--br);padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s;}
+.card:active{transform:scale(.97);}
+.card-l{font-size:9px;color:var(--dm);letter-spacing:1px;font-weight:700;}
+.card-v{font-size:17px;font-weight:800;color:var(--tx);margin-top:2px;letter-spacing:.5px;}
+.card-c{font-size:10px;font-weight:700;color:var(--gn);margin-top:1px;}
+.card.profile{border:2px solid var(--gold);background:#0a0800;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 6px;}
+.card.profile .card-l{color:var(--gold);}
+.profile-ic{width:30px;height:30px;background:var(--blu);border-radius:50%;margin-top:5px;position:relative;overflow:hidden;}
+.profile-ic::before{content:"";position:absolute;top:5px;left:50%;transform:translateX(-50%);width:11px;height:11px;background:#000;border-radius:50%;}
+.profile-ic::after{content:"";position:absolute;bottom:-3px;left:50%;transform:translateX(-50%);width:22px;height:14px;background:#000;border-radius:50% 50% 0 0;}
+
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:0 10px 10px;}
+.st-c{background:var(--b2);border:1px solid var(--br);padding:8px 4px;text-align:center;}
+.st-l{font-size:9px;color:var(--dm);letter-spacing:.8px;font-weight:700;}
+.st-v{font-size:15px;font-weight:800;margin-top:2px;letter-spacing:.5px;}
+.st-d{font-size:8px;font-weight:700;letter-spacing:.6px;margin-top:1px;}
+.tx-y{color:var(--gold);} .tx-g{color:var(--gn);} .tx-r{color:var(--rd);}
+
+.sec-h{padding:4px 10px 6px;font-size:11px;color:var(--gold);letter-spacing:1.5px;font-weight:700;display:flex;align-items:center;gap:6px;}
+.heat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:0 10px 12px;}
+.hc{padding:14px 6px;text-align:center;border:1px solid;cursor:pointer;transition:all .15s;}
+.hc:active{transform:scale(.97);}
+.hc-n{font-size:13px;font-weight:800;color:#fff;letter-spacing:.8px;}
+.hc-d{font-size:11px;font-weight:700;margin-top:4px;letter-spacing:.5px;}
+.hc-d .u{color:var(--gn);} .hc-d .d{color:var(--rd);}
+.h-vstr{background:linear-gradient(135deg,#0d3318,#082210);border-color:#1a5a2e;}
+.h-str{background:linear-gradient(135deg,#0a2a14,#06190d);border-color:#16401f;}
+.h-nul{background:linear-gradient(135deg,#1a1a0a,#0d0d05);border-color:#2a2a14;}
+.h-wek{background:linear-gradient(135deg,#2a0d0d,#1a0606);border-color:#4a1414;}
+.h-vwk{background:linear-gradient(135deg,#3a0d0d,#220505);border-color:#5a1414;}
+.h-vry{background:linear-gradient(135deg,#4a0d0d,#280505);border-color:#6a1414;}
+
+.bnav{position:absolute;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(6,1fr);background:#000;border-top:2px solid var(--gold);height:54px;z-index:5;}
+.bn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;color:var(--dm);transition:all .15s;border-right:1px solid #1a1a1a;}
+.bn:last-child{border-right:none;}
+.bn:active{background:rgba(245,197,24,.06);}
+.bn.on{color:var(--gold);background:linear-gradient(180deg,rgba(245,197,24,.14),transparent);}
+.bn.on .bn-i{filter:drop-shadow(0 0 6px rgba(245,197,24,.7));}
+.bn-i{font-size:20px;}
+.bn-t{font-size:8px;font-weight:800;letter-spacing:1px;margin-top:1px;}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--b3);border:1px solid var(--gold);padding:9px 18px;font-size:11px;color:var(--tx);z-index:9999;display:none;white-space:nowrap;}
+.toast.sh{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="sc">
+
+  <div class="stat-strip">🤖 <b>GEMINI AI</b> · All 9 Scanners Active · AWS Mumbai OK</div>
+
+  <div class="thd-box">
+    <div class="thd-spacer"></div>
+    <div class="thd-l">
+      <span class="tri-sym">🔱</span>
+      <span class="thd-tx">TRISHUL PRO</span>
+      <span class="tri-sym">🔱</span>
+    </div>
+    <div class="stop-btn" onclick="panicStop()"></div>
+  </div>
+
+  <div class="idx-ticker">
+    <div class="idx-itm"><span class="tt">🔱</span><span class="nm">NIFTY 50</span><span class="vl">24,150 ▲0.61%</span></div>
+    <div class="idx-itm"><span class="tt">🔱</span><span class="nm">BANKNIFTY</span><span class="vl">51,320 ▲0.55%</span></div>
+    <div class="idx-itm"><span class="tt">🔱</span><span class="nm">SENSEX</span><span class="vl">79,850 ▲0.53%</span></div>
+  </div>
+
+  <div class="cards-row">
+    <div class="card"><div class="card-l">NIFTY 50</div><div class="card-v">24,150</div><div class="card-c">▲0.61%</div></div>
+    <div class="card"><div class="card-l">BANKNIFTY</div><div class="card-v">51,320</div><div class="card-c">▲0.55%</div></div>
+    <div class="card"><div class="card-l">SENSEX</div><div class="card-v">79,850</div><div class="card-c">▲0.53%</div></div>
+    <div class="card profile" onclick="goPage('admin')"><div class="card-l">PROFILE</div><div class="profile-ic"></div></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="st-c"><div class="st-l">VIX</div><div class="st-v tx-y">14.5</div><div class="st-d tx-y">LOW</div></div>
+    <div class="st-c"><div class="st-l">PCR</div><div class="st-v tx-y">0.85</div><div class="st-d tx-y">NTRL</div></div>
+    <div class="st-c"><div class="st-l">FII</div><div class="st-v tx-g">+2.1K</div><div class="st-d tx-g">BUY</div></div>
+    <div class="st-c"><div class="st-l">DII</div><div class="st-v tx-g">+1.4K</div><div class="st-d tx-g">BUY</div></div>
+    <div class="st-c"><div class="st-l">ADV</div><div class="st-v tx-g">1842</div><div class="st-d tx-g">▲</div></div>
+  </div>
+
+  <div class="sec-h">▦ SECTOR HEATMAP</div>
+  <div class="heat" id="heat"></div>
+
+</div>
+
+<div class="bnav">
+  <div class="bn on"><div class="bn-i">🏠</div><div class="bn-t">HOME</div></div>
+  <div class="bn" onclick="goPage('signal')"><div class="bn-i">📡</div><div class="bn-t">SIGNAL</div></div>
+  <div class="bn" onclick="goPage('power')"><div class="bn-i">⚡</div><div class="bn-t">POWER</div></div>
+  <div class="bn" onclick="goPage('chart')"><div class="bn-i">📈</div><div class="bn-t">CHART</div></div>
+  <div class="bn" onclick="goPage('watch')"><div class="bn-i">⭐</div><div class="bn-t">WATCH</div></div>
+  <div class="bn" onclick="goPage('admin')"><div class="bn-i">⚙️</div><div class="bn-t">ADMIN</div></div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SECTORS=[
+  {n:'REALTY',u:9,d:0,t:'h-vstr'},   {n:'BANKING',u:8,d:1,t:'h-vstr'},  {n:'IT',u:7,d:2,t:'h-vstr'},
+  {n:'AUTO',u:6,d:1,t:'h-str'},      {n:'FINANCE',u:5,d:1,t:'h-str'},   {n:'CHEMICAL',u:6,d:2,t:'h-str'},
+  {n:'POWER',u:4,d:4,t:'h-nul'},     {n:'INFRA',u:3,d:3,t:'h-nul'},     {n:'TELECOM',u:2,d:2,t:'h-nul'},
+  {n:'CEMENT',u:2,d:4,t:'h-wek'},    {n:'CONSUMER',u:3,d:5,t:'h-wek'},  {n:'FMCG',u:3,d:6,t:'h-wek'},
+  {n:'ENERGY',u:1,d:5,t:'h-vwk'},    {n:'MEDIA',u:1,d:5,t:'h-vwk'},     {n:'PSU BANK',u:2,d:6,t:'h-vwk'},
+  {n:'PHARMA',u:2,d:7,t:'h-vry'},    {n:'OIL&GAS',u:2,d:7,t:'h-vry'},   {n:'METAL',u:1,d:8,t:'h-vry'},
+];
+document.getElementById('heat').innerHTML=SECTORS.map(s=>`
+  <div class="hc ${s.t}" onclick="showToast('${s.n} sector')">
+    <div class="hc-n">${s.n}</div>
+    <div class="hc-d"><span class="u">▲${s.u}</span> &nbsp; <span class="d">▼${s.d}</span></div>
+  </div>`).join('');
+
+function goPage(p){
+  const map={signal:'page4_signal.html',power:'page3_power.html',chart:'page5_chart.html',watch:'page6_watchlist.html',admin:'page7_admin.html'};
+  if(map[p])window.location.href=map[p];
+  else showToast('→ '+p.toUpperCase());
+}
+function panicStop(){if(confirm('🚨 STOP ALL? Close all positions?'))showToast('🚨 ALL CLOSED');}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('sh');setTimeout(()=>t.classList.remove('sh'),1800);}
+</script>
+</body>
+</html>
