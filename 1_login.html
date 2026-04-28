@@ -187,6 +187,8 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse
         <input id="aTok" placeholder="Access Token (auto-generated)">
         <button class="gen-btn" onclick="genToken()">🔑 GET TOKEN</button>
       </div>
+      <!-- Broker-specific help note -->
+      <div id="bkHelp" style="display:none;margin-top:8px;background:#0a0500;border:1px solid var(--bg2);padding:9px 10px;font-size:9px;color:var(--dm);line-height:1.6;letter-spacing:.3px;"></div>
       <div style="display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:9px;">
         <button class="con-btn" id="conBtn" onclick="connectBroker()" style="margin-top:0">🔗 CONNECT BROKER</button>
         <button style="background:var(--b3);border:1px solid #550000;color:#ff6666;padding:10px 9px;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;" onclick="disconnectBroker()">🔌 DC</button>
@@ -222,16 +224,16 @@ let brokerCreds=savedCreds?JSON.parse(savedCreds):{};
 let selBroker=null;
 
 const BROKERS=[
-  {id:'shoonya',nm:'Shoonya',ico:'⚡',tag:'Finvasia'},
-  {id:'zerodha',nm:'Zerodha',ico:'🟢',tag:'Kite Connect'},
-  {id:'angel',nm:'Angel One',ico:'😇',tag:'SmartAPI'},
-  {id:'upstox',nm:'Upstox',ico:'🔵',tag:'Upstox API v2'},
-  {id:'kotak',nm:'Kotak',ico:'🔴',tag:'Neo API'},
-  {id:'icici',nm:'ICICI Direct',ico:'🟠',tag:'Breeze API'},
-  {id:'hdfc',nm:'HDFC Sky',ico:'🔷',tag:'Sky API'},
-  {id:'dhan',nm:'Dhan',ico:'💙',tag:'DhanHQ API'},
-  {id:'motilal',nm:'Motilal',ico:'🟡',tag:'MO API'},
-  {id:'groww',nm:'Groww',ico:'🌱',tag:'Groww API'},
+  {id:'shoonya',nm:'Shoonya',ico:'⚡',tag:'Finvasia',uidLabel:'User ID',uidPH:'FA12345',keyPH:'API Key',vendPH:'Vendor Code',totpPH:'TOTP Secret (Base32)'},
+  {id:'zerodha',nm:'Zerodha',ico:'🟢',tag:'Kite Connect',uidLabel:'Client ID',uidPH:'ZY1234',keyPH:'API Key (Kite)',vendPH:'Leave blank',totpPH:'TOTP Secret (Base32)'},
+  {id:'angel',nm:'Angel One',ico:'😇',tag:'SmartAPI',uidLabel:'Client ID',uidPH:'C116947',keyPH:'SmartAPI Key',vendPH:'Leave blank',totpPH:'TOTP Secret (Base32)',defaultUid:'C116947'},
+  {id:'upstox',nm:'Upstox',ico:'🔵',tag:'Upstox API v2',uidLabel:'Client ID',uidPH:'1234AB',keyPH:'API Key',vendPH:'Leave blank',totpPH:'TOTP Secret (Base32)'},
+  {id:'kotak',nm:'Kotak',ico:'🔴',tag:'Neo API',uidLabel:'Mobile / Client ID',uidPH:'9800000000',keyPH:'Consumer Key',vendPH:'Consumer Secret',totpPH:'TOTP Secret (Base32)'},
+  {id:'icici',nm:'ICICI Direct',ico:'🟠',tag:'Breeze API',uidLabel:'User ID',uidPH:'AB1234',keyPH:'API Key (Breeze)',vendPH:'Leave blank',totpPH:'Session Token'},
+  {id:'hdfc',nm:'HDFC Sky',ico:'🔷',tag:'Sky API',uidLabel:'Client ID',uidPH:'HD12345',keyPH:'API Key',vendPH:'Leave blank',totpPH:'TOTP Secret (Base32)'},
+  {id:'dhan',nm:'Dhan',ico:'💙',tag:'DhanHQ API',uidLabel:'Client ID',uidPH:'1000000123',keyPH:'Access Token',vendPH:'Leave blank',totpPH:'Leave blank'},
+  {id:'motilal',nm:'Motilal',ico:'🟡',tag:'MO API',uidLabel:'Client Code',uidPH:'MO12345',keyPH:'API Key',vendPH:'Leave blank',totpPH:'TOTP Secret (Base32)'},
+  {id:'groww',nm:'Groww',ico:'🌱',tag:'Groww API',uidLabel:'Mobile / Email',uidPH:'9800000000',keyPH:'API Token',vendPH:'Leave blank',totpPH:'TOTP Secret (Base32)'},
 ];
 
 function renderBrokers(){
@@ -262,15 +264,51 @@ function selBrok(i){
     document.getElementById('conBtn').className='con-btn';
     document.getElementById('conBtn').textContent='🔗 CONNECT BROKER';
   }
-  // Load saved credentials for this broker
+  // Update field labels & placeholders per broker
+  const uidInput=document.getElementById('aUid');
+  const uidLabel=uidInput.closest('.api-field').querySelector('label');
+  if(uidLabel) uidLabel.textContent=selBroker.uidLabel||'USER ID / CLIENT ID';
+  uidInput.placeholder=selBroker.uidPH||'Enter ID';
+  document.getElementById('aKey').placeholder=selBroker.keyPH||'Enter API Key';
+  document.getElementById('aVend').placeholder=selBroker.vendPH||'Vendor/App Code';
+  document.getElementById('aTotp').placeholder=selBroker.totpPH||'Base32 TOTP Secret';
+  // Load saved credentials (or defaults for this broker)
   const c=brokerCreds[selBroker.id]||{};
-  document.getElementById('aUid').value=c.uid||'';
+  document.getElementById('aUid').value=c.uid||(selBroker.defaultUid||'');
   document.getElementById('aPwd').value=c.pwd||'';
   document.getElementById('aKey').value=c.key||'';
   document.getElementById('aSec').value=c.sec||'';
   document.getElementById('aVend').value=c.vend||'';
   document.getElementById('aTotp').value=c.totp||'';
   document.getElementById('aTok').value=c.tok||'';
+  // Broker-specific help notes
+  const helpEl=document.getElementById('bkHelp');
+  const helpNotes={
+    angel:`😇 <b style="color:var(--gold)">ANGEL ONE SmartAPI — Setup Guide:</b><br>
+1️⃣ Login → smartapi.angelbroking.com<br>
+2️⃣ Create App → App Name: <b style="color:var(--gold)">Trishul Pro</b><br>
+3️⃣ Add Whitelist IP: <b style="color:var(--gn)">3.110.190.2</b> (AWS Mumbai)<br>
+4️⃣ Copy API Key → paste above<br>
+5️⃣ Enable TOTP in Angel One app → copy secret<br>
+Client ID: <b style="color:var(--gold)">C116947</b> (already filled)`,
+    zerodha:`🟢 <b style="color:var(--gold)">ZERODHA Kite Connect:</b><br>
+1️⃣ kite.trade → My Apps → Create App<br>
+2️⃣ Redirect URL: https://trishulpro.vercel.app<br>
+3️⃣ Whitelist IP: <b style="color:var(--gn)">3.110.190.2</b><br>
+4️⃣ Copy API Key + Secret above`,
+    shoonya:`⚡ <b style="color:var(--gold)">SHOONYA Finvasia API:</b><br>
+1️⃣ shoonya.com → API Access → Enable<br>
+2️⃣ Note User ID + Password + Vendor Code<br>
+3️⃣ Whitelist IP: <b style="color:var(--gn)">3.110.190.2</b><br>
+4️⃣ TOTP from Google Authenticator`,
+    dhan:`💙 <b style="color:var(--gold)">DHAN HQ API:</b><br>
+1️⃣ dhanhq.co → Developer → Create Access Token<br>
+2️⃣ Paste Access Token in API Key field above<br>
+3️⃣ No TOTP needed for Dhan`,
+  };
+  const note=helpNotes[selBroker.id];
+  if(note){helpEl.style.display='block';helpEl.innerHTML=note;}
+  else{helpEl.style.display='none';}
   document.getElementById('bkPanel').classList.add('show');
   document.getElementById('bkPanel').scrollIntoView({behavior:'smooth',block:'start'});
 }
