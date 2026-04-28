@@ -10,13 +10,14 @@ Ye 3 endpoints add karo apne mukhya server.py mein:
 ============================================================
 """
 
+import sys, os
+sys.path.insert(0, os.path.dirname(__file__))
+from server import app, get_adapter
+
 from fastapi import HTTPException, Header
 from typing import Optional
 import time
 import pandas as pd
-
-# ===== app aur adapters server.py se import maan ke chal rahe hain =====
-# from server import app, get_adapter
 
 # ---------- TOKEN REFRESH ----------
 @app.post("/auth/refresh")
