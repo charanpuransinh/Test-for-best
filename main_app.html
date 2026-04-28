@@ -9,22 +9,31 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:#000;overflow:hidden;}
+
 .shell{
   width:100%;max-width:430px;height:100%;
   margin:0 auto;display:flex;flex-direction:column;background:#000;
 }
+
+/* ── Swiper: CSS snap = browser handles native swipe, even inside iframes ── */
 .swiper{
   flex:1;min-height:0;
   display:flex;
   overflow-x:scroll;
+  overflow-y:hidden;
   scroll-snap-type:x mandatory;
+  scroll-behavior:auto;           /* instant by default */
   scrollbar-width:none;
   -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;  /* stop swipe from triggering browser back */
 }
 .swiper::-webkit-scrollbar{display:none;}
+
 .slide{
-  flex-shrink:0;width:100%;height:100%;
-  scroll-snap-align:start;overflow:hidden;
+  flex:0 0 100%;
+  height:100%;
+  scroll-snap-align:start;
+  scroll-snap-stop:always;        /* one slide per swipe */
 }
 .slide iframe{width:100%;height:100%;border:none;display:block;}
 
@@ -36,45 +45,37 @@ html,body{height:100%;background:#000;overflow:hidden;}
   background:#000;
   border-top:2px solid #F5C518;
   height:50px;
-  z-index:10;
 }
 .bn{
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   gap:1px;cursor:pointer;
-  color:#444;
-  border-right:1px solid #1a1a1a;
-  transition:all .15s;
+  color:#555;
+  border-right:1px solid #111;
   -webkit-tap-highlight-color:transparent;
+  user-select:none;
 }
 .bn:last-child{border-right:none;}
 .bn:active{background:rgba(245,197,24,.08);}
-.bn.on{color:#F5C518;background:linear-gradient(180deg,rgba(245,197,24,.13),transparent);}
-.bn.on .bn-i{filter:drop-shadow(0 0 5px rgba(245,197,24,.7));}
+.bn.on{color:#F5C518;background:linear-gradient(180deg,rgba(245,197,24,.12),transparent);}
+.bn.on .bn-i{filter:drop-shadow(0 0 5px rgba(245,197,24,.6));}
 .bn-i{font-size:17px;line-height:1;}
-.bn-t{font-size:7px;font-weight:800;letter-spacing:.5px;margin-top:2px;}
-
-/* swipe hint bar */
-.swipe-dots{
-  position:absolute;bottom:56px;left:50%;transform:translateX(-50%);
-  display:flex;gap:4px;z-index:9;pointer-events:none;
-}
-.sd{width:4px;height:4px;border-radius:50%;background:#333;transition:background .2s;}
-.sd.on{background:#F5C518;}
+.bn-t{font-size:7px;font-weight:800;letter-spacing:.4px;margin-top:2px;}
 </style>
 </head>
 <body>
+
 <div class="shell">
   <div class="swiper" id="swiper">
-    <div class="slide"><iframe src="2_home_page.html"       title="HOME"   loading="eager"></iframe></div>
-    <div class="slide"><iframe src="5_scanner.html"         title="SIGNAL" loading="eager"></iframe></div>
-    <div class="slide"><iframe src="3_power_box.html"       title="POWER"  loading="lazy"></iframe></div>
-    <div class="slide"><iframe src="4_chart_page.html"      title="CHART"  loading="lazy"></iframe></div>
-    <div class="slide"><iframe src="6_watchlist.html"       title="WATCH"  loading="lazy"></iframe></div>
-    <div class="slide"><iframe src="8_control_panel.html"   title="ADMIN"  loading="lazy"></iframe></div>
+    <div class="slide"><iframe src="2_home_page.html"     title="HOME"  ></iframe></div>
+    <div class="slide"><iframe src="5_scanner.html"       title="SIGNAL"></iframe></div>
+    <div class="slide"><iframe src="3_power_box.html"     title="POWER" ></iframe></div>
+    <div class="slide"><iframe src="4_chart_page.html"    title="CHART" ></iframe></div>
+    <div class="slide"><iframe src="6_watchlist.html"     title="WATCH" ></iframe></div>
+    <div class="slide"><iframe src="8_control_panel.html" title="ADMIN" ></iframe></div>
   </div>
 
-  <nav class="bnav" id="bnav">
+  <nav class="bnav">
     <div class="bn on" onclick="goSlide(0)"><div class="bn-i">🏠</div><div class="bn-t">HOME</div></div>
     <div class="bn"    onclick="goSlide(1)"><div class="bn-i">📡</div><div class="bn-t">SIGNAL</div></div>
     <div class="bn"    onclick="goSlide(2)"><div class="bn-i">⚡</div><div class="bn-t">POWER</div></div>
@@ -85,43 +86,47 @@ html,body{height:100%;background:#000;overflow:hidden;}
 </div>
 
 <script>
+/* ── Login guard ── */
+if(!sessionStorage.getItem('tp_auth')){
+  window.location.replace('1_login.html');
+}
+
 const swiper = document.getElementById('swiper');
 const bns    = document.querySelectorAll('.bn');
-let   cur    = 0;
+const TOTAL  = 6;
+let cur = 0;
+let isScrolling = false;
 
 function setActive(idx){
   cur = idx;
-  bns.forEach((b,i)=>b.classList.toggle('on', i===idx));
+  bns.forEach((b,i) => b.classList.toggle('on', i===idx));
 }
 
+/* ── Nav tap: instant jump, no animation ── */
 function goSlide(idx){
-  swiper.scrollTo({left: swiper.clientWidth * idx, behavior:'smooth'});
-  setActive(idx);
+  if(idx < 0 || idx >= TOTAL || idx === cur) return;
+  /* disable scroll-snap momentarily for instant jump */
+  swiper.style.scrollSnapType = 'none';
+  swiper.scrollLeft = swiper.clientWidth * idx;
+  /* re-enable snap after jump settles */
+  requestAnimationFrame(()=>{
+    swiper.style.scrollSnapType = '';
+    setActive(idx);
+  });
 }
 
-/* Update nav on scroll-snap settle */
-let scrollTimer;
+/* ── Update nav when user swipes ── */
+let snapTimer;
 swiper.addEventListener('scroll', ()=>{
-  clearTimeout(scrollTimer);
-  scrollTimer = setTimeout(()=>{
+  clearTimeout(snapTimer);
+  snapTimer = setTimeout(()=>{
     const idx = Math.round(swiper.scrollLeft / swiper.clientWidth);
-    setActive(idx);
-  }, 80);
+    if(idx !== cur) setActive(idx);
+  }, 60);
 }, {passive:true});
 
-/* Lazy-load iframes when sliding near them */
-swiper.addEventListener('scroll', ()=>{
-  const idx = Math.round(swiper.scrollLeft / swiper.clientWidth);
-  [-1,0,1].forEach(d=>{
-    const slide = swiper.children[idx+d];
-    if(!slide) return;
-    const iframe = slide.querySelector('iframe');
-    if(iframe && !iframe.src) iframe.src = iframe.dataset.src || '';
-  });
-}, {passive:true});
-
-/* Listen for goPage() calls from inside iframes */
-window.addEventListener('message', (e)=>{
+/* ── postMessage from iframes (when goPage() is called inside) ── */
+window.addEventListener('message', e => {
   if(e.data && typeof e.data.goSlide === 'number') goSlide(e.data.goSlide);
 });
 </script>

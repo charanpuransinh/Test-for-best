@@ -273,10 +273,10 @@ function doLogin(){
   showLoad('🔐 LAYER 1 — BIOMETRIC...');
   setTimeout(()=>{showLoad('🔐 LAYER 2 — TOTP...');
   setTimeout(()=>{showLoad('🔐 LAYER 3 — BROKER...');
-  setTimeout(()=>{hideLoad();window.location.href='main_app.html';},700);},700);},700);
+  setTimeout(()=>{hideLoad();sessionStorage.setItem('tp_auth','1');window.location.href='main_app.html';},700);},700);},700);
 }
 function doReg(){showLoad('📝 REGISTERING...');setTimeout(()=>{hideLoad();showToast('✅ Done! Login karo');setTab('login',document.querySelectorAll('.tab')[0]);},1500);}
-function doBio(){showLoad('👆 BIOMETRIC SCAN...');setTimeout(()=>{hideLoad();window.location.href='main_app.html';},1200);}
+function doBio(){showLoad('👆 BIOMETRIC SCAN...');setTimeout(()=>{hideLoad();sessionStorage.setItem('tp_auth','1');window.location.href='main_app.html';},1200);}
 function panicExit(){if(confirm('🚨 PANIC EXIT — All positions close?'))showToast('🚨 All CLOSED!');}
 function showLoad(t){document.getElementById('ltxt').textContent=t;document.getElementById('lov').classList.add('sh');}
 function hideLoad(){document.getElementById('lov').classList.remove('sh');}
