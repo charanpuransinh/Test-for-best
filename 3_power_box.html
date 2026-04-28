@@ -1,38 +1,163 @@
-<!-- POWER PAGE -->
-<div class="page" id="page-power">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>🔱 Trishul Pro — Power Box</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Rajdhani',sans-serif;}
+:root{--gold:#f5c518;--g2:#c9a000;--bg:#000;--b2:#0a0a0a;--b3:#121212;--br:#222;--bg2:#3d3000;--tx:#fff;--dm:#888;--gn:#00c853;--rd:#ff3d3d;--or:#ff6d00;--green:#00c853;--red:#ff3d3d;}
+html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
+.wrap{width:100%;max-width:430px;height:100vh;height:100dvh;margin:0 auto;display:flex;flex-direction:column;background:#000;position:relative;}
+.page{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:60px;}
+.page::-webkit-scrollbar{display:none;}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--b2);border-bottom:2px solid var(--gold);flex-shrink:0;}
+.tb-title{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;color:var(--gold);letter-spacing:2px;}
+.tb-pill{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--dm);letter-spacing:1px;font-weight:700;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--gn);animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* POWER MAIN */
+.pw-main{padding:10px;}
+.pb{background:var(--b2);border:1px solid var(--gold);margin-bottom:10px;}
+.pb-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--bg2);}
+.pb-ttl{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--gold);letter-spacing:1.5px;}
+.prob-c{background:linear-gradient(135deg,var(--g2),var(--gold));color:#000;font-size:10px;font-weight:800;padding:3px 10px;letter-spacing:1px;}
+
+/* MODES */
+.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:10px 12px;}
+.mode{background:var(--b3);border:1px solid var(--br);padding:9px 4px;text-align:center;cursor:pointer;transition:all .15s;}
+.mode:active{transform:scale(.97);}
+.mode.active{border-color:var(--gold);background:#0d0b00;box-shadow:inset 0 0 12px rgba(245,197,24,.1);}
+.mode-i{font-size:18px;line-height:1;}
+.mode-n{font-size:8px;font-weight:700;color:var(--dm);letter-spacing:.8px;margin-top:4px;}
+.mode.active .mode-n{color:var(--gold);}
+
+/* INPUTS */
+.inp-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 12px;}
+.inp{width:100%;background:#000;border:1px solid var(--br);padding:8px 9px;color:var(--tx);font-size:11px;outline:none;letter-spacing:.3px;transition:border-color .2s;}
+.inp:focus{border-color:var(--gold);}
+.inp::placeholder{color:var(--dm);}
+.run-btn{grid-column:span 2;background:linear-gradient(135deg,var(--g2),var(--gold));color:#000;border:none;padding:11px;font-size:12px;font-weight:800;cursor:pointer;letter-spacing:2px;margin-top:2px;}
+.run-btn:active{transform:scale(.98);}
+
+.cdl{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px 12px 0;}
+
+/* RESULT */
+.res{padding:10px 12px;}
+.res-l{margin-bottom:10px;}
+.res-stk{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold);letter-spacing:2px;margin-bottom:3px;}
+.res-md{font-size:9px;color:var(--dm);letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
+.bars{display:flex;gap:3px;margin-bottom:8px;}
+.bar{width:8px;height:22px;background:linear-gradient(180deg,var(--gold),var(--g2));border-radius:1px;opacity:.7;}
+.bar:nth-child(1){height:14px;}
+.bar:nth-child(2){height:18px;}
+.bar:nth-child(3){height:22px;}
+.bar:nth-child(4){height:20px;}
+.bar:nth-child(5){height:16px;}
+.res-sig{font-size:11px;font-weight:800;letter-spacing:1px;margin-bottom:8px;}
+.cg{color:var(--gn);}
+.prob{display:flex;flex-direction:column;gap:4px;}
+.prob-l{font-size:8px;color:var(--dm);letter-spacing:1.5px;font-weight:700;}
+.prob-bar{height:8px;background:var(--br);border-radius:2px;overflow:hidden;}
+.prob-fill{height:100%;background:linear-gradient(90deg,var(--g2),var(--gold));border-radius:2px;transition:width .4s ease;}
+
+/* ENTRY / SL / TARGET */
+.ee{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.ee-c{border:1px solid;padding:10px 6px;text-align:center;}
+.ee-l{font-size:8px;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;}
+.ee-v{font-size:14px;font-weight:800;letter-spacing:.3px;}
+.co{color:var(--gold);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 12px 10px;}
+.st{background:var(--b3);border:1px solid var(--br);padding:8px 6px;text-align:center;}
+.st-l{font-size:8px;color:var(--dm);letter-spacing:1px;font-weight:700;margin-bottom:3px;}
+.st-v{font-size:13px;font-weight:800;color:var(--gold);}
+
+.pop-btn{width:calc(100% - 24px);margin:0 12px 12px;background:var(--b3);border:1px solid var(--bg2);color:var(--gold);padding:10px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1.5px;}
+.pop-btn:active{background:rgba(245,197,24,.08);}
+
+/* METERS */
+.meters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 10px 10px;}
+.met{background:var(--b2);border:1px solid var(--br);padding:10px 8px;}
+.met-h{font-size:8px;color:var(--gold);letter-spacing:1.5px;font-weight:700;margin-bottom:8px;}
+.met-b{display:flex;flex-direction:column;gap:4px;}
+.met-v{font-size:14px;font-weight:800;color:var(--tx);}
+.met-bd{font-size:8px;font-weight:800;letter-spacing:1px;padding:3px 6px;text-align:center;}
+.b-buy{background:#00200d;color:var(--gn);border:1px solid var(--gn);}
+
+/* BOTTOM NAV */
+.bnav{position:absolute;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(6,1fr);background:#000;border-top:2px solid var(--gold);height:54px;z-index:5;}
+.bn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;color:var(--dm);transition:all .15s;border-right:1px solid #1a1a1a;}
+.bn:last-child{border-right:none;}
+.bn:active{background:rgba(245,197,24,.06);}
+.bn.on{color:var(--gold);background:linear-gradient(180deg,rgba(245,197,24,.14),transparent);}
+.bn.on .bn-i{filter:drop-shadow(0 0 6px rgba(245,197,24,.7));}
+.bn-i{font-size:20px;}
+.bn-t{font-size:8px;font-weight:800;letter-spacing:1px;margin-top:1px;}
+
+/* TOAST */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--b3);border:1px solid var(--gold);padding:9px 18px;font-size:11px;color:var(--tx);z-index:9999;display:none;white-space:nowrap;}
+.toast.sh{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
   <div class="topbar">
-    <div class="tb-title">⚡ POWER CONTROL</div>
+    <div class="tb-title">⚡ POWER BOX</div>
     <div class="tb-pill"><div class="live-dot"></div>HYBRID</div>
   </div>
-  <div class="pw-main">
-    <div class="pb">
-      <div class="pb-head">
-        <div class="pb-ttl">⚡ POWER BOX — HYBRID</div>
-        <span class="prob-c" id="probChip">85%</span>
-      </div>
-      <div class="pb-body">
+
+  <div class="page" id="page-power">
+    <div class="pw-main">
+      <div class="pb">
+        <div class="pb-head">
+          <div class="pb-ttl">⚡ POWER BOX — HYBRID</div>
+          <span class="prob-c" id="probChip">85%</span>
+        </div>
+
+        <!-- MODE SELECT -->
         <div class="modes">
-          <div class="mode active" id="m_average" onclick="setMode('average')"><div class="mode-i">📊</div><div class="mode-n">AVERAGE</div></div>
-          <div class="mode" id="m_intraday" onclick="setMode('intraday')"><div class="mode-i">🔵</div><div class="mode-n">INTRADAY</div></div>
-          <div class="mode" id="m_intradayfixed" onclick="setMode('intradayfixed')"><div class="mode-i">🟠</div><div class="mode-n">FIXED</div></div>
-          <div class="mode" id="m_scalp" onclick="setMode('scalp')"><div class="mode-i">⚡</div><div class="mode-n">SCALP</div></div>
+          <div class="mode active" id="m_average" onclick="setMode('average')">
+            <div class="mode-i">📊</div><div class="mode-n">AVERAGE</div>
+          </div>
+          <div class="mode" id="m_intraday" onclick="setMode('intraday')">
+            <div class="mode-i">🔵</div><div class="mode-n">INTRADAY</div>
+          </div>
+          <div class="mode" id="m_fixed" onclick="setMode('fixed')">
+            <div class="mode-i">🟠</div><div class="mode-n">FIXED</div>
+          </div>
+          <div class="mode" id="m_scalp" onclick="setMode('scalp')">
+            <div class="mode-i">⚡</div><div class="mode-n">SCALP</div>
+          </div>
         </div>
+
+        <!-- INPUTS -->
         <div class="inp-row">
-          <input class="inp" id="iName" value="EUR/USD"/>
-          <input class="inp" id="iPrice" value="1.0845" type="number" step="0.0001"/>
-          <input class="inp" id="iATR" value="0.0035" type="number" step="0.0001"/>
-          <input class="inp" id="iAvgV" value="10" type="number"/>
-          <input class="inp" id="iCurV" value="18" type="number"/>
-          <input class="inp" id="iQty" value="100000" type="number"/>
-          <button class="run-btn" onclick="runPower()">⚡ RUN</button>
+          <input class="inp" id="iName" placeholder="Stock Name" value="RELIANCE"/>
+          <input class="inp" id="iPrice" placeholder="Price" type="number" step="0.01" value="2500"/>
+          <input class="inp" id="iATR" placeholder="ATR" type="number" step="0.01" value="35"/>
+          <input class="inp" id="iAvgV" placeholder="Avg Volume" type="number" value="1000000"/>
+          <input class="inp" id="iCurV" placeholder="Cur Volume" type="number" value="1800000"/>
+          <input class="inp" id="iQty" placeholder="Qty" type="number" value="10"/>
+          <button class="run-btn" onclick="runPower()">⚡ RUN POWER</button>
         </div>
+
+        <!-- CANDLE HIGH/LOW -->
         <div class="cdl">
-          <input class="inp" id="iCL" value="1.0820" type="number" step="0.0001" placeholder="Low"/>
-          <input class="inp" id="iCH" value="1.0870" type="number" step="0.0001" placeholder="High"/>
+          <input class="inp" id="iCL" placeholder="Candle Low" type="number" step="0.01" value="2470"/>
+          <input class="inp" id="iCH" placeholder="Candle High" type="number" step="0.01" value="2530"/>
         </div>
+
+        <!-- RESULT -->
         <div class="res">
           <div class="res-l">
-            <div class="res-stk" id="rStock">👁 EUR/USD</div>
+            <div class="res-stk" id="rStock">👁 RELIANCE</div>
             <div class="res-md" id="rMode">AVERAGE MODE</div>
             <div class="bars">
               <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
@@ -43,43 +168,180 @@
               <div class="prob-bar"><div class="prob-fill" id="probFill" style="width:85%"></div></div>
             </div>
           </div>
-          <div class="ee">
-            <div class="ee-c" style="border-color:var(--gold)"><div class="ee-l co">ENTRY</div><div class="ee-v co" id="vEntry">$1.0845</div></div>
-            <div class="ee-c" style="border-color:var(--red)"><div class="ee-l" style="color:var(--red)">STOP LOSS</div><div class="ee-v" style="color:var(--red)" id="vSL">$1.0810</div></div>
-            <div class="ee-c" style="border-color:var(--green)"><div class="ee-l cg">TARGET</div><div class="ee-v cg" id="vT1">$1.0890</div></div>
+
+          <div class="ee" style="margin-top:10px;">
+            <div class="ee-c" style="border-color:var(--gold)">
+              <div class="ee-l co">ENTRY</div>
+              <div class="ee-v co" id="vEntry">₹2500</div>
+            </div>
+            <div class="ee-c" style="border-color:var(--red)">
+              <div class="ee-l" style="color:var(--red)">STOP LOSS</div>
+              <div class="ee-v" style="color:var(--red)" id="vSL">₹2452.5</div>
+            </div>
+            <div class="ee-c" style="border-color:var(--green)">
+              <div class="ee-l cg">TARGET</div>
+              <div class="ee-v cg" id="vT1">₹2582.5</div>
+            </div>
           </div>
         </div>
+
+        <!-- STATS -->
         <div class="stats">
-          <div class="st"><div class="st-l">💰 P&L</div><div class="st-v cg">+$0</div></div>
-          <div class="st"><div class="st-l">📊 POS</div><div class="st-v co" id="posSize">$108K</div></div>
-          <div class="st"><div class="st-l">🎯 RR</div><div class="st-v co" id="rrLive">1:1.2</div></div>
+          <div class="st"><div class="st-l">📊 POS SIZE</div><div class="st-v co" id="posSize">₹25,000</div></div>
+          <div class="st"><div class="st-l">🎯 RR RATIO</div><div class="st-v co" id="rrLive">1:1.7</div></div>
+          <div class="st"><div class="st-l">🔒 SECURE</div><div class="st-v cg" id="secVal">72%</div></div>
         </div>
-        <button class="pop-btn" onclick="toast('🚀 Full Signal — coming')">🚀 FULL SIGNAL POPUP</button>
+
+        <button class="pop-btn" onclick="toast('🚀 Full Signal — coming soon')">🚀 FULL SIGNAL POPUP</button>
       </div>
-    </div>
-    <div class="meters">
-      <div class="met">
-        <div class="met-h">🛡 SECURE</div>
-        <div class="met-b">
-          <div class="met-v" id="secVal">72%</div>
-          <div class="met-bd b-buy">✅ BUY</div>
+
+      <!-- METERS -->
+      <div class="meters">
+        <div class="met">
+          <div class="met-h">🛡 SECURE</div>
+          <div class="met-b">
+            <div class="met-v" id="secVal2">72%</div>
+            <div class="met-bd b-buy">✅ BUY</div>
+          </div>
+        </div>
+        <div class="met">
+          <div class="met-h">📊 VOLUME</div>
+          <div class="met-b">
+            <div class="met-v" id="volVal">1.8x</div>
+            <div class="met-bd b-buy">🚀 SPIKE</div>
+          </div>
+        </div>
+        <div class="met">
+          <div class="met-h">⏱ TIMEFRAME</div>
+          <div class="met-b">
+            <div style="font-size:9px;color:var(--green);font-weight:800">5M ↑ BULL</div>
+            <div style="font-size:9px;color:var(--green);font-weight:800">15M ↑ BULL</div>
+            <div style="font-size:9px;color:var(--red);font-weight:800">30M ↓ BEAR</div>
+          </div>
         </div>
       </div>
-      <div class="met">
-        <div class="met-h">📊 VOLUME</div>
-        <div class="met-b">
-          <div class="met-v" id="volVal">2.1x</div>
-          <div class="met-bd b-buy">🚀 SPIKE</div>
-        </div>
-      </div>
-      <div class="met">
-        <div class="met-h">⏱ TIMEFRAME</div>
-        <div class="met-b">
-          <div style="font-size:9px;color:var(--green);font-weight:800">5M ↑ BULL</div>
-          <div style="font-size:9px;color:var(--green);font-weight:800">15M ↑ BULL</div>
-          <div style="font-size:9px;color:var(--red);font-weight:800">30M ↓ BEAR</div>
-        </div>
-      </div>
+
     </div>
   </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <div class="bn" onclick="goPage('home')"><div class="bn-i">🏠</div><div class="bn-t">HOME</div></div>
+    <div class="bn" onclick="goPage('signal')"><div class="bn-i">📡</div><div class="bn-t">SIGNAL</div></div>
+    <div class="bn on"><div class="bn-i">⚡</div><div class="bn-t">POWER</div></div>
+    <div class="bn" onclick="goPage('chart')"><div class="bn-i">📈</div><div class="bn-t">CHART</div></div>
+    <div class="bn" onclick="goPage('watch')"><div class="bn-i">⭐</div><div class="bn-t">WATCH</div></div>
+    <div class="bn" onclick="goPage('admin')"><div class="bn-i">⚙️</div><div class="bn-t">ADMIN</div></div>
+  </div>
+
 </div>
+<div class="toast" id="toast"></div>
+
+<script>
+let curMode = 'average';
+
+function setMode(mode) {
+  curMode = mode;
+  document.querySelectorAll('.mode').forEach(m => m.classList.remove('active'));
+  const modeMap = {average:'m_average', intraday:'m_intraday', fixed:'m_fixed', scalp:'m_scalp'};
+  const el = document.getElementById(modeMap[mode]);
+  if (el) el.classList.add('active');
+  runPower();
+}
+
+function runPower() {
+  const name   = document.getElementById('iName').value || 'STOCK';
+  const price  = parseFloat(document.getElementById('iPrice').value) || 0;
+  const atr    = parseFloat(document.getElementById('iATR').value) || 0;
+  const avgVol = parseFloat(document.getElementById('iAvgV').value) || 1;
+  const curVol = parseFloat(document.getElementById('iCurV').value) || 0;
+  const qty    = parseFloat(document.getElementById('iQty').value) || 1;
+  const cLow   = parseFloat(document.getElementById('iCL').value) || price;
+  const cHigh  = parseFloat(document.getElementById('iCH').value) || price;
+
+  let entry, sl, target;
+
+  if (curMode === 'average') {
+    entry  = price;
+    sl     = cLow - atr * 0.5;
+    target = cHigh + atr * 1.5;
+  } else if (curMode === 'intraday') {
+    entry  = price;
+    sl     = price - atr * 1.0;
+    target = price + atr * 2.0;
+  } else if (curMode === 'fixed') {
+    entry  = price;
+    sl     = price - atr * 0.75;
+    target = price + atr * 2.5;
+  } else { // scalp
+    entry  = price;
+    sl     = price - atr * 0.3;
+    target = price + atr * 0.9;
+  }
+
+  // Score: base heuristic
+  const score = Math.min(100, Math.round(50 + (curVol / avgVol - 1) * 30));
+
+  // Probability
+  const prob = Math.min(95, Math.round(55 + (curVol / avgVol - 1) * 20 + (score / 100) * 20));
+
+  // RR
+  const risk   = entry - sl;
+  const reward = target - entry;
+  const rr     = risk > 0 ? (reward / risk).toFixed(1) : '∞';
+
+  // Position size
+  const posSize = qty * price;
+
+  // Update DOM
+  document.getElementById('rStock').textContent  = '👁 ' + name.toUpperCase();
+  const modeLabels = {average:'AVERAGE MODE', intraday:'INTRADAY MODE', fixed:'FIXED MODE', scalp:'SCALP MODE'};
+  document.getElementById('rMode').textContent   = modeLabels[curMode] || 'MODE';
+  document.getElementById('rSig').textContent    = prob >= 70 ? '✅ STRONG BUY' : prob >= 55 ? '⚡ NORMAL' : '⚠ WEAK';
+  document.getElementById('rSig').className      = 'res-sig ' + (prob >= 55 ? 'cg' : '');
+
+  document.getElementById('probFill').style.width = prob + '%';
+  document.getElementById('probChip').textContent  = prob + '%';
+
+  document.getElementById('vEntry').textContent = '₹' + entry.toFixed(2);
+  document.getElementById('vSL').textContent    = '₹' + sl.toFixed(2);
+  document.getElementById('vT1').textContent    = '₹' + target.toFixed(2);
+
+  document.getElementById('posSize').textContent = '₹' + posSize.toLocaleString('en-IN');
+  document.getElementById('rrLive').textContent  = '1:' + rr;
+
+  const secPct = Math.min(95, Math.round(prob * 0.85));
+  document.getElementById('secVal').textContent  = secPct + '%';
+  document.getElementById('secVal2').textContent = secPct + '%';
+
+  const volRatio = (curVol / avgVol).toFixed(1);
+  document.getElementById('volVal').textContent  = volRatio + 'x';
+
+  toast('⚡ ' + name.toUpperCase() + ' — ' + modeLabels[curMode] + ' calculated!');
+}
+
+function setNav(el) {
+  document.querySelectorAll('.bn').forEach(n => n.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function goPage(p) {
+  const map = {
+    home:   '2_home_page.html',
+    signal: '5_scanner.html',
+    chart:  '4_chart_page.html',
+    watch:  '6_watchlist.html',
+    admin:  '8_control_panel.html'
+  };
+  if (map[p]) window.location.href = map[p];
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('sh');
+  setTimeout(() => t.classList.remove('sh'), 2000);
+}
+</script>
+</body>
+</html>

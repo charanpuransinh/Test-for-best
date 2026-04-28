@@ -158,11 +158,11 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'R
   </div>
   <div class="scanner-grid" id="scannerGrid"></div>
   <div class="bottom-nav">
-    <div class="nav-item" onclick="setNav(this)"><div class="nav-icon">🏠</div><div class="nav-label">HOME</div></div>
-    <div class="nav-item active" onclick="setNav(this)"><div class="nav-icon">📡</div><div class="nav-label">SIGNAL</div></div>
-    <div class="nav-item" onclick="setNav(this)"><div class="nav-icon">📊</div><div class="nav-label">CHART</div></div>
-    <div class="nav-item" onclick="setNav(this)"><div class="nav-icon">⭐</div><div class="nav-label">WATCH</div></div>
-    <div class="nav-item" onclick="setNav(this)"><div class="nav-icon">⚙️</div><div class="nav-label">ADMIN</div></div>
+    <div class="nav-item" onclick="goPage('home')"><div class="nav-icon">🏠</div><div class="nav-label">HOME</div></div>
+    <div class="nav-item active"><div class="nav-icon">📡</div><div class="nav-label">SIGNAL</div></div>
+    <div class="nav-item" onclick="goPage('chart')"><div class="nav-icon">📊</div><div class="nav-label">CHART</div></div>
+    <div class="nav-item" onclick="goPage('watch')"><div class="nav-icon">⭐</div><div class="nav-label">WATCH</div></div>
+    <div class="nav-item" onclick="goPage('admin')"><div class="nav-icon">⚙️</div><div class="nav-label">ADMIN</div></div>
   </div>
 </div>
 
@@ -225,6 +225,10 @@ function setTgt(boxId,cId,sId,count,total) {
 
 function closeModal() { document.getElementById('modalBg').classList.remove('show'); }
 function setNav(el) { document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); el.classList.add('active'); }
+function goPage(p) {
+  const map={home:'2_home_page.html',power:'3_power_box.html',chart:'4_chart_page.html',watch:'6_watchlist.html',admin:'8_control_panel.html'};
+  if(map[p])window.location.href=map[p];
+}
 
 renderGrid();
 </script>

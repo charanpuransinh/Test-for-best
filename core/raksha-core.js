@@ -245,12 +245,12 @@
   const Router = {
     pages: {
       'index':         'index.html',
-      'home':          '1_home_page.html',
-      'power':         '2_power_box.html',
-      'scanner':       '3_scanner.html',
+      'home':          '2_home_page.html',
+      'power':         '3_power_box.html',
+      'scanner':       '5_scanner.html',
       'chart':         '4_chart_page.html',
-      'watchlist':     '5_watchlist.html',
-      'control':       '6_control_panel.html'
+      'watchlist':     '6_watchlist.html',
+      'control':       '8_control_panel.html'
     },
     go(name) {
       if (this.pages[name]) location.href = this.pages[name];

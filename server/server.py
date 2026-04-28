@@ -103,7 +103,7 @@ def scanner_mahakal(df: pd.DataFrame) -> dict:
 
 def scanner_bherve(df):       return {"score": 0}   # 7 indicator groups
 def scanner_index_power(df):  return {"score": 0}
-def scanner_trishul_news(df): return {"score": 0}   # NEWS api integrate karna - SELL bug yahin fix karoge
+def scanner_trishul_news(df): return {"score": 0, "reason": "news_api_not_connected", "signal": "NEUTRAL"}   # NEWS api integrate karna
 def scanner_sudarshan(df):    return {"score": 0}
 def scanner_brahmastra(df):   return {"score": 0}
 def scanner_expiry_scalper(df): return {"score": 0}
