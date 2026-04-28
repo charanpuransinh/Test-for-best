@@ -119,6 +119,13 @@ swiper.addEventListener('scroll', ()=>{
     if(iframe && !iframe.src) iframe.src = iframe.dataset.src || '';
   });
 }, {passive:true});
+
+/* Handle postMessage from child iframes (sector → chart navigation) */
+window.addEventListener('message', e => {
+  if (!e.data || e.data.type !== 'goto') return;
+  const page = e.data.page;
+  if (typeof page === 'number') goSlide(page);
+});
 </script>
 </body>
 </html>
