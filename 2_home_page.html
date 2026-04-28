@@ -149,6 +149,8 @@ document.getElementById('heat').innerHTML=SECTORS.map(s=>`
   </div>`).join('');
 
 function goPage(p){
+  const si={home:0,signal:1,power:2,chart:3,watch:4,admin:5};
+  if(window.self!==window.top&&si[p]!==undefined){window.parent.postMessage({goSlide:si[p]},'*');return;}
   const map={signal:'5_scanner.html',power:'3_power_box.html',chart:'4_chart_page.html',watch:'6_watchlist.html',admin:'8_control_panel.html'};
   if(map[p])window.location.href=map[p];
   else showToast('→ '+p.toUpperCase());

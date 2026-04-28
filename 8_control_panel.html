@@ -544,7 +544,17 @@ html, body {
 </main>
 
 <script>
-if(window.self!==window.top){var _n=document.querySelector('.bottom-nav');if(_n)_n.remove();}
+if(window.self!==window.top){
+  var _n=document.querySelector('.bottom-nav');if(_n)_n.remove();
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[href]');
+    if(!a)return;
+    var si={home:0,signal:1,power:2,chart:3,watch:4,admin:5};
+    var map={'2_home_page.html':0,'5_scanner.html':1,'3_power_box.html':2,'4_chart_page.html':3,'6_watchlist.html':4,'8_control_panel.html':5};
+    var idx=map[a.getAttribute('href')];
+    if(idx!==undefined){e.preventDefault();window.parent.postMessage({goSlide:idx},'*');}
+  });
+}
 const $ = id => document.getElementById(id);
 
 function toggleTheme() {

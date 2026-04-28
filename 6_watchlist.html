@@ -352,6 +352,8 @@ function placeOrder(t){
 }
 
 function goPage(p){
+  const si={home:0,signal:1,power:2,chart:3,watch:4,admin:5};
+  if(window.self!==window.top&&si[p]!==undefined){window.parent.postMessage({goSlide:si[p]},'*');return;}
   const map={home:'2_home_page.html',signal:'5_scanner.html',power:'3_power_box.html',chart:'4_chart_page.html',admin:'8_control_panel.html'};
   if(map[p])window.location.href=map[p];
   else showToast('→ '+p.toUpperCase());
