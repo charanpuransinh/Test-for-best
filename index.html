@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TRISHUL :: Loading</title>
+
+<!-- Auto-redirect after 1.5 seconds -->
+<meta http-equiv="refresh" content="1.5;url=1_login.html">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700;800&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  background:#0A0A0A; color:#FFD600;
+  font-family:'JetBrains Mono', monospace;
+  height:100vh; width:100vw;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+
+.boot {
+  text-align:center;
+  padding:24px;
+  max-width:340px;
+}
+
+.trishul-logo {
+  font-size:80px; line-height:1;
+  color:#FFD600;
+  margin-bottom:20px;
+  filter: drop-shadow(0 0 20px rgba(255, 214, 0, 0.6));
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.brand {
+  font-family:'Space Grotesk', sans-serif;
+  font-size:32px; font-weight:800;
+  letter-spacing:0.15em;
+  color:#FFD600;
+  margin-bottom:8px;
+}
+
+.tagline {
+  font-size:11px;
+  letter-spacing:0.3em;
+  color:#999;
+  font-weight:600;
+  margin-bottom:32px;
+}
+
+.tagline b { color:#FFD600; }
+
+.loader {
+  width:200px; height:3px;
+  background:#1A1A1A;
+  margin:0 auto 12px;
+  position:relative;
+  overflow:hidden;
+}
+
+.loader::after {
+  content:'';
+  position:absolute;
+  top:0; left:0; height:100%;
+  width:100%;
+  background:linear-gradient(90deg, transparent, #FFD600, transparent);
+  animation: load 1.5s ease-in-out infinite;
+}
+
+.status {
+  font-size:9px;
+  letter-spacing:0.25em;
+  color:#666;
+  font-weight:700;
+}
+
+.status .dot {
+  display:inline-block;
+  width:5px; height:5px;
+  background:#00E676;
+  border-radius:50%;
+  margin-right:6px;
+  animation: blink 1s steps(2) infinite;
+  box-shadow:0 0 6px #00E676;
+}
+
+.version {
+  position:absolute;
+  bottom:20px;
+  font-size:9px;
+  color:#444;
+  letter-spacing:0.2em;
+}
+
+@keyframes pulse {
+  0%, 100% { transform:scale(1); opacity:1; }
+  50% { transform:scale(1.05); opacity:0.85; }
+}
+
+@keyframes load {
+  0% { transform:translateX(-100%); }
+  100% { transform:translateX(100%); }
+}
+
+@keyframes blink {
+  50% { opacity:0.3; }
+}
+
+/* Manual link if redirect doesn't work */
+.fallback {
+  margin-top:24px;
+  font-size:10px;
+  color:#666;
+}
+.fallback a {
+  color:#FFD600;
+  text-decoration:none;
+  border-bottom:1px solid #FFD600;
+  font-weight:700;
+  letter-spacing:0.1em;
+}
+.fallback a:hover { color:#FFEB3B; }
+</style>
+</head>
+
+<body>
+<div class="boot">
+  <div class="trishul-logo">🔱</div>
+  <div class="brand">TRISHUL</div>
+  <div class="tagline">MOGAL <b>·</b> RAKSHA <b>·</b> v1.0.0</div>
+  
+  <div class="loader"></div>
+  <div class="status">
+    <span class="dot"></span>
+    INITIALIZING SYSTEM
+  </div>
+
+  <div class="fallback">
+    Page nahi khul raha?<br>
+    <a href="1_login.html">→ CLICK HERE TO LOGIN</a>
+  </div>
+</div>
+
+<div class="version">v1.0.0 · CHARAN · MOGAL INDUSTRIES</div>
+
+<script>
+  // JS-based redirect as backup (faster than meta refresh)
+  setTimeout(() => {
+    window.location.href = '1_login.html';
+  }, 1500);
+</script>
+</body>
+</html>
