@@ -224,6 +224,7 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
 <div class="toast" id="toast"></div>
 
 <script>
+if(window.self!==window.top){var _n=document.querySelector('.bnav');if(_n)_n.remove();var _s=document.querySelector('.sc');if(_s)_s.style.paddingBottom='0';}
 const STOCKS=[
   {n:1,sym:'TCS',px:2016,scan:'TS',sig:'SELL',scr:94},
   {n:2,sym:'HDFC BANK',px:2031,scan:'SS',sig:'BUY',scr:93},

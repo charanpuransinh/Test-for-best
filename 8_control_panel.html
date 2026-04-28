@@ -544,6 +544,7 @@ html, body {
 </main>
 
 <script>
+if(window.self!==window.top){var _n=document.querySelector('.bottom-nav');if(_n)_n.remove();}
 const $ = id => document.getElementById(id);
 
 function toggleTheme() {

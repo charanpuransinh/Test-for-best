@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>TRISHUL PRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:#000;overflow:hidden;}
+.shell{
+  width:100%;max-width:430px;height:100%;
+  margin:0 auto;display:flex;flex-direction:column;background:#000;
+}
+.swiper{
+  flex:1;min-height:0;
+  display:flex;
+  overflow-x:scroll;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.swiper::-webkit-scrollbar{display:none;}
+.slide{
+  flex-shrink:0;width:100%;height:100%;
+  scroll-snap-align:start;overflow:hidden;
+}
+.slide iframe{width:100%;height:100%;border:none;display:block;}
+
+/* ── Bottom Nav ── */
+.bnav{
+  flex-shrink:0;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  background:#000;
+  border-top:2px solid #F5C518;
+  height:50px;
+  z-index:10;
+}
+.bn{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:1px;cursor:pointer;
+  color:#444;
+  border-right:1px solid #1a1a1a;
+  transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.bn:last-child{border-right:none;}
+.bn:active{background:rgba(245,197,24,.08);}
+.bn.on{color:#F5C518;background:linear-gradient(180deg,rgba(245,197,24,.13),transparent);}
+.bn.on .bn-i{filter:drop-shadow(0 0 5px rgba(245,197,24,.7));}
+.bn-i{font-size:17px;line-height:1;}
+.bn-t{font-size:7px;font-weight:800;letter-spacing:.5px;margin-top:2px;}
+
+/* swipe hint bar */
+.swipe-dots{
+  position:absolute;bottom:56px;left:50%;transform:translateX(-50%);
+  display:flex;gap:4px;z-index:9;pointer-events:none;
+}
+.sd{width:4px;height:4px;border-radius:50%;background:#333;transition:background .2s;}
+.sd.on{background:#F5C518;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="swiper" id="swiper">
+    <div class="slide"><iframe src="2_home_page.html"       title="HOME"   loading="eager"></iframe></div>
+    <div class="slide"><iframe src="5_scanner.html"         title="SIGNAL" loading="eager"></iframe></div>
+    <div class="slide"><iframe src="3_power_box.html"       title="POWER"  loading="lazy"></iframe></div>
+    <div class="slide"><iframe src="4_chart_page.html"      title="CHART"  loading="lazy"></iframe></div>
+    <div class="slide"><iframe src="6_watchlist.html"       title="WATCH"  loading="lazy"></iframe></div>
+    <div class="slide"><iframe src="8_control_panel.html"   title="ADMIN"  loading="lazy"></iframe></div>
+  </div>
+
+  <nav class="bnav" id="bnav">
+    <div class="bn on" onclick="goSlide(0)"><div class="bn-i">🏠</div><div class="bn-t">HOME</div></div>
+    <div class="bn"    onclick="goSlide(1)"><div class="bn-i">📡</div><div class="bn-t">SIGNAL</div></div>
+    <div class="bn"    onclick="goSlide(2)"><div class="bn-i">⚡</div><div class="bn-t">POWER</div></div>
+    <div class="bn"    onclick="goSlide(3)"><div class="bn-i">📈</div><div class="bn-t">CHART</div></div>
+    <div class="bn"    onclick="goSlide(4)"><div class="bn-i">⭐</div><div class="bn-t">WATCH</div></div>
+    <div class="bn"    onclick="goSlide(5)"><div class="bn-i">⚙️</div><div class="bn-t">ADMIN</div></div>
+  </nav>
+</div>
+
+<script>
+const swiper = document.getElementById('swiper');
+const bns    = document.querySelectorAll('.bn');
+let   cur    = 0;
+
+function setActive(idx){
+  cur = idx;
+  bns.forEach((b,i)=>b.classList.toggle('on', i===idx));
+}
+
+function goSlide(idx){
+  swiper.scrollTo({left: swiper.clientWidth * idx, behavior:'smooth'});
+  setActive(idx);
+}
+
+/* Update nav on scroll-snap settle */
+let scrollTimer;
+swiper.addEventListener('scroll', ()=>{
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(()=>{
+    const idx = Math.round(swiper.scrollLeft / swiper.clientWidth);
+    setActive(idx);
+  }, 80);
+}, {passive:true});
+
+/* Lazy-load iframes when sliding near them */
+swiper.addEventListener('scroll', ()=>{
+  const idx = Math.round(swiper.scrollLeft / swiper.clientWidth);
+  [-1,0,1].forEach(d=>{
+    const slide = swiper.children[idx+d];
+    if(!slide) return;
+    const iframe = slide.querySelector('iframe');
+    if(iframe && !iframe.src) iframe.src = iframe.dataset.src || '';
+  });
+}, {passive:true});
+</script>
+</body>
+</html>
