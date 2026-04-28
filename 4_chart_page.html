@@ -193,6 +193,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); overflow:hidde
 </div>
 
 <script>
+if(window.self!==window.top){var _n=document.querySelector('.bottom-nav');if(_n)_n.remove();}
 // Stock database
 const STOCKS = {
   'NIFTY':     { price:24963.08, f:24927.62, vp:24617.87, chg:-0.18 },

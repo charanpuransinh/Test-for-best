@@ -238,6 +238,7 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
 <div class="toast" id="toast"></div>
 
 <script>
+if(window.self!==window.top){var _n=document.querySelector('.bnav');if(_n)_n.remove();var _s=document.querySelector('.page');if(_s)_s.style.paddingBottom='0';}
 let curMode = 'average';
 
 function setMode(mode) {

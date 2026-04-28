@@ -167,6 +167,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'R
 </div>
 
 <script>
+if(window.self!==window.top){var _n=document.querySelector('.bottom-nav');if(_n)_n.remove();}
 const SCANNERS = [
   { name:'MORNING\nBELL', icon:'🔔', criteria:['Price >500','Score 0-100','CMF > 0','OBV Rising','15m Breakout','Sector OK'], total:14, buy:10, sell:4, win:11, sl:2, pending:1, t1:11, t2:8, t3:5 },
   { name:'MAHAKAL', icon:'⚡', criteria:['Candlestick','Chart Pattern','Trendline','S/R Zone','Fibonacci','Round No','Risk Reward','Mkt Structure'], total:12, buy:9, sell:3, win:10, sl:1, pending:1, t1:10, t2:7, t3:4 },
