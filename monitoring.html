@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAKSHA :: MONITORING</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root, [data-theme="dark"] {
+  --bg-page:#0A0A0A; --bg-card:#111; --bg-card-2:#1A1A1A; --bg-stripe:#161616;
+  --border-1:#FFD60022; --border-2:#FFD60044; --border-3:#FFD600;
+  --ink-0:#FFFFFF; --ink-1:#E5E5E5; --ink-2:#999; --ink-3:#666; --ink-4:#444;
+  --yellow:#FFD600; --yellow-dim:#B89500; --yellow-soft:#FFEB3B;
+  --green:#00E676; --red:#FF1744; --orange:#FF9100;
+  --shadow-r:0 0 12px rgba(255,23,68,0.4);
+  --font-mono:'JetBrains Mono',monospace;
+  --font-disp:'Space Grotesk',sans-serif;
+}
+[data-theme="light"] {
+  --bg-page:#FFFEF5; --bg-card:#FFFFFF; --bg-card-2:#FFF8E1; --bg-stripe:#FFFAEB;
+  --border-1:#B8860B33; --border-2:#B8860B66; --border-3:#B8860B;
+  --ink-0:#0A0A0A; --ink-1:#1F1F1F; --ink-2:#555; --ink-3:#888; --ink-4:#BBB;
+  --yellow:#F9A825; --yellow-dim:#B8860B; --yellow-soft:#FFD54F;
+  --green:#2D7A2D; --red:#D32F2F; --orange:#E65100;
+  --shadow-r:0 0 8px rgba(211,47,47,0.4);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  background:var(--bg-page); color:var(--ink-1);
+  font-family:var(--font-mono); font-size:13px; line-height:1.4;
+  -webkit-font-smoothing:antialiased;
+  transition:background 0.3s, color 0.3s;
+}
+.shell {
+  max-width:480px; margin:0 auto;
+  background:var(--bg-page);
+  border-left:2px solid var(--yellow); border-right:2px solid var(--yellow);
+  min-height:100vh;
+}
+.header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px;
+  border-bottom:2px solid var(--yellow);
+  background:var(--bg-page);
+}
+.header-title {
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-disp); font-weight:800;
+  font-size:18px; letter-spacing:0.08em; color:var(--yellow);
+}
+.trishul-icon { font-size:20px; color:var(--yellow); }
+.header-right { display:flex; align-items:center; gap:10px; }
+.ai-status {
+  display:flex; align-items:center; gap:5px;
+  font-size:9px; letter-spacing:0.12em; color:var(--ink-2); font-weight:600;
+}
+.ai-dot {
+  width:7px; height:7px; background:var(--green); border-radius:50%;
+  animation:pulse 1.5s ease-in-out infinite;
+  box-shadow:0 0 6px var(--green);
+}
+@keyframes pulse { 50%{opacity:0.4;} }
+.theme-toggle {
+  background:transparent; border:1px solid var(--border-2);
+  width:30px; height:30px; cursor:pointer;
+  display:grid; place-items:center;
+  color:var(--yellow); font-size:14px;
+  transition:all 0.2s;
+}
+.theme-toggle:hover { border-color:var(--yellow); }
+.stop-btn {
+  width:30px; height:30px; border-radius:50%;
+  background:var(--red); border:2px solid var(--red);
+  display:grid; place-items:center;
+  cursor:pointer; box-shadow:var(--shadow-r);
+}
+.stop-btn::before { content:''; width:10px; height:10px; background:#FFF; }
+.page-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 16px;
+  background:var(--bg-card);
+  border-bottom:1px solid var(--border-2);
+}
+.page-title {
+  font-family:var(--font-disp); font-size:13px; font-weight:700;
+  color:var(--yellow); letter-spacing:0.1em;
+}
+.page-nav {
+  background:var(--yellow); color:#000;
+  padding:5px 11px; font-size:9px; font-weight:700;
+  letter-spacing:0.15em; text-decoration:none;
+  font-family:var(--font-mono);
+}
+.metrics {
+  display:grid; grid-template-columns:repeat(3, 1fr);
+  background:var(--bg-card);
+  border-bottom:1px solid var(--border-2);
+}
+.metric {
+  padding:11px 11px;
+  border-right:1px solid var(--border-1);
+  border-bottom:1px solid var(--border-1);
+}
+.metric:nth-child(3n) { border-right:0; }
+.metric:nth-child(n+4) { border-bottom:0; }
+.m-label {
+  font-size:8px; letter-spacing:0.18em; color:var(--ink-3);
+  text-transform:uppercase; font-weight:600; margin-bottom:4px;
+}
+.m-value {
+  font-family:var(--font-disp); font-size:17px; font-weight:800;
+  color:var(--yellow); line-height:1; letter-spacing:-0.02em;
+  font-variant-numeric:tabular-nums;
+}
+.m-value small { font-size:9px; color:var(--ink-3); font-weight:600; }
+.m-trend { font-size:9px; color:var(--ink-2); margin-top:4px; font-weight:500; }
+.m-trend.up { color:var(--green); }
+.m-trend.down { color:var(--red); }
+.sec-head {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 16px;
+  background:var(--bg-page);
+  border-top:2px solid var(--yellow);
+  border-bottom:1px solid var(--border-2);
+}
+.sec-mark { width:10px; height:10px; background:var(--yellow); }
+.sec-num { font-size:9px; color:var(--ink-3); letter-spacing:0.15em; font-weight:600; }
+.sec-title {
+  font-family:var(--font-disp); font-size:12px; font-weight:700;
+  color:var(--ink-0); letter-spacing:0.15em; text-transform:uppercase; flex:1;
+}
+.sec-meta {
+  font-size:9px; color:#000; letter-spacing:0.1em;
+  background:var(--yellow); padding:3px 7px; font-weight:700;
+}
+.health-grid {
+  display:grid; grid-template-columns:repeat(2, 1fr);
+  background:var(--bg-page);
+  padding:8px; gap:8px;
+}
+.hcard {
+  background:var(--bg-card);
+  border:1px solid var(--border-2);
+  padding:13px 11px;
+  position:relative;
+  transition:all 0.15s;
+}
+.hcard:hover { border-color:var(--yellow); background:var(--bg-card-2); }
+.hcard.ok { border-left:3px solid var(--green); }
+.hcard.warn { border-left:3px solid var(--orange); }
+.hcard.down { border-left:3px solid var(--red); }
+.hcard-top {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:8px;
+}
+.hcard-icon { font-size:20px; line-height:1; }
+.hcard-status-dot { width:8px; height:8px; border-radius:50%; }
+.hcard.ok .hcard-status-dot { background:var(--green); box-shadow:0 0 6px var(--green); }
+.hcard.warn .hcard-status-dot { background:var(--orange); box-shadow:0 0 6px var(--orange); }
+.hcard.down .hcard-status-dot { background:var(--red); box-shadow:0 0 6px var(--red); animation:pulse 1s ease-in-out infinite; }
+.hcard-tag {
+  font-size:8px; letter-spacing:0.15em; color:var(--yellow);
+  font-weight:700; margin-bottom:3px;
+}
+.hcard-name {
+  font-family:var(--font-disp); font-size:12px; font-weight:700;
+  color:var(--ink-0); letter-spacing:0.05em; text-transform:uppercase;
+  margin-bottom:5px;
+}
+.hcard-value {
+  font-family:var(--font-disp); font-size:10px; font-weight:600;
+  letter-spacing:0.05em; margin-bottom:6px;
+}
+.hcard.ok .hcard-value { color:var(--green); }
+.hcard.warn .hcard-value { color:var(--orange); }
+.hcard.down .hcard-value { color:var(--red); }
+.hcard-stats {
+  display:flex; gap:9px; align-items:center;
+  font-size:9px; padding-top:6px;
+  border-top:1px solid var(--border-1);
+}
+.hcard-stats .up { color:var(--green); font-weight:700; }
+.hcard-stats .down { color:var(--red); font-weight:700; }
+.live-tag {
+  display:flex; align-items:center; gap:3px; margin-left:auto;
+  font-size:8px; color:var(--green); letter-spacing:0.1em; font-weight:700;
+}
+.live-tag::before {
+  content:''; width:5px; height:5px; background:var(--green); border-radius:50%;
+}
+.pipeline {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px;
+  background:var(--bg-card);
+  border-bottom:1px solid var(--border-2);
+  gap:6px;
+}
+.pipe-node {
+  flex:1;
+  background:var(--bg-page); border:1px solid var(--border-2);
+  padding:10px 6px; text-align:center;
+  position:relative;
+}
+.pipe-node.active { border-color:var(--yellow); background:var(--bg-card-2); }
+.pipe-arrow { color:var(--yellow); font-size:14px; font-weight:700; flex-shrink:0; }
+.pipe-icon {
+  width:26px; height:26px; margin:0 auto 5px;
+  background:var(--yellow); color:#000;
+  display:grid; place-items:center; border-radius:50%;
+  font-family:var(--font-disp); font-weight:800; font-size:11px;
+}
+.pipe-label {
+  font-size:8px; color:var(--ink-2); letter-spacing:0.1em;
+  text-transform:uppercase; font-weight:600; margin-bottom:2px;
+}
+.pipe-value {
+  font-family:var(--font-disp); font-size:11px; font-weight:700; color:var(--yellow);
+}
+.pipe-status {
+  position:absolute; top:4px; right:4px;
+  width:6px; height:6px; border-radius:50%; background:var(--green);
+}
+.log-wrap { background:var(--bg-page); }
+.log-strip {
+  display:grid; grid-template-columns:60px 50px 1fr;
+  padding:9px 16px; gap:10px;
+  border-bottom:1px solid var(--border-1);
+  font-size:11px; align-items:center;
+}
+.log-strip:hover { background:var(--bg-card); }
+.log-time { color:var(--ink-3); font-size:9px; font-weight:600; }
+.log-tag {
+  display:inline-block; padding:2px 6px;
+  font-size:8px; letter-spacing:0.15em; font-weight:700; text-align:center;
+}
+.log-tag.ok { color:#000; background:var(--green); }
+.log-tag.err { color:#FFF; background:var(--red); }
+.log-msg {
+  color:var(--ink-1); font-size:10px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.log-msg .key { color:var(--yellow); font-weight:700; margin-right:4px; }
+.status-footer {
+  display:grid; grid-template-columns:repeat(2, 1fr);
+  background:var(--bg-card);
+  border-top:2px solid var(--yellow);
+}
+.sf-cell {
+  padding:9px 14px;
+  border-right:1px solid var(--border-1);
+  border-bottom:1px solid var(--border-1);
+}
+.sf-cell:nth-child(2n) { border-right:0; }
+.sf-cell:nth-last-child(-n+2) { border-bottom:0; }
+.sf-label {
+  font-size:8px; letter-spacing:0.18em; color:var(--ink-3);
+  text-transform:uppercase; font-weight:700;
+}
+.sf-value {
+  font-family:var(--font-mono); font-size:11px;
+  color:var(--yellow); font-weight:700; margin-top:2px;
+}
+.bottom-nav {
+  display:grid; grid-template-columns:repeat(6, 1fr);
+  background:var(--bg-page);
+  border-top:2px solid var(--yellow);
+  padding:8px 0 6px;
+}
+.nav-item {
+  text-align:center; cursor:pointer;
+  text-decoration:none; color:var(--ink-2);
+  transition:color 0.15s;
+}
+.nav-item:hover, .nav-item.active { color:var(--yellow); }
+.nav-icon { font-size:18px; line-height:1; margin-bottom:3px; display:block; }
+.nav-label {
+  font-size:8px; font-weight:700; letter-spacing:0.1em;
+  font-family:var(--font-mono);
+}
+</style>
+</head>
+<body data-theme="dark">
+<main class="shell">
+  <header class="header">
+    <div class="header-title">
+      <span class="trishul-icon">🔱</span>
+      <span>MONITORING</span>
+    </div>
+    <div class="header-right">
+      <div class="ai-status">
+        <span class="ai-dot"></span>
+        <span>AI ACTIVE</span>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☾</button>
+      <button class="stop-btn" title="Stop"></button>
+    </div>
+  </header>
+
+  <div class="page-bar">
+    <div class="page-title">⚡ SYSTEM HEALTH</div>
+    <a href="control_panel.html" class="page-nav">CONTROL →</a>
+  </div>
+
+  <section class="metrics">
+    <div class="metric">
+      <div class="m-label">Uptime</div>
+      <div class="m-value" id="uptime">00:00:00</div>
+      <div class="m-trend">since boot</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">API Calls</div>
+      <div class="m-value">1,247</div>
+      <div class="m-trend up">↑ 124/hr</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Latency</div>
+      <div class="m-value">142<small>ms</small></div>
+      <div class="m-trend">avg p50</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Repairs</div>
+      <div class="m-value">5</div>
+      <div class="m-trend">last 24h</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Errors</div>
+      <div class="m-value">2</div>
+      <div class="m-trend down">last hour</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Memory</div>
+      <div class="m-value">287<small>KB</small></div>
+      <div class="m-trend">localStorage</div>
+    </div>
+  </section>
+
+  <div class="sec-head">
+    <div class="sec-mark"></div>
+    <div class="sec-num">SEC.01</div>
+    <div class="sec-title">Component Health</div>
+    <div class="sec-meta" id="lastCheck">SCAN 30s</div>
+  </div>
+
+  <section class="health-grid">
+    <div class="hcard ok">
+      <div class="hcard-top"><span class="hcard-icon">🌐</span><span class="hcard-status-dot"></span></div>
+      <div class="hcard-tag">🔱 BACKEND</div>
+      <div class="hcard-name">REST API</div>
+      <div class="hcard-value">ONLINE · 142ms</div>
+      <div class="hcard-stats">
+        <span class="up">▲ 1247</span><span class="down">▼ 2</span>
+        <span class="live-tag">LIVE</span>
+      </div>
+    </div>
+    <div class="hcard ok">
+      <div class="hcard-top"><span class="hcard-icon">📡</span><span class="hcard-status-dot"></span></div>
+      <div class="hcard-tag">🔱 STREAM</div>
+      <div class="hcard-name">LIVE TICKS</div>
+      <div class="hcard-value">STREAMING</div>
+      <div class="hcard-stats">
+        <span class="up">▲ 8423</span><span class="down">▼ 0</span>
+        <span class="live-tag">LIVE</span>
+      </div>
+    </div>
+    <div class="hcard warn">
+      <div class="hcard-top"><span class="hcard-icon">🏦</span><span class="hcard-status-dot"></span></div>
+      <div class="hcard-tag">🔱 BROKER</div>
+      <div class="hcard-name">SESSION</div>
+      <div class="hcard-value">EXPIRING · 7.2h</div>
+      <div class="hcard-stats">
+        <span class="up">▲ ZERODHA</span>
+        <span class="live-tag">LIVE</span>
+      </div>
+    </div>
+    <div class="hcard ok">
+      <div class="hcard-top"><span class="hcard-icon">💾</span><span class="hcard-status-dot"></span></div>
+      <div class="hcard-tag">🔱 STORAGE</div>
+      <div class="hcard-name">LOCAL DB</div>
+      <div class="hcard-value">287 KB · OK</div>
+      <div class="hcard-stats">
+        <span class="up">▲ 14 keys</span>
+        <span class="live-tag">LIVE</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="sec-head">
+    <div class="sec-mark"></div>
+    <div class="sec-num">SEC.02</div>
+    <div class="sec-title">Pipeline Flow</div>
+    <div class="sec-meta">REAL-TIME</div>
+  </div>
+
+  <section class="pipeline">
+    <div class="pipe-node active">
+      <span class="pipe-status"></span>
+      <div class="pipe-icon">B</div>
+      <div class="pipe-label">Broker</div>
+      <div class="pipe-value">10/10</div>
+    </div>
+    <div class="pipe-arrow">▶</div>
+    <div class="pipe-node active">
+      <span class="pipe-status"></span>
+      <div class="pipe-icon">A</div>
+      <div class="pipe-label">AWS API</div>
+      <div class="pipe-value">142ms</div>
+    </div>
+    <div class="pipe-arrow">▶</div>
+    <div class="pipe-node active">
+      <span class="pipe-status"></span>
+      <div class="pipe-icon">S</div>
+      <div class="pipe-label">Scanners</div>
+      <div class="pipe-value">8/9</div>
+    </div>
+  </section>
+
+  <div class="sec-head">
+    <div class="sec-mark"></div>
+    <div class="sec-num">SEC.03</div>
+    <div class="sec-title">Self-Repair Log</div>
+    <div class="sec-meta">5 EVENTS</div>
+  </div>
+
+  <section class="log-wrap">
+    <div class="log-strip">
+      <span class="log-time">14:23:45</span>
+      <span class="log-tag ok">OK</span>
+      <span class="log-msg"><span class="key">WS.RECONNECT</span>Last tick 62s · reconnected</span>
+    </div>
+    <div class="log-strip">
+      <span class="log-time">14:18:12</span>
+      <span class="log-tag ok">OK</span>
+      <span class="log-msg"><span class="key">TOKEN.REFRESH</span>Refreshed (was 7.2h old)</span>
+    </div>
+    <div class="log-strip">
+      <span class="log-time">14:12:33</span>
+      <span class="log-tag ok">OK</span>
+      <span class="log-msg"><span class="key">SCANNER.OFF</span>expiry_scalper · 3 fails</span>
+    </div>
+    <div class="log-strip">
+      <span class="log-time">14:05:18</span>
+      <span class="log-tag ok">OK</span>
+      <span class="log-msg"><span class="key">STORAGE.CLEAN</span>Freed 4280KB</span>
+    </div>
+    <div class="log-strip">
+      <span class="log-time">13:58:02</span>
+      <span class="log-tag err">FAIL</span>
+      <span class="log-msg"><span class="key">BACKEND.FALL</span>API timeout x3</span>
+    </div>
+  </section>
+
+  <footer class="status-footer">
+    <div class="sf-cell"><div class="sf-label">Server</div><div class="sf-value">13.206.70.60</div></div>
+    <div class="sf-cell"><div class="sf-label">Region</div><div class="sf-value">AP-SOUTH-1</div></div>
+    <div class="sf-cell"><div class="sf-label">Watchdog</div><div class="sf-value">ACTIVE · 30s</div></div>
+    <div class="sf-cell"><div class="sf-label">Build</div><div class="sf-value">v1.0.0</div></div>
+  </footer>
+
+  <nav class="bottom-nav">
+    <a class="nav-item" href="1_home_page.html"><span class="nav-icon">🏠</span><span class="nav-label">HOME</span></a>
+    <a class="nav-item" href="3_scanner.html"><span class="nav-icon">📡</span><span class="nav-label">SIGNAL</span></a>
+    <a class="nav-item" href="2_power_box.html"><span class="nav-icon">⚡</span><span class="nav-label">POWER</span></a>
+    <a class="nav-item" href="4_chart_page.html"><span class="nav-icon">📊</span><span class="nav-label">CHART</span></a>
+    <a class="nav-item" href="5_watchlist.html"><span class="nav-icon">⭐</span><span class="nav-label">WATCH</span></a>
+    <a class="nav-item active" href="6_control_panel.html"><span class="nav-icon">⚙️</span><span class="nav-label">ADMIN</span></a>
+  </nav>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const startTs = Date.now();
+
+function toggleTheme() {
+  const current = document.body.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', next);
+  $('themeBtn').textContent = next === 'dark' ? '☾' : '☀';
+  try { localStorage.setItem('raksha:theme', next); } catch(e){}
+}
+
+try {
+  const saved = localStorage.getItem('raksha:theme') || 'dark';
+  document.body.setAttribute('data-theme', saved);
+  $('themeBtn').textContent = saved === 'dark' ? '☾' : '☀';
+} catch(e){}
+
+function updateUptime() {
+  const up = Math.floor((Date.now() - startTs) / 1000);
+  const h = String(Math.floor(up/3600)).padStart(2,'0');
+  const m = String(Math.floor((up%3600)/60)).padStart(2,'0');
+  const s = String(up%60).padStart(2,'0');
+  $('uptime').textContent = `${h}:${m}:${s}`;
+  $('lastCheck').textContent = 'SCAN ' + new Date().toLocaleTimeString('en-IN',{hour12:false}).slice(0,8);
+}
+setInterval(updateUptime, 1000); updateUptime();
+</script>
+</body>
+</html>

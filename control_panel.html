@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAKSHA :: CONTROL PANEL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root, [data-theme="dark"] {
+  --bg-page:#0A0A0A; --bg-card:#111; --bg-card-2:#1A1A1A; --bg-stripe:#161616;
+  --border-1:#FFD60022; --border-2:#FFD60044; --border-3:#FFD600;
+  --ink-0:#FFFFFF; --ink-1:#E5E5E5; --ink-2:#999; --ink-3:#666; --ink-4:#444;
+  --yellow:#FFD600; --yellow-dim:#B89500; --yellow-soft:#FFEB3B;
+  --green:#00E676; --red:#FF1744; --orange:#FF9100;
+  --shadow-r:0 0 12px rgba(255,23,68,0.4);
+  --font-mono:'JetBrains Mono',monospace;
+  --font-disp:'Space Grotesk',sans-serif;
+}
+[data-theme="light"] {
+  --bg-page:#FFFEF5; --bg-card:#FFFFFF; --bg-card-2:#FFF8E1; --bg-stripe:#FFFAEB;
+  --border-1:#B8860B33; --border-2:#B8860B66; --border-3:#B8860B;
+  --ink-0:#0A0A0A; --ink-1:#1F1F1F; --ink-2:#555; --ink-3:#888; --ink-4:#BBB;
+  --yellow:#F9A825; --yellow-dim:#B8860B; --yellow-soft:#FFD54F;
+  --green:#2D7A2D; --red:#D32F2F; --orange:#E65100;
+  --shadow-r:0 0 8px rgba(211,47,47,0.4);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  background:var(--bg-page); color:var(--ink-1);
+  font-family:var(--font-mono); font-size:13px; line-height:1.4;
+  -webkit-font-smoothing:antialiased;
+  transition:background 0.3s, color 0.3s;
+}
+.shell {
+  max-width:480px; margin:0 auto;
+  background:var(--bg-page);
+  border-left:2px solid var(--yellow); border-right:2px solid var(--yellow);
+  min-height:100vh; padding-bottom:0;
+}
+
+/* HEADER */
+.header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px;
+  border-bottom:2px solid var(--yellow);
+}
+.header-title {
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-disp); font-weight:800;
+  font-size:18px; letter-spacing:0.08em; color:var(--yellow);
+}
+.header-right { display:flex; align-items:center; gap:10px; }
+.theme-toggle {
+  background:transparent; border:1px solid var(--border-2);
+  width:30px; height:30px; cursor:pointer;
+  display:grid; place-items:center;
+  color:var(--yellow); font-size:14px;
+}
+.stop-btn {
+  width:30px; height:30px; border-radius:50%;
+  background:var(--red); border:2px solid var(--red);
+  display:grid; place-items:center;
+  cursor:pointer; box-shadow:var(--shadow-r);
+}
+.stop-btn::before { content:''; width:10px; height:10px; background:#FFF; }
+
+/* PROFILE CARD - matches Master Control screenshot */
+.profile-card {
+  margin:12px;
+  background:var(--bg-card);
+  border:2px solid var(--yellow);
+  padding:14px;
+  position:relative;
+}
+.profile-top {
+  display:grid; grid-template-columns:auto 1fr; gap:14px;
+  margin-bottom:14px;
+}
+.profile-avatar {
+  width:80px; height:80px;
+  background:var(--yellow); color:#000;
+  display:grid; place-items:center;
+  font-family:var(--font-disp); font-weight:800; font-size:48px;
+  line-height:1; position:relative;
+  border:2px solid var(--yellow);
+}
+.profile-avatar::after {
+  content:''; position:absolute;
+  bottom:-4px; right:-4px;
+  width:14px; height:14px; background:var(--green);
+  border-radius:50%; border:2px solid var(--bg-card);
+}
+.profile-info { display:flex; flex-direction:column; gap:5px; }
+.profile-id {
+  font-family:var(--font-disp); font-size:18px; font-weight:800;
+  color:var(--yellow); letter-spacing:0.05em;
+}
+.profile-row {
+  display:flex; align-items:center; gap:6px;
+  font-size:10px; color:var(--ink-2); letter-spacing:0.05em;
+}
+.profile-row.active { color:var(--green); font-weight:700; }
+.profile-row .dot {
+  width:6px; height:6px; background:var(--green); border-radius:50%;
+  flex-shrink:0;
+}
+.profile-buttons {
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+}
+.profile-btn {
+  background:var(--bg-card-2); border:1px solid var(--yellow);
+  color:var(--yellow);
+  padding:10px; font-family:var(--font-mono);
+  font-size:11px; font-weight:700; letter-spacing:0.12em;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.profile-btn:hover { background:var(--yellow); color:#000; }
+.profile-btn.save { color:var(--green); border-color:var(--green); }
+.profile-btn.save:hover { background:var(--green); color:#000; }
+
+/* TABS - 1 DAY / 1 WEEK / 1 MONTH */
+.tabs {
+  display:grid; grid-template-columns:repeat(3, 1fr);
+  margin:0 12px;
+  background:var(--bg-card);
+  border:1px solid var(--border-2);
+  border-bottom:0;
+}
+.tab {
+  padding:11px;
+  text-align:center;
+  font-family:var(--font-disp); font-size:12px; font-weight:700;
+  letter-spacing:0.1em; color:var(--ink-2);
+  cursor:pointer; border-right:1px solid var(--border-1);
+  transition:all 0.15s;
+}
+.tab:last-child { border-right:0; }
+.tab.active {
+  background:var(--yellow); color:#000;
+}
+.tab:not(.active):hover { background:var(--bg-card-2); color:var(--yellow); }
+
+/* PnL CARD */
+.pnl-card {
+  margin:0 12px;
+  background:var(--bg-card);
+  border:1px solid var(--border-2);
+  padding:18px 14px;
+}
+.pnl-row {
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:14px;
+}
+.pnl-label {
+  display:flex; align-items:center; gap:6px;
+  font-size:10px; color:var(--ink-2); letter-spacing:0.18em;
+  text-transform:uppercase; font-weight:700;
+}
+.pnl-value {
+  margin-left:auto;
+  font-family:var(--font-disp); font-size:26px; font-weight:800;
+  color:var(--green); letter-spacing:-0.02em;
+  font-variant-numeric:tabular-nums;
+}
+.pnl-stats {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:8px;
+  padding-top:12px;
+  border-top:1px solid var(--border-1);
+}
+.pnl-stat {
+  display:flex; align-items:center; gap:6px;
+  font-size:11px; color:var(--ink-1);
+}
+.pnl-stat .ic { font-size:14px; }
+.pnl-stat b { color:var(--yellow); font-weight:700; margin-left:auto; }
+
+/* NAV LIST - matches screenshot */
+.nav-list {
+  margin:14px 12px 12px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.nav-row {
+  display:flex; align-items:center; gap:12px;
+  background:var(--bg-card);
+  border:1px solid var(--border-2);
+  padding:12px 14px;
+  text-decoration:none;
+  transition:all 0.15s;
+}
+.nav-row:hover { border-color:var(--yellow); }
+.nav-row .ic { font-size:22px; line-height:1; flex-shrink:0; }
+.nav-row .label {
+  flex:1;
+  font-family:var(--font-disp); font-size:13px; font-weight:700;
+  color:var(--ink-0); letter-spacing:0.08em; text-transform:uppercase;
+}
+.nav-row .go {
+  background:var(--yellow); color:#000;
+  padding:6px 12px;
+  font-family:var(--font-mono); font-size:11px; font-weight:700;
+  letter-spacing:0.15em;
+  display:flex; align-items:center; gap:5px;
+}
+.nav-row:hover .go { background:var(--yellow-soft); }
+
+/* PASSWORD BUTTON */
+.pwd-btn {
+  margin:0 12px;
+  background:var(--bg-card);
+  border:1px solid var(--border-2);
+  padding:14px;
+  text-align:center;
+  color:var(--yellow);
+  font-family:var(--font-mono); font-size:11px; font-weight:700;
+  letter-spacing:0.18em;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.pwd-btn:hover { background:var(--bg-card-2); border-color:var(--yellow); }
+
+/* LOGOUT */
+.logout-btn {
+  margin:12px;
+  background:linear-gradient(90deg, var(--red), #8B0000);
+  color:#FFF; border:0;
+  padding:16px;
+  font-family:var(--font-mono); font-size:14px; font-weight:800;
+  letter-spacing:0.25em;
+  cursor:pointer; width:calc(100% - 24px);
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  box-shadow:0 0 12px rgba(255,23,68,0.4);
+}
+.logout-btn::before {
+  content:''; width:12px; height:12px; background:#FFF;
+}
+.logout-btn:hover { filter:brightness(1.15); }
+
+/* SECTION DIVIDER (used between scanner ranking section) */
+.sec-head {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 16px;
+  background:var(--bg-page);
+  border-top:2px solid var(--yellow);
+  border-bottom:1px solid var(--border-2);
+  margin-top:14px;
+}
+.sec-mark { width:10px; height:10px; background:var(--yellow); }
+.sec-num { font-size:9px; color:var(--ink-3); letter-spacing:0.15em; font-weight:600; }
+.sec-title {
+  font-family:var(--font-disp); font-size:12px; font-weight:700;
+  color:var(--ink-0); letter-spacing:0.15em; text-transform:uppercase; flex:1;
+}
+.sec-meta {
+  font-size:9px; color:#000; letter-spacing:0.1em;
+  background:var(--yellow); padding:3px 7px; font-weight:700;
+}
+
+/* SCANNER RANKING (compressed) */
+.rank-list {
+  background:var(--bg-page);
+  padding:8px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.rank-row {
+  display:grid; grid-template-columns:28px 1fr auto auto;
+  gap:8px; align-items:center;
+  background:var(--bg-card);
+  border:1px solid var(--border-2);
+  padding:9px 11px;
+  transition:all 0.15s;
+}
+.rank-row:hover { border-color:var(--yellow); }
+.rank-row.trusted { border-left:3px solid var(--green); }
+.rank-row.good { border-left:3px solid #7CB342; }
+.rank-row.evaluating { border-left:3px solid var(--yellow); }
+.rank-row.weak { border-left:3px solid var(--orange); }
+.rank-row.disabled { border-left:3px solid var(--red); opacity:0.65; }
+
+.rank-num {
+  font-family:var(--font-disp); font-size:14px; font-weight:800;
+  color:var(--yellow); text-align:center;
+}
+.rank-num.top { background:var(--yellow); color:#000; padding:3px 0; }
+.rank-name-block { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.rank-name {
+  font-family:var(--font-disp); font-size:12px; font-weight:700;
+  color:var(--ink-0); letter-spacing:0.05em; text-transform:uppercase;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.rank-bar {
+  width:100%; height:3px; background:var(--bg-card-2);
+  position:relative; margin-top:2px;
+}
+.rank-bar-fill { position:absolute; inset:0; background:var(--yellow); }
+.rank-bar-fill.hi { background:var(--green); }
+.rank-bar-fill.lo { background:var(--red); }
+.rank-pct {
+  font-family:var(--font-disp); font-size:14px; font-weight:800;
+  color:var(--yellow); font-variant-numeric:tabular-nums;
+  text-align:right; min-width:48px;
+}
+.rank-pct.hi { color:var(--green); }
+.rank-pct.lo { color:var(--red); }
+.rank-wl {
+  font-size:9px; color:var(--ink-2); text-align:right;
+  font-variant-numeric:tabular-nums; min-width:42px;
+}
+.rank-wl b { color:var(--green); }
+.rank-wl i { color:var(--red); font-style:normal; }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  display:grid; grid-template-columns:repeat(6, 1fr);
+  background:var(--bg-page);
+  border-top:2px solid var(--yellow);
+  padding:8px 0 6px;
+  margin-top:12px;
+}
+.nav-item {
+  text-align:center; cursor:pointer;
+  text-decoration:none; color:var(--ink-2);
+}
+.nav-item:hover, .nav-item.active { color:var(--yellow); }
+.nav-icon-btm { font-size:18px; line-height:1; margin-bottom:3px; display:block; }
+.nav-label-btm {
+  font-size:8px; font-weight:700; letter-spacing:0.1em;
+  font-family:var(--font-mono);
+}
+</style>
+</head>
+<body data-theme="dark">
+<main class="shell">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-title">
+      <span style="font-size:20px;">⚙️</span>
+      <span>MASTER CONTROL</span>
+    </div>
+    <div class="header-right">
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☾</button>
+      <button class="stop-btn"></button>
+    </div>
+  </header>
+
+  <!-- PROFILE CARD -->
+  <div class="profile-card">
+    <div class="profile-top">
+      <div class="profile-avatar">C</div>
+      <div class="profile-info">
+        <div class="profile-id">ID: Charan007</div>
+        <div class="profile-row active">
+          <span class="dot"></span>
+          <span>ACTIVE · SHOONYA</span>
+        </div>
+        <div class="profile-row">
+          <span>📞</span>
+          <span>+91 98XXX XXXXX</span>
+        </div>
+        <div class="profile-row">
+          <span>✉️</span>
+          <span>charan@trishul.ai</span>
+        </div>
+      </div>
+    </div>
+    <div class="profile-buttons">
+      <button class="profile-btn" onclick="toggleTheme()" id="modeBtn">☀ LIGHT MODE</button>
+      <button class="profile-btn save">💾 SAVE</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this, 0)">1 DAY</div>
+    <div class="tab" onclick="switchTab(this, 1)">1 WEEK</div>
+    <div class="tab" onclick="switchTab(this, 2)">1 MONTH</div>
+  </div>
+
+  <!-- PnL CARD -->
+  <div class="pnl-card">
+    <div class="pnl-row">
+      <div class="pnl-label">💰 NET P&L:</div>
+      <div class="pnl-value" id="pnlValue">+₹12,450.00</div>
+    </div>
+    <div class="pnl-stats">
+      <div class="pnl-stat">
+        <span class="ic">📊</span>
+        <span>Trades:</span>
+        <b id="tradesValue">14</b>
+      </div>
+      <div class="pnl-stat">
+        <span class="ic">🎯</span>
+        <span>Accuracy:</span>
+        <b id="accValue">78%</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV LIST -->
+  <div class="nav-list">
+    <a class="nav-row" href="1_home_page.html">
+      <span class="ic">🏠</span>
+      <span class="label">HOME PAGE</span>
+      <span class="go">GO →</span>
+    </a>
+    <a class="nav-row" href="3_scanner.html">
+      <span class="ic">📡</span>
+      <span class="label">SIGNAL / SCANNER</span>
+      <span class="go">GO →</span>
+    </a>
+    <a class="nav-row" href="2_power_box.html">
+      <span class="ic">⚡</span>
+      <span class="label">POWER CONTROL</span>
+      <span class="go">GO →</span>
+    </a>
+    <a class="nav-row" href="4_chart_page.html">
+      <span class="ic">📊</span>
+      <span class="label">CHART PAGE</span>
+      <span class="go">GO →</span>
+    </a>
+    <a class="nav-row" href="5_watchlist.html">
+      <span class="ic">⭐</span>
+      <span class="label">WATCHLIST</span>
+      <span class="go">GO →</span>
+    </a>
+    <a class="nav-row" href="monitoring.html">
+      <span class="ic">🛡️</span>
+      <span class="label">MONITORING</span>
+      <span class="go">GO →</span>
+    </a>
+  </div>
+
+  <!-- SCANNER RANKING -->
+  <div class="sec-head">
+    <div class="sec-mark"></div>
+    <div class="sec-num">CTL.01</div>
+    <div class="sec-title">Scanner Performance</div>
+    <div class="sec-meta">RANKED</div>
+  </div>
+
+  <div class="rank-list">
+    <div class="rank-row trusted">
+      <div class="rank-num top">01</div>
+      <div class="rank-name-block">
+        <div class="rank-name">MAHAKAL</div>
+        <div class="rank-bar"><div class="rank-bar-fill hi" style="width:78.2%"></div></div>
+      </div>
+      <div class="rank-pct hi">78.2%</div>
+      <div class="rank-wl"><b>43</b>/<i>12</i></div>
+    </div>
+    <div class="rank-row trusted">
+      <div class="rank-num">02</div>
+      <div class="rank-name-block">
+        <div class="rank-name">MORNING BELL</div>
+        <div class="rank-bar"><div class="rank-bar-fill hi" style="width:71.5%"></div></div>
+      </div>
+      <div class="rank-pct hi">71.5%</div>
+      <div class="rank-wl"><b>31</b>/<i>12</i></div>
+    </div>
+    <div class="rank-row good">
+      <div class="rank-num">03</div>
+      <div class="rank-name-block">
+        <div class="rank-name">SUDARSHAN</div>
+        <div class="rank-bar"><div class="rank-bar-fill hi" style="width:62.1%"></div></div>
+      </div>
+      <div class="rank-pct hi">62.1%</div>
+      <div class="rank-wl"><b>24</b>/<i>14</i></div>
+    </div>
+    <div class="rank-row good">
+      <div class="rank-num">04</div>
+      <div class="rank-name-block">
+        <div class="rank-name">BRAHMASTRA</div>
+        <div class="rank-bar"><div class="rank-bar-fill" style="width:58.4%"></div></div>
+      </div>
+      <div class="rank-pct">58.4%</div>
+      <div class="rank-wl"><b>19</b>/<i>13</i></div>
+    </div>
+    <div class="rank-row good">
+      <div class="rank-num">05</div>
+      <div class="rank-name-block">
+        <div class="rank-name">BHERVE</div>
+        <div class="rank-bar"><div class="rank-bar-fill" style="width:51%"></div></div>
+      </div>
+      <div class="rank-pct">51.0%</div>
+      <div class="rank-wl"><b>14</b>/<i>13</i></div>
+    </div>
+    <div class="rank-row evaluating">
+      <div class="rank-num">06</div>
+      <div class="rank-name-block">
+        <div class="rank-name">INDEX POWER</div>
+        <div class="rank-bar"><div class="rank-bar-fill" style="width:44.2%"></div></div>
+      </div>
+      <div class="rank-pct">44.2%</div>
+      <div class="rank-wl"><b>9</b>/<i>11</i></div>
+    </div>
+    <div class="rank-row evaluating">
+      <div class="rank-num">07</div>
+      <div class="rank-name-block">
+        <div class="rank-name">ALL-IN-ONE</div>
+        <div class="rank-bar"><div class="rank-bar-fill" style="width:42.8%"></div></div>
+      </div>
+      <div class="rank-pct">42.8%</div>
+      <div class="rank-wl"><b>6</b>/<i>8</i></div>
+    </div>
+    <div class="rank-row weak">
+      <div class="rank-num">08</div>
+      <div class="rank-name-block">
+        <div class="rank-name">TRISHUL NEWS</div>
+        <div class="rank-bar"><div class="rank-bar-fill lo" style="width:33.5%"></div></div>
+      </div>
+      <div class="rank-pct lo">33.5%</div>
+      <div class="rank-wl"><b>11</b>/<i>21</i></div>
+    </div>
+    <div class="rank-row disabled">
+      <div class="rank-num">09</div>
+      <div class="rank-name-block">
+        <div class="rank-name">EXPIRY SCALPER</div>
+        <div class="rank-bar"><div class="rank-bar-fill lo" style="width:21.4%"></div></div>
+      </div>
+      <div class="rank-pct lo">21.4%</div>
+      <div class="rank-wl"><b>6</b>/<i>22</i></div>
+    </div>
+  </div>
+
+  <!-- PASSWORD -->
+  <button class="pwd-btn">🔐 CHANGE PASSWORD (OTP)</button>
+
+  <!-- LOGOUT -->
+  <button class="logout-btn">LOGOUT</button>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <a class="nav-item" href="1_home_page.html"><span class="nav-icon-btm">🏠</span><span class="nav-label-btm">HOME</span></a>
+    <a class="nav-item" href="3_scanner.html"><span class="nav-icon-btm">📡</span><span class="nav-label-btm">SIGNAL</span></a>
+    <a class="nav-item" href="2_power_box.html"><span class="nav-icon-btm">⚡</span><span class="nav-label-btm">POWER</span></a>
+    <a class="nav-item" href="4_chart_page.html"><span class="nav-icon-btm">📊</span><span class="nav-label-btm">CHART</span></a>
+    <a class="nav-item" href="5_watchlist.html"><span class="nav-icon-btm">⭐</span><span class="nav-label-btm">WATCH</span></a>
+    <a class="nav-item active"><span class="nav-icon-btm">⚙️</span><span class="nav-label-btm">ADMIN</span></a>
+  </nav>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function toggleTheme() {
+  const current = document.body.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', next);
+  $('themeBtn').textContent = next === 'dark' ? '☾' : '☀';
+  $('modeBtn').textContent = next === 'dark' ? '☀ LIGHT MODE' : '☾ DARK MODE';
+  try { localStorage.setItem('raksha:theme', next); } catch(e){}
+}
+
+try {
+  const saved = localStorage.getItem('raksha:theme') || 'dark';
+  document.body.setAttribute('data-theme', saved);
+  $('themeBtn').textContent = saved === 'dark' ? '☾' : '☀';
+  $('modeBtn').textContent = saved === 'dark' ? '☀ LIGHT MODE' : '☾ DARK MODE';
+} catch(e){}
+
+// Tabs - dummy data swap
+const tabData = [
+  { pnl:'+₹12,450.00', trades:14, acc:'78%' },
+  { pnl:'+₹84,320.50', trades:62, acc:'72%' },
+  { pnl:'+₹3,12,840.00', trades:248, acc:'69%' }
+];
+function switchTab(el, idx) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const d = tabData[idx];
+  $('pnlValue').textContent = d.pnl;
+  $('tradesValue').textContent = d.trades;
+  $('accValue').textContent = d.acc;
+}
+</script>
+</body>
+</html>
