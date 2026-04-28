@@ -311,6 +311,24 @@ html, body {
 .rank-wl b { color:var(--green); }
 .rank-wl i { color:var(--red); font-style:normal; }
 
+/* BROKER STATUS CARDS */
+.bk-st-row{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;background:var(--bg-card);border:1px solid var(--border-2);padding:10px 12px;}
+.bk-st-row.conn{border-color:var(--green);background:#001a0a;}
+.bk-st-row.miss{border-color:var(--orange);background:#0d0800;}
+.bk-st-ico{font-size:18px;}
+.bk-st-info{display:flex;flex-direction:column;gap:2px;}
+.bk-st-nm{font-family:var(--font-disp);font-size:12px;font-weight:700;color:var(--ink-0);letter-spacing:.08em;}
+.bk-st-id{font-size:9px;color:var(--ink-3);letter-spacing:.05em;}
+.bk-st-dot{width:9px;height:9px;border-radius:50%;background:#333;}
+.bk-st-dot.on{background:var(--green);box-shadow:0 0 7px var(--green);}
+.bk-st-dot.mis{background:var(--orange);box-shadow:0 0 7px var(--orange);}
+.bk-st-lbl{font-size:9px;font-weight:700;letter-spacing:.08em;}
+.bk-st-lbl.on{color:var(--green);}
+.bk-st-lbl.off{color:var(--ink-3);}
+.bk-st-lbl.mis{color:var(--orange);}
+.bk-go-btn{font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;background:transparent;border:1px solid var(--border-2);color:var(--yellow);cursor:pointer;}
+.bk-go-btn:active{background:var(--yellow);color:#000;}
+
 /* NOTIFICATION CARDS */
 .notif-section{padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--bg-page);}
 .notif-card{background:var(--bg-card);border:1px solid var(--border-2);overflow:hidden;}
@@ -384,26 +402,35 @@ html, body {
     <div class="profile-top">
       <div class="profile-avatar">C</div>
       <div class="profile-info">
-        <div class="profile-id">ID: Charan007</div>
+        <div class="profile-id">CHARAN PURANSINH</div>
         <div class="profile-row active">
           <span class="dot"></span>
-          <span>ACTIVE · SHOONYA</span>
+          <span id="activebrokerLabel">CHECKING BROKERS...</span>
         </div>
         <div class="profile-row">
-          <span>📞</span>
-          <span>+91 98XXX XXXXX</span>
+          <span>🏦</span>
+          <span>Angel: <b style="color:var(--yellow)">C116947</b> &nbsp;|&nbsp; Dhan: <b style="color:var(--yellow)">1111293264</b></span>
         </div>
         <div class="profile-row">
           <span>✉️</span>
-          <span>charan@trishul.ai</span>
+          <span>chXXXXXXXX51@gmail.com</span>
         </div>
       </div>
     </div>
     <div class="profile-buttons">
       <button class="profile-btn" onclick="toggleTheme()" id="modeBtn">☀ LIGHT MODE</button>
-      <button class="profile-btn save">💾 SAVE</button>
+      <button class="profile-btn save" onclick="saveProfile()">💾 SAVE</button>
     </div>
   </div>
+
+  <!-- BROKER STATUS DASHBOARD -->
+  <div class="sec-head" style="margin-top:0;border-top:none;">
+    <div class="sec-mark"></div>
+    <div class="sec-num">CTL.00</div>
+    <div class="sec-title">Broker Connection Status</div>
+    <div class="sec-meta" id="bkRefreshBtn" onclick="refreshBrokerStatus()" style="cursor:pointer;">🔄 CHECK</div>
+  </div>
+  <div id="brokerStatusGrid" style="padding:8px;display:flex;flex-direction:column;gap:5px;background:var(--bg-page);"></div>
 
   <!-- TABS -->
   <div class="tabs">
@@ -772,6 +799,95 @@ function showToast(msg){
 }
 
 loadNotifSettings();
+
+// ── BROKER STATUS DASHBOARD ──
+const ALL_BROKERS=[
+  {id:'angel',nm:'Angel One',ico:'😇',tag:'SmartAPI',uid:'C116947'},
+  {id:'dhan',nm:'Dhan',ico:'💙',tag:'DhanHQ API',uid:'1111293264'},
+  {id:'shoonya',nm:'Shoonya',ico:'⚡',tag:'Finvasia',uid:''},
+  {id:'zerodha',nm:'Zerodha',ico:'🟢',tag:'Kite Connect',uid:''},
+  {id:'upstox',nm:'Upstox',ico:'🔵',tag:'Upstox v2',uid:''},
+  {id:'kotak',nm:'Kotak',ico:'🔴',tag:'Neo API',uid:''},
+  {id:'icici',nm:'ICICI Direct',ico:'🟠',tag:'Breeze API',uid:''},
+  {id:'hdfc',nm:'HDFC Sky',ico:'🔷',tag:'Sky API',uid:''},
+  {id:'motilal',nm:'Motilal',ico:'🟡',tag:'MO API',uid:''},
+  {id:'groww',nm:'Groww',ico:'🌱',tag:'Groww API',uid:''},
+];
+
+function refreshBrokerStatus(){
+  const grid=$('brokerStatusGrid');
+  const saved=localStorage.getItem('t_brokers');
+  const creds=localStorage.getItem('t_broker_creds');
+  const conStatus=saved?JSON.parse(saved):{};
+  const brokerCreds=creds?JSON.parse(creds):{};
+
+  let connCount=0;
+  let missingCount=0;
+  let primaryBroker='';
+
+  grid.innerHTML=ALL_BROKERS.map(b=>{
+    const isConn=!!conStatus[b.id];
+    const hasCreds=brokerCreds[b.id]&&brokerCreds[b.id].uid;
+    const savedUid=(brokerCreds[b.id]&&brokerCreds[b.id].uid)||b.uid;
+    let status,dotCls,lblCls,rowCls;
+
+    if(isConn){
+      status='CONNECTED';dotCls='on';lblCls='on';rowCls='conn';connCount++;
+      if(!primaryBroker) primaryBroker=b.nm;
+    } else if(hasCreds||b.uid){
+      status='KEY MISSING';dotCls='mis';lblCls='mis';rowCls='miss';missingCount++;
+    } else {
+      status='NOT SET';dotCls='';lblCls='off';rowCls='';
+    }
+
+    const idShow=savedUid?`ID: ${savedUid}`:'Not configured';
+    return `<div class="bk-st-row ${rowCls}">
+      <div class="bk-st-ico">${b.ico}</div>
+      <div class="bk-st-info">
+        <div class="bk-st-nm">${b.nm}</div>
+        <div class="bk-st-id">${idShow} · ${b.tag}</div>
+      </div>
+      <div class="bk-st-dot ${dotCls}"></div>
+      <div>
+        <div class="bk-st-lbl ${lblCls}">${status}</div>
+        ${(b.id==='angel'||b.id==='dhan')?`<div style="font-size:8px;color:var(--yellow);cursor:pointer;margin-top:2px" onclick="goToLogin()">SETUP →</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Update profile active broker label
+  const lbl=$('activebrokerLabel');
+  if(connCount>0){
+    lbl.textContent=`ACTIVE · ${primaryBroker.toUpperCase()} +${connCount-1} MORE`;
+    lbl.style.color='var(--green)';
+  } else if(missingCount>0){
+    lbl.textContent=`${missingCount} BROKER(S) NEED API KEY`;
+    lbl.style.color='var(--orange)';
+  } else {
+    lbl.textContent='NO BROKERS CONNECTED';
+    lbl.style.color='var(--ink-3)';
+  }
+
+  // Flash the check button
+  const btn=$('bkRefreshBtn');
+  btn.textContent='✅ DONE';
+  setTimeout(()=>btn.textContent='🔄 CHECK',1500);
+}
+
+function goToLogin(){
+  if(window.parent&&window.parent!==window){
+    window.parent.postMessage({type:'goto',page:0},'*');
+  } else {
+    window.location.href='1_login.html';
+  }
+}
+
+function saveProfile(){
+  showToast('✅ Profile saved!');
+}
+
+// Auto-check on load
+refreshBrokerStatus();
 </script>
 </body>
 </html>

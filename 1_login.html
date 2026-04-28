@@ -231,7 +231,7 @@ const BROKERS=[
   {id:'kotak',nm:'Kotak',ico:'🔴',tag:'Neo API',uidLabel:'Mobile / Client ID',uidPH:'9800000000',keyPH:'Consumer Key',vendPH:'Consumer Secret',totpPH:'TOTP Secret (Base32)'},
   {id:'icici',nm:'ICICI Direct',ico:'🟠',tag:'Breeze API',uidLabel:'User ID',uidPH:'AB1234',keyPH:'API Key (Breeze)',vendPH:'Leave blank',totpPH:'Session Token'},
   {id:'hdfc',nm:'HDFC Sky',ico:'🔷',tag:'Sky API',uidLabel:'Client ID',uidPH:'HD12345',keyPH:'API Key',vendPH:'Leave blank',totpPH:'TOTP Secret (Base32)'},
-  {id:'dhan',nm:'Dhan',ico:'💙',tag:'DhanHQ API',uidLabel:'Client ID',uidPH:'1000000123',keyPH:'Access Token',vendPH:'Leave blank',totpPH:'Leave blank'},
+  {id:'dhan',nm:'Dhan',ico:'💙',tag:'DhanHQ API',uidLabel:'Client ID',uidPH:'1111293264',keyPH:'Access Token (from dhanhq.co)',vendPH:'DNNV38291K',totpPH:'Not required for Dhan',defaultUid:'1111293264',defaultVend:'DNNV38291K'},
   {id:'motilal',nm:'Motilal',ico:'🟡',tag:'MO API',uidLabel:'Client Code',uidPH:'MO12345',keyPH:'API Key',vendPH:'Leave blank',totpPH:'TOTP Secret (Base32)'},
   {id:'groww',nm:'Groww',ico:'🌱',tag:'Groww API',uidLabel:'Mobile / Email',uidPH:'9800000000',keyPH:'API Token',vendPH:'Leave blank',totpPH:'TOTP Secret (Base32)'},
 ];
@@ -278,7 +278,7 @@ function selBrok(i){
   document.getElementById('aPwd').value=c.pwd||'';
   document.getElementById('aKey').value=c.key||'';
   document.getElementById('aSec').value=c.sec||'';
-  document.getElementById('aVend').value=c.vend||'';
+  document.getElementById('aVend').value=c.vend||(selBroker.defaultVend||'');
   document.getElementById('aTotp').value=c.totp||'';
   document.getElementById('aTok').value=c.tok||'';
   // Broker-specific help notes
@@ -301,10 +301,13 @@ Client ID: <b style="color:var(--gold)">C116947</b> (already filled)`,
 2️⃣ Note User ID + Password + Vendor Code<br>
 3️⃣ Whitelist IP: <b style="color:var(--gn)">3.110.190.2</b><br>
 4️⃣ TOTP from Google Authenticator`,
-    dhan:`💙 <b style="color:var(--gold)">DHAN HQ API:</b><br>
-1️⃣ dhanhq.co → Developer → Create Access Token<br>
-2️⃣ Paste Access Token in API Key field above<br>
-3️⃣ No TOTP needed for Dhan`,
+    dhan:`💙 <b style="color:var(--gold)">DHAN HQ API — Setup Guide:</b><br>
+Client ID: <b style="color:var(--gold)">1111293264</b> · UCC: <b style="color:var(--gold)">DNNV38291K</b><br>
+1️⃣ <b>dhanhq.co</b> → Login → Developer Section<br>
+2️⃣ Generate <b>Access Token</b> (daily token ya permanent)<br>
+3️⃣ Paste token in <b>API Key</b> field above<br>
+4️⃣ No API Secret / TOTP needed for Dhan ✅<br>
+5️⃣ Password = Dhan trading password`,
   };
   const note=helpNotes[selBroker.id];
   if(note){helpEl.style.display='block';helpEl.innerHTML=note;}
