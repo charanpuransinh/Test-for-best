@@ -311,6 +311,39 @@ html, body {
 .rank-wl b { color:var(--green); }
 .rank-wl i { color:var(--red); font-style:normal; }
 
+/* NOTIFICATION CARDS */
+.notif-section{padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--bg-page);}
+.notif-card{background:var(--bg-card);border:1px solid var(--border-2);overflow:hidden;}
+.notif-hd{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;}
+.notif-ico{font-size:20px;flex-shrink:0;}
+.notif-nm{font-family:var(--font-disp);font-size:13px;font-weight:700;color:var(--ink-0);letter-spacing:.08em;}
+.notif-sub{font-size:9px;color:var(--ink-3);letter-spacing:.05em;margin-top:2px;}
+.tog{position:relative;width:44px;height:24px;flex-shrink:0;}
+.tog input{opacity:0;width:0;height:0;position:absolute;}
+.tog-sl{position:absolute;inset:0;background:var(--bg-card-2);border:1px solid var(--border-2);cursor:pointer;transition:.2s;border-radius:999px;}
+.tog-sl::before{content:'';position:absolute;width:16px;height:16px;left:4px;top:3px;background:var(--ink-3);border-radius:50%;transition:.2s;}
+.tog input:checked+.tog-sl{background:var(--green);border-color:var(--green);}
+.tog input:checked+.tog-sl::before{transform:translateX(20px);background:#000;}
+.notif-body{padding:0 14px 12px;display:none;flex-direction:column;gap:7px;border-top:1px solid var(--border-1);}
+.notif-body.open{display:flex;}
+.ni{width:100%;background:var(--bg-card-2);border:1px solid var(--border-2);padding:8px 10px;color:var(--ink-0);font-family:var(--font-mono);font-size:11px;outline:none;}
+.ni:focus{border-color:var(--yellow);}
+.ni::placeholder{color:var(--ink-4);}
+.ni-row{display:grid;grid-template-columns:1fr auto;gap:6px;}
+.test-btn{background:var(--bg-card-2);border:1px solid var(--yellow);color:var(--yellow);padding:8px 12px;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.1em;cursor:pointer;white-space:nowrap;}
+.test-btn:active{background:var(--yellow);color:#000;}
+.save-notif{background:var(--green);color:#000;border:none;padding:9px;font-family:var(--font-mono);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.1em;margin-top:2px;width:100%;}
+.at-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px;}
+.at-chip{background:var(--bg-card-2);border:1px solid var(--border-2);padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.08em;cursor:pointer;color:var(--ink-2);}
+.at-chip.on{background:var(--yellow);border-color:var(--yellow);color:#000;}
+.notif-stat{display:flex;align-items:center;gap:6px;font-size:10px;padding:7px 14px;background:var(--bg-stripe);border-top:1px solid var(--border-1);}
+.notif-stat .dot{width:7px;height:7px;border-radius:50%;background:#444;}
+.notif-stat .dot.on{background:var(--green);box-shadow:0 0 6px var(--green);}
+
+/* TOAST */
+.toast{position:fixed;top:-60px;left:50%;transform:translateX(-50%);background:var(--bg-card);border-left:3px solid var(--yellow);padding:9px 16px;font-size:11px;color:var(--ink-0);z-index:9999;transition:top .3s;white-space:nowrap;font-family:var(--font-mono);}
+.toast.show{top:12px;}
+
 /* BOTTOM NAV */
 .bottom-nav {
   display:grid; grid-template-columns:repeat(6, 1fr);
@@ -525,11 +558,109 @@ html, body {
     </div>
   </div>
 
+  <!-- NOTIFICATIONS SECTION -->
+  <div class="sec-head">
+    <div class="sec-mark"></div>
+    <div class="sec-num">CTL.02</div>
+    <div class="sec-title">Alert Notifications</div>
+    <div class="sec-meta">MASTER</div>
+  </div>
+
+  <div class="notif-section">
+
+    <!-- WHATSAPP -->
+    <div class="notif-card">
+      <div class="notif-hd">
+        <span class="notif-ico">📱</span>
+        <div style="flex:1">
+          <div class="notif-nm">WHATSAPP</div>
+          <div class="notif-sub">Business API / Twilio</div>
+        </div>
+        <label class="tog"><input type="checkbox" id="waOn" onchange="togNotif('wa')"><span class="tog-sl"></span></label>
+      </div>
+      <div class="notif-body" id="waBody">
+        <div class="ni-row">
+          <input class="ni" id="waNum" placeholder="+91 XXXXX XXXXX (tera number)">
+          <button class="test-btn" onclick="testSend('wa')">▶ TEST</button>
+        </div>
+        <input class="ni" id="waKey" placeholder="API Key / Token (Twilio / WABA)">
+        <div class="at-row" id="waChips">
+          <div class="at-chip on" onclick="toggleChip(this)">📈 BUY</div>
+          <div class="at-chip on" onclick="toggleChip(this)">📉 SELL</div>
+          <div class="at-chip on" onclick="toggleChip(this)">🛑 STOP LOSS</div>
+          <div class="at-chip on" onclick="toggleChip(this)">🎯 TARGET</div>
+          <div class="at-chip" onclick="toggleChip(this)">📡 SCANNER</div>
+          <div class="at-chip" onclick="toggleChip(this)">📰 NEWS</div>
+        </div>
+        <button class="save-notif" onclick="saveNotif('wa')">💾 SAVE WHATSAPP</button>
+      </div>
+      <div class="notif-stat"><div class="dot" id="waDot"></div><span id="waSt">Not configured</span></div>
+    </div>
+
+    <!-- TELEGRAM -->
+    <div class="notif-card">
+      <div class="notif-hd">
+        <span class="notif-ico">✈️</span>
+        <div style="flex:1">
+          <div class="notif-nm">TELEGRAM</div>
+          <div class="notif-sub">Bot API · Instant delivery</div>
+        </div>
+        <label class="tog"><input type="checkbox" id="tgOn" onchange="togNotif('tg')"><span class="tog-sl"></span></label>
+      </div>
+      <div class="notif-body" id="tgBody">
+        <div class="ni-row">
+          <input class="ni" id="tgChat" placeholder="Chat ID / @channel_name">
+          <button class="test-btn" onclick="testSend('tg')">▶ TEST</button>
+        </div>
+        <input class="ni" id="tgToken" placeholder="Bot Token (from @BotFather)">
+        <div class="at-row" id="tgChips">
+          <div class="at-chip on" onclick="toggleChip(this)">📈 BUY</div>
+          <div class="at-chip on" onclick="toggleChip(this)">📉 SELL</div>
+          <div class="at-chip on" onclick="toggleChip(this)">🛑 STOP LOSS</div>
+          <div class="at-chip on" onclick="toggleChip(this)">🎯 TARGET</div>
+          <div class="at-chip on" onclick="toggleChip(this)">📡 SCANNER</div>
+          <div class="at-chip" onclick="toggleChip(this)">📰 NEWS</div>
+        </div>
+        <button class="save-notif" onclick="saveNotif('tg')">💾 SAVE TELEGRAM</button>
+      </div>
+      <div class="notif-stat"><div class="dot" id="tgDot"></div><span id="tgSt">Not configured</span></div>
+    </div>
+
+    <!-- SMS -->
+    <div class="notif-card">
+      <div class="notif-hd">
+        <span class="notif-ico">💬</span>
+        <div style="flex:1">
+          <div class="notif-nm">SMS</div>
+          <div class="notif-sub">Twilio / Fast2SMS / MSG91</div>
+        </div>
+        <label class="tog"><input type="checkbox" id="smsOn" onchange="togNotif('sms')"><span class="tog-sl"></span></label>
+      </div>
+      <div class="notif-body" id="smsBody">
+        <div class="ni-row">
+          <input class="ni" id="smsNum" placeholder="+91 XXXXX XXXXX">
+          <button class="test-btn" onclick="testSend('sms')">▶ TEST</button>
+        </div>
+        <input class="ni" id="smsKey" placeholder="API Key (Twilio / Fast2SMS / MSG91)">
+        <div class="at-row" id="smsChips">
+          <div class="at-chip on" onclick="toggleChip(this)">📈 BUY</div>
+          <div class="at-chip on" onclick="toggleChip(this)">📉 SELL</div>
+          <div class="at-chip on" onclick="toggleChip(this)">🛑 STOP LOSS</div>
+          <div class="at-chip on" onclick="toggleChip(this)">🎯 TARGET</div>
+          <div class="at-chip" onclick="toggleChip(this)">📡 SCANNER</div>
+        </div>
+        <button class="save-notif" onclick="saveNotif('sms')">💾 SAVE SMS</button>
+      </div>
+      <div class="notif-stat"><div class="dot" id="smsDot"></div><span id="smsSt">Not configured</span></div>
+    </div>
+
+  </div>
+
   <!-- PASSWORD -->
   <button class="pwd-btn">🔐 CHANGE PASSWORD (OTP)</button>
 
   <!-- LOGOUT -->
-  <button class="logout-btn">LOGOUT</button>
+  <button class="logout-btn" onclick="doLogout()">LOGOUT</button>
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
@@ -543,40 +674,104 @@ html, body {
 
 </main>
 
+<div class="toast" id="toast"></div>
+
 <script>
 if(window.self!==window.top){var _n=document.querySelector('.bottom-nav');if(_n)_n.remove();}
-const $ = id => document.getElementById(id);
+const $=id=>document.getElementById(id);
 
-function toggleTheme() {
-  const current = document.body.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  document.body.setAttribute('data-theme', next);
-  $('themeBtn').textContent = next === 'dark' ? '☾' : '☀';
-  $('modeBtn').textContent = next === 'dark' ? '☀ LIGHT MODE' : '☾ DARK MODE';
-  try { localStorage.setItem('raksha:theme', next); } catch(e){}
+function toggleTheme(){
+  const next=document.body.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.body.setAttribute('data-theme',next);
+  $('themeBtn').textContent=next==='dark'?'☾':'☀';
+  $('modeBtn').textContent=next==='dark'?'☀ LIGHT MODE':'☾ DARK MODE';
+  try{localStorage.setItem('raksha:theme',next);}catch(e){}
 }
+try{
+  const saved=localStorage.getItem('raksha:theme')||'dark';
+  document.body.setAttribute('data-theme',saved);
+  $('themeBtn').textContent=saved==='dark'?'☾':'☀';
+  $('modeBtn').textContent=saved==='dark'?'☀ LIGHT MODE':'☾ DARK MODE';
+}catch(e){}
 
-try {
-  const saved = localStorage.getItem('raksha:theme') || 'dark';
-  document.body.setAttribute('data-theme', saved);
-  $('themeBtn').textContent = saved === 'dark' ? '☾' : '☀';
-  $('modeBtn').textContent = saved === 'dark' ? '☀ LIGHT MODE' : '☾ DARK MODE';
-} catch(e){}
-
-// Tabs - dummy data swap
-const tabData = [
-  { pnl:'+₹12,450.00', trades:14, acc:'78%' },
-  { pnl:'+₹84,320.50', trades:62, acc:'72%' },
-  { pnl:'+₹3,12,840.00', trades:248, acc:'69%' }
+const tabData=[
+  {pnl:'+₹12,450.00',trades:14,acc:'78%'},
+  {pnl:'+₹84,320.50',trades:62,acc:'72%'},
+  {pnl:'+₹3,12,840.00',trades:248,acc:'69%'}
 ];
-function switchTab(el, idx) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+function switchTab(el,idx){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  const d = tabData[idx];
-  $('pnlValue').textContent = d.pnl;
-  $('tradesValue').textContent = d.trades;
-  $('accValue').textContent = d.acc;
+  const d=tabData[idx];
+  $('pnlValue').textContent=d.pnl;
+  $('tradesValue').textContent=d.trades;
+  $('accValue').textContent=d.acc;
 }
+
+// ── NOTIFICATIONS ──
+function togNotif(type){
+  const on=$(`${type}On`).checked;
+  $(`${type}Body`).classList.toggle('open',on);
+  updateNotifStat(type,on);
+  saveNotif(type);
+}
+
+function toggleChip(el){el.classList.toggle('on');}
+
+function updateNotifStat(type,on){
+  const dot=$(`${type}Dot`), st=$(`${type}St`);
+  if(on){dot.classList.add('on');st.textContent='Active ✅';}
+  else{dot.classList.remove('on');st.textContent='Not configured';}
+}
+
+function testSend(type){
+  const labels={wa:'WhatsApp 📱',tg:'Telegram ✈️',sms:'SMS 💬'};
+  const numField={wa:'waNum',tg:'tgChat',sms:'smsNum'};
+  const num=$(numField[type]).value.trim();
+  if(!num){showToast('⚠️ Number/Chat ID pehle enter karo');return;}
+  showToast('✅ Test '+labels[type]+' bheja: '+num.substring(0,12)+'...');
+}
+
+function saveNotif(type){
+  const on=$(`${type}On`).checked;
+  const data={on};
+  if(type==='wa'){data.num=$('waNum').value;data.key=$('waKey').value;}
+  else if(type==='tg'){data.chat=$('tgChat').value;data.token=$('tgToken').value;}
+  else if(type==='sms'){data.num=$('smsNum').value;data.key=$('smsKey').value;}
+  // Save selected alert types
+  data.alerts=[...$(`${type}Chips`).querySelectorAll('.at-chip.on')].map(c=>c.textContent.replace(/[📈📉🛑🎯📡📰]\s/,''));
+  localStorage.setItem('t_notif_'+type,JSON.stringify(data));
+  if(on) showToast('✅ '+type.toUpperCase()+' settings saved!');
+  updateNotifStat(type,on);
+}
+
+function loadNotifSettings(){
+  ['wa','tg','sms'].forEach(type=>{
+    const raw=localStorage.getItem('t_notif_'+type);
+    if(!raw)return;
+    const d=JSON.parse(raw);
+    $(`${type}On`).checked=!!d.on;
+    if(d.on)$(`${type}Body`).classList.add('open');
+    updateNotifStat(type,!!d.on);
+    if(type==='wa'){$('waNum').value=d.num||'';$('waKey').value=d.key||'';}
+    else if(type==='tg'){$('tgChat').value=d.chat||'';$('tgToken').value=d.token||'';}
+    else if(type==='sms'){$('smsNum').value=d.num||'';$('smsKey').value=d.key||'';}
+  });
+}
+
+function doLogout(){
+  if(confirm('Logout karna chahte ho?')){
+    localStorage.removeItem('t_session');
+    window.location.href='1_login.html';
+  }
+}
+
+function showToast(msg){
+  const t=$('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+loadNotifSettings();
 </script>
 </body>
 </html>
