@@ -187,7 +187,10 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse
         <input id="aTok" placeholder="Access Token (auto-generated)">
         <button class="gen-btn" onclick="genToken()">🔑 GET TOKEN</button>
       </div>
-      <button class="con-btn" id="conBtn" onclick="connectBroker()">🔗 CONNECT BROKER</button>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:9px;">
+        <button class="con-btn" id="conBtn" onclick="connectBroker()" style="margin-top:0">🔗 CONNECT BROKER</button>
+        <button style="background:var(--b3);border:1px solid #550000;color:#ff6666;padding:10px 9px;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;" onclick="disconnectBroker()">🔌 DC</button>
+      </div>
     </div>
 
     <div class="broker-ttl" style="margin-top:4px">⚙️ TRADING SETTINGS</div>
@@ -211,6 +214,13 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse
 <div class="lov" id="lov"><div class="sp"></div><div class="ltxt" id="ltxt">VERIFYING...</div></div>
 <div class="toast" id="toast"></div>
 <script>
+// Persistent broker state via localStorage
+const saved=localStorage.getItem('t_brokers');
+const savedCreds=localStorage.getItem('t_broker_creds');
+let conStatus=saved?JSON.parse(saved):{};
+let brokerCreds=savedCreds?JSON.parse(savedCreds):{};
+let selBroker=null;
+
 const BROKERS=[
   {id:'shoonya',nm:'Shoonya',ico:'⚡',tag:'Finvasia'},
   {id:'zerodha',nm:'Zerodha',ico:'🟢',tag:'Kite Connect'},
@@ -223,9 +233,11 @@ const BROKERS=[
   {id:'motilal',nm:'Motilal',ico:'🟡',tag:'MO API'},
   {id:'groww',nm:'Groww',ico:'🌱',tag:'Groww API'},
 ];
-let selBroker=null,conStatus={};
 
 function renderBrokers(){
+  const count=Object.values(conStatus).filter(Boolean).length;
+  const brokerTab=document.querySelectorAll('.tab')[2];
+  brokerTab.textContent=count>0?`🏦 BROKER (${count}✅)`:'🏦 BROKER';
   document.getElementById('bkGrid').innerHTML=BROKERS.map((b,i)=>`
     <div class="bk-card${conStatus[b.id]?' connected':''}" onclick="selBrok(${i})">
       <div class="bk-con">✅</div>
@@ -234,48 +246,130 @@ function renderBrokers(){
       <div class="bk-tag">${b.tag}</div>
     </div>`).join('');
 }
+
 function selBrok(i){
   selBroker=BROKERS[i];
   document.querySelectorAll('.bk-card').forEach((c,j)=>c.classList.toggle('sel',j===i));
   document.getElementById('bkPnm').textContent=selBroker.ico+' '+selBroker.nm.toUpperCase()+' — '+selBroker.tag;
   const dot=document.getElementById('bkDot'),st=document.getElementById('bkSt');
-  if(conStatus[selBroker.id]){dot.classList.add('on');st.textContent='Connected ✅';st.style.color='var(--gn)';}
-  else{dot.classList.remove('on');st.textContent='Not Connected';st.style.color='var(--dm)';}
+  const isConn=conStatus[selBroker.id];
+  if(isConn){
+    dot.classList.add('on');st.textContent='Connected ✅';st.style.color='var(--gn)';
+    document.getElementById('conBtn').className='con-btn done';
+    document.getElementById('conBtn').textContent='✅ '+selBroker.nm.toUpperCase()+' CONNECTED';
+  } else {
+    dot.classList.remove('on');st.textContent='Not Connected';st.style.color='var(--dm)';
+    document.getElementById('conBtn').className='con-btn';
+    document.getElementById('conBtn').textContent='🔗 CONNECT BROKER';
+  }
+  // Load saved credentials for this broker
+  const c=brokerCreds[selBroker.id]||{};
+  document.getElementById('aUid').value=c.uid||'';
+  document.getElementById('aPwd').value=c.pwd||'';
+  document.getElementById('aKey').value=c.key||'';
+  document.getElementById('aSec').value=c.sec||'';
+  document.getElementById('aVend').value=c.vend||'';
+  document.getElementById('aTotp').value=c.totp||'';
+  document.getElementById('aTok').value=c.tok||'';
   document.getElementById('bkPanel').classList.add('show');
   document.getElementById('bkPanel').scrollIntoView({behavior:'smooth',block:'start'});
 }
+
 function genToken(){
-  if(!document.getElementById('aUid').value){showToast('⚠️ Enter User ID first');return;}
+  if(!document.getElementById('aUid').value.trim()){showToast('⚠️ Enter User ID first');return;}
   showLoad('🔑 GENERATING TOKEN...');
-  setTimeout(()=>{hideLoad();document.getElementById('aTok').value='TK'+Math.random().toString(36).substr(2,18).toUpperCase();showToast('✅ Token generated!');},1500);
+  setTimeout(()=>{
+    hideLoad();
+    document.getElementById('aTok').value='TK'+Math.random().toString(36).substr(2,18).toUpperCase();
+    showToast('✅ Token generated!');
+  },1500);
 }
+
 function connectBroker(){
-  if(!document.getElementById('aUid').value){showToast('⚠️ Enter User ID');return;}
+  if(!selBroker){showToast('⚠️ Select a broker first');return;}
+  const uid=document.getElementById('aUid').value.trim();
+  const pwd=document.getElementById('aPwd').value.trim();
+  if(!uid){showToast('⚠️ Enter User ID / Client ID');return;}
+  if(!pwd){showToast('⚠️ Password required');return;}
   showLoad('🔗 CONNECTING '+selBroker.nm.toUpperCase()+'...');
   setTimeout(()=>{
-    hideLoad();conStatus[selBroker.id]=true;
+    hideLoad();
+    conStatus[selBroker.id]=true;
+    brokerCreds[selBroker.id]={
+      uid:uid,pwd:pwd,
+      key:document.getElementById('aKey').value,
+      sec:document.getElementById('aSec').value,
+      vend:document.getElementById('aVend').value,
+      totp:document.getElementById('aTotp').value,
+      tok:document.getElementById('aTok').value,
+    };
+    localStorage.setItem('t_brokers',JSON.stringify(conStatus));
+    localStorage.setItem('t_broker_creds',JSON.stringify(brokerCreds));
     document.getElementById('bkDot').classList.add('on');
     document.getElementById('bkSt').textContent='Connected ✅';
     document.getElementById('bkSt').style.color='var(--gn)';
     document.getElementById('conBtn').className='con-btn done';
     document.getElementById('conBtn').textContent='✅ '+selBroker.nm.toUpperCase()+' CONNECTED';
-    renderBrokers();showToast('✅ '+selBroker.nm+' connected!');
+    renderBrokers();
+    showToast('✅ '+selBroker.nm+' connected!');
   },2000);
 }
-function saveSett(){showLoad('💾 SAVING...');setTimeout(()=>{hideLoad();showToast('✅ Settings saved!');},1000);}
+
+function disconnectBroker(){
+  if(!selBroker)return;
+  conStatus[selBroker.id]=false;
+  localStorage.setItem('t_brokers',JSON.stringify(conStatus));
+  document.getElementById('bkDot').classList.remove('on');
+  document.getElementById('bkSt').textContent='Not Connected';
+  document.getElementById('bkSt').style.color='var(--dm)';
+  document.getElementById('conBtn').className='con-btn';
+  document.getElementById('conBtn').textContent='🔗 CONNECT BROKER';
+  renderBrokers();
+  showToast('🔌 '+selBroker.nm+' disconnected');
+}
+
+function saveSett(){
+  localStorage.setItem('t_settings',JSON.stringify({
+    qty:document.querySelector('#t_broker input[type="number"]').value,
+    risk:document.querySelectorAll('#t_broker input[type="number"]')[1].value,
+  }));
+  showLoad('💾 SAVING...');
+  setTimeout(()=>{hideLoad();showToast('✅ Settings saved!');},1000);
+}
+
 function setTab(t,el){
   ['login','register','broker'].forEach(x=>{document.getElementById('t_'+x).style.display='none';});
   document.getElementById('t_'+t).style.display='block';
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
 }
+
 function doLogin(){
+  const uid=document.querySelector('#t_login input[type="text"]').value.trim();
+  const pwd=document.querySelector('#t_login input[type="password"]').value.trim();
+  if(!uid){showToast('⚠️ Phone / Email required');return;}
+  if(!pwd){showToast('⚠️ Password required');return;}
   showLoad('🔐 LAYER 1 — BIOMETRIC...');
   setTimeout(()=>{showLoad('🔐 LAYER 2 — TOTP...');
-  setTimeout(()=>{showLoad('🔐 LAYER 3 — BROKER...');
-  setTimeout(()=>{hideLoad();window.location.href='main_app.html';},700);},700);},700);
+  setTimeout(()=>{showLoad('🔐 LAYER 3 — BROKER API...');
+  setTimeout(()=>{hideLoad();window.location.href='main_app.html';},800);},800);},800);
 }
-function doReg(){showLoad('📝 REGISTERING...');setTimeout(()=>{hideLoad();showToast('✅ Done! Login karo');setTab('login',document.querySelectorAll('.tab')[0]);},1500);}
+
+function doReg(){
+  const name=document.querySelector('#t_register input[type="text"]').value.trim();
+  const phone=document.querySelector('#t_register input[type="tel"]').value.trim();
+  const email=document.querySelector('#t_register input[type="email"]').value.trim();
+  const pwds=document.querySelectorAll('#t_register input[type="password"]');
+  const pwd=pwds[0].value.trim();
+  const cpwd=pwds[1].value.trim();
+  if(!name){showToast('⚠️ Enter your full name');return;}
+  if(!phone&&!email){showToast('⚠️ Phone or Email required');return;}
+  if(!pwd){showToast('⚠️ Password required');return;}
+  if(pwd!==cpwd){showToast('⚠️ Passwords do not match');return;}
+  showLoad('📝 REGISTERING...');
+  setTimeout(()=>{hideLoad();showToast('✅ Done! Login karo');setTab('login',document.querySelectorAll('.tab')[0]);},1500);
+}
+
 function doBio(){showLoad('👆 BIOMETRIC SCAN...');setTimeout(()=>{hideLoad();window.location.href='main_app.html';},1200);}
 function panicExit(){if(confirm('🚨 PANIC EXIT — All positions close?'))showToast('🚨 All CLOSED!');}
 function showLoad(t){document.getElementById('ltxt').textContent=t;document.getElementById('lov').classList.add('sh');}

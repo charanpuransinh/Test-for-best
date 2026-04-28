@@ -76,6 +76,27 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
 
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--b3);border:1px solid var(--gold);padding:9px 18px;font-size:11px;color:var(--tx);z-index:9999;display:none;white-space:nowrap;}
 .toast.sh{display:block;}
+
+/* SECTOR DETAIL MODAL */
+.sec-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:50;display:none;align-items:flex-end;justify-content:center;}
+.sec-modal.sh{display:flex;animation:smFadeIn .2s;}
+@keyframes smFadeIn{from{opacity:0}to{opacity:1}}
+.sec-sheet{background:var(--b2);border-top:2px solid var(--gold);width:100%;max-width:430px;max-height:78vh;overflow-y:auto;scrollbar-width:none;animation:smUp .25s ease-out;}
+.sec-sheet::-webkit-scrollbar{display:none;}
+@keyframes smUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sec-sh-hd{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 10px;border-bottom:1px solid var(--bg2);position:sticky;top:0;background:var(--b2);z-index:1;}
+.sec-sh-nm{font-family:'Orbitron',sans-serif;font-size:14px;color:var(--gold);letter-spacing:2px;}
+.sec-sh-cl{background:none;border:1px solid var(--br);color:var(--dm);padding:5px 12px;cursor:pointer;font-size:11px;font-weight:700;}
+.sec-sh-stat{display:flex;gap:14px;padding:8px 14px 8px;border-bottom:1px solid #111;font-size:11px;background:#050500;}
+.sec-up{color:var(--gn);font-weight:700;} .sec-dn{color:var(--rd);font-weight:700;}
+.sec-srow{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid #0d0d0d;cursor:pointer;transition:background .15s;}
+.sec-srow:active{background:rgba(245,197,24,.04);}
+.sec-sym{font-size:13px;font-weight:800;color:var(--tx);letter-spacing:.5px;}
+.sec-snm{font-size:9px;color:var(--dm);letter-spacing:.3px;margin-top:1px;}
+.sec-pv{font-size:12px;font-weight:700;color:var(--tx);text-align:right;}
+.sec-pc{font-size:11px;font-weight:700;margin-top:1px;text-align:right;}
+.sec-pc.up{color:var(--gn);} .sec-pc.dn{color:var(--rd);}
+.sec-goto{display:block;margin:10px 14px 4px;background:linear-gradient(135deg,var(--g2),var(--gold));color:#000;border:none;padding:11px;font-size:12px;font-weight:800;cursor:pointer;letter-spacing:2px;width:calc(100% - 28px);}
 </style>
 </head>
 <body>
@@ -115,9 +136,14 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
     <div class="st-c"><div class="st-l">ADV</div><div class="st-v tx-g">1842</div><div class="st-d tx-g">▲</div></div>
   </div>
 
-  <div class="sec-h">▦ SECTOR HEATMAP</div>
+  <div class="sec-h">▦ SECTOR HEATMAP <span style="font-size:9px;color:var(--dm);font-weight:400">(Tap to explore)</span></div>
   <div class="heat" id="heat"></div>
 
+</div>
+
+<!-- SECTOR DETAIL MODAL -->
+<div class="sec-modal" id="secModal" onclick="if(event.target===this)closeSector()">
+  <div class="sec-sheet" id="secSheet"></div>
 </div>
 
 <div class="bnav">
@@ -134,6 +160,7 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
 
 <script>
 if(window.self!==window.top){var _n=document.querySelector('.bnav');if(_n)_n.remove();var _s=document.querySelector('.sc');if(_s)_s.style.paddingBottom='0';}
+
 const SECTORS=[
   {n:'REALTY',u:9,d:0,t:'h-vstr'},   {n:'BANKING',u:8,d:1,t:'h-vstr'},  {n:'IT',u:7,d:2,t:'h-vstr'},
   {n:'AUTO',u:6,d:1,t:'h-str'},      {n:'FINANCE',u:5,d:1,t:'h-str'},   {n:'CHEMICAL',u:6,d:2,t:'h-str'},
@@ -142,16 +169,82 @@ const SECTORS=[
   {n:'ENERGY',u:1,d:5,t:'h-vwk'},    {n:'MEDIA',u:1,d:5,t:'h-vwk'},     {n:'PSU BANK',u:2,d:6,t:'h-vwk'},
   {n:'PHARMA',u:2,d:7,t:'h-vry'},    {n:'OIL&GAS',u:2,d:7,t:'h-vry'},   {n:'METAL',u:1,d:8,t:'h-vry'},
 ];
-document.getElementById('heat').innerHTML=SECTORS.map(s=>`
-  <div class="hc ${s.t}" onclick="showToast('${s.n} sector')">
+
+const SECTOR_STOCKS={
+  'REALTY':   [{s:'DLF',nm:'DLF Ltd',p:'850',c:'3.2'},{s:'GODREJPROP',nm:'Godrej Properties',p:'2450',c:'4.1'},{s:'OBEROIRLTY',nm:'Oberoi Realty',p:'1620',c:'2.8'},{s:'PHOENIXLTD',nm:'Phoenix Mills',p:'1540',c:'3.0'},{s:'PRESTIGE',nm:'Prestige Estates',p:'1890',c:'1.9'}],
+  'BANKING':  [{s:'HDFCBANK',nm:'HDFC Bank',p:'1678',c:'0.8'},{s:'ICICIBANK',nm:'ICICI Bank',p:'1245',c:'1.5'},{s:'SBIN',nm:'State Bank of India',p:'820',c:'2.1'},{s:'AXISBANK',nm:'Axis Bank',p:'1180',c:'1.2'},{s:'KOTAKBANK',nm:'Kotak Mahindra Bank',p:'1890',c:'0.9'}],
+  'IT':       [{s:'TCS',nm:'Tata Consultancy',p:'3890',c:'-1.1'},{s:'INFY',nm:'Infosys',p:'1890',c:'-0.4'},{s:'WIPRO',nm:'Wipro Ltd',p:'480',c:'0.8'},{s:'HCLTECH',nm:'HCL Technologies',p:'1650',c:'2.1'},{s:'TECHM',nm:'Tech Mahindra',p:'1480',c:'1.5'}],
+  'AUTO':     [{s:'MARUTI',nm:'Maruti Suzuki',p:'12800',c:'1.8'},{s:'TATAMOTORS',nm:'Tata Motors',p:'950',c:'2.4'},{s:'M&M',nm:'Mahindra & Mahindra',p:'2800',c:'1.9'},{s:'BAJAJ-AUTO',nm:'Bajaj Auto',p:'8900',c:'0.9'},{s:'HEROMOTOCO',nm:'Hero MotoCorp',p:'4800',c:'0.7'}],
+  'FINANCE':  [{s:'BAJFINANCE',nm:'Bajaj Finance',p:'7200',c:'1.4'},{s:'BAJAJFINSV',nm:'Bajaj Finserv',p:'1680',c:'0.8'},{s:'HDFCAMC',nm:'HDFC AMC',p:'3850',c:'1.2'},{s:'MUTHOOTFIN',nm:'Muthoot Finance',p:'1890',c:'2.1'},{s:'CHOLAFIN',nm:'Cholamandalam',p:'1250',c:'1.8'}],
+  'CHEMICAL': [{s:'PIIND',nm:'PI Industries',p:'3800',c:'2.4'},{s:'DEEPAKNTR',nm:'Deepak Nitrite',p:'2800',c:'1.9'},{s:'NAVINFLUOR',nm:'Navin Fluorine',p:'3200',c:'1.5'},{s:'SRF',nm:'SRF Ltd',p:'2450',c:'1.1'},{s:'AARTIIND',nm:'Aarti Industries',p:'450',c:'2.8'}],
+  'POWER':    [{s:'NTPC',nm:'NTPC Ltd',p:'390',c:'0.5'},{s:'POWERGRID',nm:'Power Grid Corp',p:'310',c:'0.3'},{s:'ADANIPOWER',nm:'Adani Power',p:'580',c:'-1.2'},{s:'CESC',nm:'CESC Ltd',p:'149',c:'0.8'},{s:'TATAPOWER',nm:'Tata Power',p:'450',c:'-0.7'}],
+  'INFRA':    [{s:'LT',nm:'Larsen & Toubro',p:'3500',c:'0.8'},{s:'ADANIENT',nm:'Adani Enterprises',p:'2800',c:'0.5'},{s:'GMRAIRPORT',nm:'GMR Airports',p:'88',c:'1.2'},{s:'IRB',nm:'IRB Infra',p:'65',c:'0.9'},{s:'ASHOKA',nm:'Ashoka Buildcon',p:'225',c:'1.5'}],
+  'TELECOM':  [{s:'BHARTIARTL',nm:'Bharti Airtel',p:'1700',c:'1.2'},{s:'IDEA',nm:'Vodafone Idea',p:'14',c:'-2.1'},{s:'RELIANCE',nm:'Reliance Jio',p:'2460',c:'1.2'},{s:'TATACOMM',nm:'Tata Communications',p:'1890',c:'0.8'},{s:'INDUSTOWER',nm:'Indus Towers',p:'380',c:'0.6'}],
+  'CEMENT':   [{s:'ULTRACEMCO',nm:'UltraTech Cement',p:'10800',c:'-1.2'},{s:'SHREECEM',nm:'Shree Cements',p:'25000',c:'-0.8'},{s:'AMBUJACEM',nm:'Ambuja Cements',p:'580',c:'-1.5'},{s:'ACC',nm:'ACC Ltd',p:'2450',c:'-0.9'},{s:'JKCEMENT',nm:'JK Cement',p:'4800',c:'-1.1'}],
+  'CONSUMER': [{s:'HAVELLS',nm:'Havells India',p:'1680',c:'-0.8'},{s:'DIXON',nm:'Dixon Technologies',p:'12800',c:'1.2'},{s:'VGUARD',nm:'V-Guard Industries',p:'310',c:'-0.5'},{s:'CROMPTON',nm:'Crompton Greaves',p:'320',c:'-1.2'},{s:'WHIRLPOOL',nm:'Whirlpool India',p:'1450',c:'0.3'}],
+  'FMCG':     [{s:'HUL',nm:'Hindustan Unilever',p:'2450',c:'-1.8'},{s:'ITC',nm:'ITC Ltd',p:'480',c:'-0.4'},{s:'NESTLEIND',nm:'Nestle India',p:'22000',c:'-0.9'},{s:'BRITANNIA',nm:'Britannia Industries',p:'4800',c:'-1.2'},{s:'DABUR',nm:'Dabur India',p:'520',c:'-0.7'}],
+  'ENERGY':   [{s:'ONGC',nm:'ONGC',p:'250',c:'-1.2'},{s:'IOC',nm:'Indian Oil Corp',p:'145',c:'-0.8'},{s:'BPCL',nm:'BPCL',p:'320',c:'-1.5'},{s:'HINDPETRO',nm:'HPCL',p:'380',c:'-2.1'},{s:'MRPL',nm:'MRPL',p:'185',c:'-0.9'}],
+  'MEDIA':    [{s:'SUNTV',nm:'Sun TV Network',p:'680',c:'-1.5'},{s:'ZEEL',nm:'Zee Entertainment',p:'145',c:'-2.1'},{s:'NETWORK18',nm:'Network 18',p:'85',c:'-1.8'},{s:'PVR',nm:'PVR Inox',p:'1450',c:'0.8'},{s:'SAREGAMA',nm:'Saregama India',p:'480',c:'0.5'}],
+  'PSU BANK': [{s:'SBIN',nm:'State Bank of India',p:'820',c:'-0.8'},{s:'CANBK',nm:'Canara Bank',p:'95',c:'-1.2'},{s:'PNB',nm:'Punjab National Bank',p:'95',c:'-1.5'},{s:'BANKBARODA',nm:'Bank of Baroda',p:'240',c:'-1.1'},{s:'UNIONBANK',nm:'Union Bank',p:'115',c:'-0.9'}],
+  'PHARMA':   [{s:'SUNPHARMA',nm:'Sun Pharmaceutical',p:'1650',c:'-2.1'},{s:'CIPLA',nm:'Cipla',p:'1480',c:'-1.8'},{s:'DRREDDY',nm:"Dr. Reddy's Labs",p:'6200',c:'-2.5'},{s:'DIVISLAB',nm:"Divi's Laboratories",p:'4800',c:'-1.9'},{s:'BIOCON',nm:'Biocon',p:'280',c:'-2.8'}],
+  'OIL&GAS':  [{s:'RELIANCE',nm:'Reliance Industries',p:'2460',c:'-1.2'},{s:'ONGC',nm:'ONGC',p:'250',c:'-1.8'},{s:'GAIL',nm:'GAIL India',p:'205',c:'-0.9'},{s:'PETRONET',nm:'Petronet LNG',p:'315',c:'-1.5'},{s:'IGL',nm:'Indraprastha Gas',p:'380',c:'-2.1'}],
+  'METAL':    [{s:'TATASTEEL',nm:'Tata Steel',p:'155',c:'-3.2'},{s:'JSWSTEEL',nm:'JSW Steel',p:'920',c:'-2.8'},{s:'HINDALCO',nm:'Hindalco Industries',p:'680',c:'-2.1'},{s:'NMDC',nm:'NMDC Ltd',p:'215',c:'-3.5'},{s:'SAIL',nm:'Steel Authority',p:'115',c:'-4.1'}],
+};
+
+document.getElementById('heat').innerHTML=SECTORS.map((s,i)=>`
+  <div class="hc ${s.t}" onclick="openSector(${i})">
     <div class="hc-n">${s.n}</div>
     <div class="hc-d"><span class="u">▲${s.u}</span> &nbsp; <span class="d">▼${s.d}</span></div>
   </div>`).join('');
 
+function openSector(idx){
+  const s=SECTORS[idx];
+  const stocks=SECTOR_STOCKS[s.n]||[];
+  const tot=s.u+s.d;
+  const pct=tot>0?((s.u/tot)*100).toFixed(0):50;
+  const bull=s.u>=s.d;
+  let html=`
+    <div class="sec-sh-hd">
+      <div class="sec-sh-nm">${s.n}</div>
+      <button class="sec-sh-cl" onclick="closeSector()">✕ CLOSE</button>
+    </div>
+    <div class="sec-sh-stat">
+      <span class="sec-up">▲ ${s.u} Gainers</span>
+      <span class="sec-dn">▼ ${s.d} Losers</span>
+      <span style="color:var(--dm)">${bull?'📈':'📉'} ${pct}% Bullish</span>
+    </div>`;
+  stocks.forEach(st=>{
+    const chg=parseFloat(st.c);
+    const isUp=chg>=0;
+    html+=`<div class="sec-srow" onclick="goChart('${st.s}')">
+      <div><div class="sec-sym">${st.s}</div><div class="sec-snm">${st.nm}</div></div>
+      <div><div class="sec-pv">₹${st.p}</div>
+      <div class="sec-pc ${isUp?'up':'dn'}">${isUp?'▲ +':'▼ '}${Math.abs(chg)}%</div></div>
+    </div>`;
+  });
+  html+=`<button class="sec-goto" onclick="goChart('${stocks[0]?stocks[0].s:'NIFTY'}')">📊 OPEN CHART — ${s.n} →</button>`;
+  document.getElementById('secSheet').innerHTML=html;
+  document.getElementById('secModal').classList.add('sh');
+}
+
+function closeSector(){
+  document.getElementById('secModal').classList.remove('sh');
+}
+
+function goChart(sym){
+  if(window.parent&&window.parent!==window){
+    window.parent.postMessage({type:'goto',page:3,stock:sym},'*');
+  } else {
+    window.location.href='4_chart_page.html';
+  }
+}
+
 function goPage(p){
   const map={signal:'5_scanner.html',power:'3_power_box.html',chart:'4_chart_page.html',watch:'6_watchlist.html',admin:'8_control_panel.html'};
-  if(map[p])window.location.href=map[p];
-  else showToast('→ '+p.toUpperCase());
+  if(window.parent&&window.parent!==window){
+    const pageIdx={signal:1,power:2,chart:3,watch:4,admin:5};
+    if(pageIdx[p]!==undefined)window.parent.postMessage({type:'goto',page:pageIdx[p]},'*');
+  } else if(map[p]) window.location.href=map[p];
 }
 function panicStop(){if(confirm('🚨 STOP ALL? Close all positions?'))showToast('🚨 ALL CLOSED');}
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('sh');setTimeout(()=>t.classList.remove('sh'),1800);}

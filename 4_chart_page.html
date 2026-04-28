@@ -208,6 +208,7 @@ const STOCKS = {
 
 let currentStock = 'NIFTY';
 let zoomLevel = 2;
+let currentTF = '10m';
 
 // INDICATORS DATA (as per photo)
 const INDICATORS = [
@@ -243,18 +244,75 @@ function renderIndicators() {
 function generateCandles(count, baseprice) {
   const candles = [];
   let price = baseprice * 0.985;
+  const tfMins = {'1m':1,'5m':5,'10m':10,'15m':15,'1h':60,'1D':1440};
+  const mins = tfMins[currentTF] || 10;
+  const now = new Date();
+  // Market open time: 9:15 AM IST for intraday
+  let startTime;
+  if (mins >= 1440) {
+    startTime = new Date(now.getTime() - count * 24 * 3600000);
+  } else {
+    // Calculate start from market session (9:15 AM)
+    const mktOpen = new Date(now);
+    mktOpen.setHours(9, 15, 0, 0);
+    if (now < mktOpen) mktOpen.setDate(mktOpen.getDate() - 1);
+    startTime = new Date(mktOpen.getTime() - (count - Math.floor((now - mktOpen) / (mins * 60000))) * mins * 60000);
+  }
   for (let i = 0; i < count; i++) {
     const open = price;
     const vol = baseprice * 0.003;
-    const trend = (i / count) * baseprice * 0.02; // upward trend
+    const trend = (i / count) * baseprice * 0.02;
     const move = (Math.random() - 0.4) * vol + trend * 0.05;
     const close = open + move;
     const high = Math.max(open, close) + Math.random() * vol * 0.4;
     const low = Math.min(open, close) - Math.random() * vol * 0.4;
-    candles.push({ open, close, high, low });
+    const time = new Date(startTime.getTime() + i * mins * 60000);
+    candles.push({ open, close, high, low, time });
     price = close;
   }
   return candles;
+}
+
+// ── SUPPORT / RESISTANCE DETECTION ──
+function findSRLevels(candles, minP, maxP) {
+  const range = maxP - minP;
+  const pivots = [];
+  const n = 3; // pivot lookback bars
+
+  for (let i = n; i < candles.length - n; i++) {
+    let isHigh = true, isLow = true;
+    for (let j = 1; j <= n; j++) {
+      if (candles[i].high <= candles[i - j].high || candles[i].high <= candles[i + j].high) isHigh = false;
+      if (candles[i].low >= candles[i - j].low  || candles[i].low >= candles[i + j].low)   isLow = false;
+    }
+    if (isHigh) pivots.push({ price: candles[i].high, type: 'R' });
+    if (isLow)  pivots.push({ price: candles[i].low,  type: 'S' });
+  }
+
+  // Cluster nearby pivots of same type into zones
+  const clusterRange = range * 0.012;
+  const zones = [];
+  const used = new Set();
+  for (let i = 0; i < pivots.length; i++) {
+    if (used.has(i)) continue;
+    const group = [pivots[i]];
+    for (let j = i + 1; j < pivots.length; j++) {
+      if (!used.has(j) && pivots[j].type === pivots[i].type &&
+          Math.abs(pivots[j].price - pivots[i].price) < clusterRange * 2.5) {
+        group.push(pivots[j]);
+        used.add(j);
+      }
+    }
+    used.add(i);
+    const avg = group.reduce((s, p) => s + p.price, 0) / group.length;
+    zones.push({ price: avg, type: group[0].type, strength: group.length });
+  }
+
+  // Return top 3 resistance + top 3 support sorted by strength
+  const lastClose = candles[candles.length - 1].close;
+  const res = zones.filter(z => z.type === 'R').sort((a, b) => b.strength - a.strength).slice(0, 3);
+  const sup = zones.filter(z => z.type === 'S').sort((a, b) => b.strength - a.strength).slice(0, 3);
+  return [...res, ...sup];
 }
 
 function renderChart(stock) {
@@ -342,13 +400,46 @@ function renderChart(stock) {
   const currentY = yScale(candles[candles.length - 1].close);
   html += `<line x1="0" y1="${currentY}" x2="${W - 40}" y2="${currentY}" stroke="#f5c518" stroke-width="1" stroke-dasharray="2,2"/>`;
 
-  // Support zone (green)
-  const supportP = minP + (maxP - minP) * 0.15;
-  html += `<rect x="0" y="${yScale(supportP + pad/2)}" width="${W - 40}" height="${(maxP-minP) * 0.05 / (maxP-minP) * (H-40)}" fill="#00c853" opacity="0.08"/>`;
+  // ── SUPPORT & RESISTANCE ZONES (auto-detected) ──
+  const srLevels = findSRLevels(candles, minP, maxP);
+  srLevels.forEach(level => {
+    const y = yScale(level.price);
+    if (y < 10 || y > H - 25) return; // skip if out of visible range
+    const isR = level.type === 'R';
+    const color = isR ? '#ff3d3d' : '#00c853';
+    const zoneH = Math.max(4, ((maxP - minP) * 0.008) / (maxP - minP) * (H - 40));
+    // Zone band
+    html += `<rect x="0" y="${y - zoneH}" width="${W - 40}" height="${zoneH * 2}" fill="${color}" opacity="0.13"/>`;
+    // Dashed level line
+    html += `<line x1="0" y1="${y}" x2="${W - 40}" y2="${y}" stroke="${color}" stroke-width="1" stroke-dasharray="5,3" opacity="0.75"/>`;
+    // Type badge on left
+    html += `<rect x="1" y="${y - 8}" width="16" height="13" fill="${color}" opacity="0.9"/>`;
+    html += `<text x="9" y="${y + 2}" fill="#000" font-size="8" text-anchor="middle" font-weight="900" font-family="Rajdhani">${level.type}</text>`;
+    // Price label near right
+    html += `<text x="${W - 42}" y="${y - 3}" fill="${color}" font-size="8" text-anchor="end" font-family="Rajdhani" font-weight="700">${level.price.toFixed(1)}</text>`;
+  });
 
-  // Resistance zone (red)
-  const resistP = minP + (maxP - minP) * 0.9;
-  html += `<rect x="0" y="${yScale(resistP + pad/2)}" width="${W - 40}" height="${(maxP-minP) * 0.05 / (maxP-minP) * (H-40)}" fill="#ff3d3d" opacity="0.08"/>`;
+  // ── TIME LABELS on X-axis ──
+  const tfMinsMap = {'1m':1,'5m':5,'10m':10,'15m':15,'1h':60,'1D':1440};
+  const tfMin = tfMinsMap[currentTF] || 10;
+  const labelEvery = Math.max(1, Math.floor(candles.length / 7));
+  candles.forEach((c, i) => {
+    if (i % labelEvery !== 0 && i !== candles.length - 1) return;
+    const x = 2 + i * candleWidth + candleWidth / 2;
+    if (x > W - 45) return;
+    const t = c.time;
+    let label;
+    if (tfMin >= 1440) {
+      const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      label = `${t.getDate()} ${mo[t.getMonth()]}`;
+    } else {
+      const hh = t.getHours().toString().padStart(2, '0');
+      const mm = t.getMinutes().toString().padStart(2, '0');
+      label = `${hh}:${mm}`;
+    }
+    html += `<line x1="${x}" y1="${H - 22}" x2="${x}" y2="${H - 18}" stroke="#333" stroke-width="0.5"/>`;
+    html += `<text x="${x}" y="${H - 6}" fill="#555" font-size="7" text-anchor="middle" font-family="Rajdhani">${label}</text>`;
+  });
 
   svg.innerHTML = html;
 
@@ -390,6 +481,7 @@ function loadStock() {
 function setTF(el, tf) {
   document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
+  currentTF = tf;
   renderChart(currentStock);
   toast('⏱ Timeframe: ' + tf);
 }
