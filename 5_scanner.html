@@ -147,7 +147,15 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'R
   </div>
   <div class="criteria-label">⚙️ SCANNER CRITERIA</div>
   <div class="criteria-grid" id="crGrid"></div>
-  <button class="scan-now" onclick="closeModal()">🔍 CLOSE & SCAN LIVE</button>
+  <div id="scannerSignalBox" style="margin:10px 0;padding:10px;background:#0a0500;border:2px solid var(--gold);text-align:center;display:none">
+    <div style="font-size:9px;color:var(--dim);letter-spacing:2px;margin-bottom:6px">📡 SIGNAL READY</div>
+    <div id="sigStrengthLbl" style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:800;color:var(--gold);margin-bottom:4px"></div>
+    <div id="sigDirLbl" style="font-size:11px;font-weight:700;margin-bottom:8px"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px">
+    <button class="scan-now" style="background:linear-gradient(135deg,#005500,#00aa44);margin-top:0" onclick="sendToPowerBox(currentScannerIdx)">📤 SEND TO POWER BOX</button>
+    <button class="scan-now" style="background:#111;border:1px solid var(--border);color:var(--dim);margin-top:0" onclick="closeModal()">✕ CLOSE</button>
+  </div>
 </div>
 </div>
 
@@ -190,7 +198,19 @@ function renderGrid() {
     </div>`).join('');
 }
 
+function setTgt(boxId,cId,sId,count,total) {
+  const box = document.getElementById(boxId);
+  const pct = count/total;
+  document.getElementById(cId).textContent = count;
+  if(pct>=0.7){ box.className='tgt-box hit'; document.getElementById(sId).textContent='HIT '+count+'x'; }
+  else if(pct>=0.4){ box.className='tgt-box partial'; document.getElementById(sId).textContent=count+'x'; }
+  else{ box.className='tgt-box'; document.getElementById(sId).textContent=count+'x'; }
+}
+
+let currentScannerIdx = 0;
+
 function openModal(i) {
+  currentScannerIdx = i;
   const sc = SCANNERS[i];
   document.getElementById('mIcon').textContent = sc.icon;
   document.getElementById('mName').textContent = sc.name.replace('\n',' ');
@@ -212,16 +232,43 @@ function openModal(i) {
   setTgt('tgt3','t3c','t3s',sc.t3,sc.total);
   document.getElementById('crGrid').innerHTML = sc.criteria.map(c=>`
     <div class="cr-item"><div class="cr-dot"></div><div class="cr-name">${c}</div><div class="cr-val">OK</div></div>`).join('');
+
+  // Signal strength box
+  const dir = sc.buy >= sc.sell ? 'BUY' : 'SELL';
+  const sigBox = document.getElementById('scannerSignalBox');
+  const strLbl = document.getElementById('sigStrengthLbl');
+  const dirLbl = document.getElementById('sigDirLbl');
+  sigBox.style.display = 'block';
+  let strength = ratio >= 87 ? '🔱 ULTRA STRONG' : ratio >= 80 ? '💥 MEGA' : ratio >= 77 ? '⚡ STRONG' : ratio >= 65 ? '📊 MODERATE' : '⚠️ WEAK';
+  let strengthColor = ratio >= 80 ? 'var(--green)' : ratio >= 77 ? 'var(--gold)' : ratio >= 65 ? '#aa8800' : 'var(--orange)';
+  strLbl.textContent = strength + ' (' + ratio + '%)';
+  strLbl.style.color = strengthColor;
+  dirLbl.innerHTML = dir === 'BUY'
+    ? '<span style="color:var(--green)">▲ BUY SIGNAL — ' + sc.buy + ' buy signals today</span>'
+    : '<span style="color:var(--red)">▼ SELL SIGNAL — ' + sc.sell + ' sell signals today</span>';
+
   document.getElementById('modalBg').classList.add('show');
 }
 
-function setTgt(boxId,cId,sId,count,total) {
-  const box = document.getElementById(boxId);
-  const pct = count/total;
-  document.getElementById(cId).textContent = count;
-  if(pct>=0.7){ box.className='tgt-box hit'; document.getElementById(sId).textContent='HIT '+count+'x'; }
-  else if(pct>=0.4){ box.className='tgt-box partial'; document.getElementById(sId).textContent=count+'x'; }
-  else{ box.className='tgt-box'; document.getElementById(sId).textContent=count+'x'; }
+function sendToPowerBox(i) {
+  const sc = SCANNERS[i];
+  const ratio = Math.round((sc.win/sc.total)*100);
+  const dir = sc.buy >= sc.sell ? 'BUY' : 'SELL';
+  // Save signal to localStorage so Power Box can read it
+  localStorage.setItem('t_signal', JSON.stringify({
+    name: sc.name.replace('\n',' '),
+    icon: sc.icon,
+    scanner: sc.name.replace('\n',' '),
+    winRate: ratio,
+    direction: dir,
+    total: sc.total,
+    win: sc.win,
+    sl: sc.sl,
+    buy: sc.buy,
+    sell: sc.sell,
+    ts: Date.now()
+  }));
+  window.location.href = '3_power_box.html';
 }
 
 function closeModal() { document.getElementById('modalBg').classList.remove('show'); }

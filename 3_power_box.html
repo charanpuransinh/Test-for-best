@@ -121,6 +121,31 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
 /* TOAST */
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--b3);border:1px solid var(--gold);padding:9px 18px;font-size:11px;color:var(--tx);z-index:9999;display:none;white-space:nowrap;}
 .toast.sh{display:block;}
+/* SCANNER BANNER */
+.sc-banner{background:linear-gradient(90deg,#001a00,#000500);border:1px solid var(--gn);margin:8px 10px 0;padding:8px 12px;display:none;align-items:center;gap:8px;}
+.sc-banner-ico{font-size:18px;}
+.sc-banner-info{flex:1;}
+.sc-banner-nm{font-size:11px;font-weight:800;color:var(--gn);letter-spacing:.5px;}
+.sc-banner-meta{font-size:9px;color:var(--dm);}
+.sc-banner-win{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:800;color:var(--gn);}
+/* DIRECTION TOGGLE */
+.dir-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 10px 0;}
+.dir-btn{padding:9px;font-size:12px;font-weight:800;letter-spacing:1.5px;cursor:pointer;border:2px solid #333;background:#0a0a0a;color:#555;transition:all .2s;}
+.dir-btn.buy-active{background:#001a00;border-color:var(--gn);color:var(--gn);box-shadow:0 0 10px rgba(0,200,83,.2);}
+.dir-btn.sell-active{background:#1a0000;border-color:var(--rd);color:var(--rd);box-shadow:0 0 10px rgba(255,61,61,.2);}
+/* TRADE CONFIRM OVERLAY */
+.trade-ov{position:fixed;inset:0;background:rgba(0,0,0,.96);display:none;align-items:flex-end;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
+.trade-ov.show{display:flex;}
+.trade-card{width:100%;max-width:430px;background:#0a0a0a;border:2px solid var(--gold);border-bottom:none;padding:20px 18px;}
+.tc-title{font-family:'Orbitron',sans-serif;font-size:14px;color:var(--gold);letter-spacing:2px;margin-bottom:4px;}
+.tc-sub{font-size:10px;color:var(--dm);margin-bottom:14px;letter-spacing:.5px;}
+.tc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #1a1a1a;}
+.tc-lbl{font-size:10px;color:var(--dm);letter-spacing:1px;}
+.tc-val{font-size:13px;font-weight:800;letter-spacing:.3px;}
+.tc-warn{background:#1a0000;border:1px solid var(--rd);padding:10px;font-size:10px;color:var(--rd);margin:12px 0;letter-spacing:.3px;line-height:1.5;}
+.tc-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+.tc-confirm{background:linear-gradient(135deg,#003300,#00aa33);border:none;color:#fff;padding:14px;font-size:13px;font-weight:800;letter-spacing:1.5px;cursor:pointer;}
+.tc-cancel{background:#111;border:1px solid #333;color:var(--dm);padding:14px;font-size:13px;font-weight:700;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -128,14 +153,30 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
 
   <div class="topbar">
     <div class="tb-title">⚡ POWER BOX</div>
-    <div class="tb-pill"><div class="live-dot"></div>HYBRID</div>
+    <div class="tb-pill"><div class="live-dot"></div><span id="topMode">HYBRID</span></div>
+  </div>
+
+  <!-- Scanner signal banner (auto-shown when signal arrives from scanner) -->
+  <div class="sc-banner" id="scBanner">
+    <div class="sc-banner-ico" id="scBIco">⚡</div>
+    <div class="sc-banner-info">
+      <div class="sc-banner-nm" id="scBNm">SCANNER SIGNAL</div>
+      <div class="sc-banner-meta" id="scBMeta">Pre-loaded from scanner</div>
+    </div>
+    <div class="sc-banner-win" id="scBWin">0%</div>
+  </div>
+
+  <!-- BUY / SELL direction toggle -->
+  <div class="dir-row">
+    <button class="dir-btn buy-active" id="dirBuy" onclick="setDir('BUY')">▲ BUY / LONG</button>
+    <button class="dir-btn" id="dirSell" onclick="setDir('SELL')">▼ SELL / SHORT</button>
   </div>
 
   <div class="page" id="page-power">
     <div class="pw-main">
       <div class="pb">
         <div class="pb-head">
-          <div class="pb-ttl">⚡ POWER BOX — HYBRID</div>
+          <div class="pb-ttl" id="pbTtl">⚡ POWER BOX — HYBRID</div>
           <span class="prob-c" id="probChip">85%</span>
         </div>
 
@@ -189,6 +230,7 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
             </div>
           </div>
 
+          <!-- Row 1: Entry + Stop Loss + Trailing SL -->
           <div class="ee" style="margin-top:10px;">
             <div class="ee-c" style="border-color:var(--gold)">
               <div class="ee-l co">ENTRY</div>
@@ -196,12 +238,31 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
             </div>
             <div class="ee-c" style="border-color:var(--red)">
               <div class="ee-l" style="color:var(--red)">STOP LOSS</div>
-              <div class="ee-v" style="color:var(--red)" id="vSL">₹2452.5</div>
+              <div class="ee-v" style="color:var(--red)" id="vSL">₹2452</div>
             </div>
+            <div class="ee-c" style="border-color:#ff9100">
+              <div class="ee-l" style="color:#ff9100;font-size:7px">TRAIL SL</div>
+              <div class="ee-v" style="color:#ff9100" id="vTSL">₹2463</div>
+            </div>
+          </div>
+          <!-- Row 2: T1 + T2 + T3 -->
+          <div class="ee" style="margin-top:5px;">
             <div class="ee-c" style="border-color:var(--green)">
-              <div class="ee-l cg">TARGET</div>
-              <div class="ee-v cg" id="vT1">₹2582.5</div>
+              <div class="ee-l cg" id="lT1">T1 · 1:1.5</div>
+              <div class="ee-v cg" id="vT1">₹2553</div>
             </div>
+            <div class="ee-c" style="border-color:#00ffaa">
+              <div class="ee-l" style="color:#00ffaa" id="lT2">T2 · 1:2.5</div>
+              <div class="ee-v" style="color:#00ffaa" id="vT2">₹2615</div>
+            </div>
+            <div class="ee-c" style="border-color:var(--gold)">
+              <div class="ee-l co" id="lT3">T3 · 1:3.5</div>
+              <div class="ee-v co" id="vT3">₹2665</div>
+            </div>
+          </div>
+          <!-- Trail SL hint -->
+          <div style="font-size:8px;color:#555;padding:5px 0 0;letter-spacing:.3px">
+            📌 Trail SL = T1 hit होने पर Entry pe move करो · T2 hit = T1 pe · T3 hit = T2 pe
           </div>
         </div>
 
@@ -212,7 +273,9 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
           <div class="st"><div class="st-l">🔒 SECURE</div><div class="st-v cg" id="secVal">72%</div></div>
         </div>
 
-        <button class="pop-btn" onclick="toast('🚀 Full Signal — coming soon')">🚀 FULL SIGNAL POPUP</button>
+        <button class="pop-btn" id="placeBtn" onclick="showTradeConfirm()" style="background:linear-gradient(135deg,#001a00,#003300);border-color:var(--gn);color:var(--gn);font-size:13px;letter-spacing:2px;">
+          🔱 REVIEW & PLACE TRADE
+        </button>
       </div>
 
       <!-- METERS -->
@@ -254,12 +317,59 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
     <div class="bn" onclick="goPage('admin')"><div class="bn-i">⚙️</div><div class="bn-t">ADMIN</div></div>
   </div>
 
+<!-- TRADE CONFIRMATION OVERLAY — user must manually confirm, NO auto-execute -->
+<div class="trade-ov" id="tradeOv">
+  <div class="trade-card">
+    <div class="tc-title">🔱 TRADE CONFIRM</div>
+    <div class="tc-sub" id="tcSub">BRAHMASTRA · BUY SIGNAL · 83% confidence</div>
+    <div class="tc-row"><span class="tc-lbl">STOCK</span><span class="tc-val co" id="tcStock">RELIANCE</span></div>
+    <div class="tc-row"><span class="tc-lbl">DIRECTION</span><span class="tc-val" id="tcDir" style="color:var(--gn)">▲ BUY</span></div>
+    <div class="tc-row"><span class="tc-lbl">ENTRY</span><span class="tc-val co" id="tcEntry">₹0</span></div>
+    <div class="tc-row"><span class="tc-lbl">STOP LOSS</span><span class="tc-val" style="color:var(--rd)" id="tcSL">₹0</span></div>
+    <div class="tc-row"><span class="tc-lbl">TRAIL SL</span><span class="tc-val" style="color:#ff9100" id="tcTSL">₹0</span></div>
+    <div class="tc-row"><span class="tc-lbl">TARGET 1</span><span class="tc-val cg" id="tcT1">₹0</span></div>
+    <div class="tc-row"><span class="tc-lbl">TARGET 2</span><span class="tc-val" style="color:#00ffaa" id="tcT2">₹0</span></div>
+    <div class="tc-row"><span class="tc-lbl">TARGET 3</span><span class="tc-val co" id="tcT3">₹0</span></div>
+    <div class="tc-row"><span class="tc-lbl">QTY · POSITION</span><span class="tc-val co" id="tcPos">0 · ₹0</span></div>
+    <div class="tc-row"><span class="tc-lbl">RISK : REWARD</span><span class="tc-val cg" id="tcRR">1:0</span></div>
+    <div class="tc-warn">
+      ⚠️ MANUAL CONFIRMATION REQUIRED<br>
+      Yeh trade <b>broker API se directly execute hoga</b>.<br>
+      Angel One / Dhan connected hai tabhi active hoga.<br>
+      <b>Cancel karna ho to neeche CANCEL dabao.</b>
+    </div>
+    <div class="tc-btns">
+      <button class="tc-confirm" onclick="executeTrade()">✅ CONFIRM TRADE</button>
+      <button class="tc-cancel" onclick="document.getElementById('tradeOv').classList.remove('show')">✕ CANCEL</button>
+    </div>
+  </div>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 if(window.self!==window.top){var _n=document.querySelector('.bnav');if(_n)_n.remove();var _s=document.querySelector('.page');if(_s)_s.style.paddingBottom='0';}
 let curMode = 'average';
+let curDir  = 'BUY';
+let lastCalc = {};
+
+// ── Signal strength — new thresholds (user request: 85=STRONG, 90=ULTRA) ──
+function getStrength(p, dir) {
+  const d = dir === 'SELL';
+  if(p < 70)  return {txt:'❌ DO NOT TRADE',               cls:'sig-avoid', note:'Signal bahut weak — skip karo',                chip:'#550000'};
+  if(p < 80)  return {txt:'⚠️ MODERATE — WAIT',           cls:'sig-weak',  note:'Below 80% — better confluence ka wait karo',    chip:'#553300'};
+  if(p < 85)  return {txt:(d?'📊 SELL SETUP':'📊 BUY SETUP'),cls:'sig-mod', note:'Developing signal (80%+) — chhota size lo',    chip:'#554400'};
+  if(p < 90)  return {txt:(d?'⚡ STRONG SELL':'⚡ STRONG BUY'),cls:'sig-strong',note:'STRONG signal (85%+) — normal lot lo',     chip:'#005533'};
+  if(p < 95)  return {txt:(d?'🌟 ULTRA STRONG SELL':'🌟 ULTRA STRONG BUY'),cls:'sig-ultra',note:'ULTRA signal (90%+) — full lot lo, high confidence',chip:'#007744'};
+  return       {txt:(d?'🔱 TRISHUL MAX SELL':'🔱 TRISHUL MAX BUY'),cls:'sig-max',note:'MAXIMUM (95%+) — FULL capital! Rarest & strongest signal',chip:'#c9a000'};
+}
+
+function setDir(dir) {
+  curDir = dir;
+  document.getElementById('dirBuy').className  = 'dir-btn' + (dir==='BUY'  ? ' buy-active'  : '');
+  document.getElementById('dirSell').className = 'dir-btn' + (dir==='SELL' ? ' sell-active' : '');
+  runPower();
+}
 
 function setMode(mode) {
   curMode = mode;
@@ -267,11 +377,14 @@ function setMode(mode) {
   const modeMap = {average:'m_average', intraday:'m_intraday', fixed:'m_fixed', scalp:'m_scalp'};
   const el = document.getElementById(modeMap[mode]);
   if (el) el.classList.add('active');
+  const lbl = {average:'AVERAGE', intraday:'INTRADAY', fixed:'FIXED', scalp:'SCALP'};
+  document.getElementById('topMode').textContent = lbl[mode] || mode;
+  document.getElementById('pbTtl').textContent = '⚡ POWER BOX — ' + (lbl[mode]||mode);
   runPower();
 }
 
 function runPower() {
-  const name   = document.getElementById('iName').value || 'STOCK';
+  const name   = document.getElementById('iName').value.trim() || 'STOCK';
   const price  = parseFloat(document.getElementById('iPrice').value) || 0;
   const atr    = parseFloat(document.getElementById('iATR').value) || 0;
   const avgVol = parseFloat(document.getElementById('iAvgV').value) || 1;
@@ -280,89 +393,156 @@ function runPower() {
   const cLow   = parseFloat(document.getElementById('iCL').value) || price;
   const cHigh  = parseFloat(document.getElementById('iCH').value) || price;
 
-  let entry, sl, target;
+  const isBuy = curDir === 'BUY';
+  let entry, sl, riskPerUnit;
 
-  if (curMode === 'average') {
-    entry  = price;
-    sl     = cLow - atr * 0.5;
-    target = cHigh + atr * 1.5;
-  } else if (curMode === 'intraday') {
-    entry  = price;
-    sl     = price - atr * 1.0;
-    target = price + atr * 2.0;
-  } else if (curMode === 'fixed') {
-    entry  = price;
-    sl     = price - atr * 0.75;
-    target = price + atr * 2.5;
-  } else { // scalp
-    entry  = price;
-    sl     = price - atr * 0.3;
-    target = price + atr * 0.9;
+  // SL factors per mode (ATR multiplier)
+  const slFact = {average:0.5, intraday:1.0, fixed:0.75, scalp:0.3};
+  const f = slFact[curMode] || 1.0;
+
+  entry = price;
+  if(isBuy) {
+    sl = Math.max(cLow - atr * f, price - atr * f * 1.5);
+  } else {
+    sl = Math.min(cHigh + atr * f, price + atr * f * 1.5);
   }
+  riskPerUnit = Math.abs(entry - sl);
 
-  // Score: base heuristic
+  // T1, T2, T3 based on R:R — consistent per mode
+  const rrMap = {
+    average:  [1.5, 2.5, 3.5],
+    intraday: [1.5, 2.5, 4.0],
+    fixed:    [2.0, 3.0, 4.5],
+    scalp:    [0.8, 1.5, 2.2],
+  };
+  const [rr1,rr2,rr3] = rrMap[curMode] || [1.5,2.5,3.5];
+  const sign = isBuy ? 1 : -1;
+  const t1 = entry + sign * riskPerUnit * rr1;
+  const t2 = entry + sign * riskPerUnit * rr2;
+  const t3 = entry + sign * riskPerUnit * rr3;
+
+  // Trailing SL: starts at SL, moves to Entry on T1 hit, T1 on T2 hit, T2 on T3 hit
+  const tsl = isBuy
+    ? entry - riskPerUnit * 0.5    // first trail: halfway between SL and entry
+    : entry + riskPerUnit * 0.5;
+
+  // Probability from volume + score (same heuristic as before)
   const score = Math.min(100, Math.round(50 + (curVol / avgVol - 1) * 30));
+  const prob  = Math.min(98, Math.round(55 + (curVol / avgVol - 1) * 20 + (score / 100) * 20));
 
-  // Probability
-  const prob = Math.min(95, Math.round(55 + (curVol / avgVol - 1) * 20 + (score / 100) * 20));
-
-  // RR
-  const risk   = entry - sl;
-  const reward = target - entry;
-  const rr     = risk > 0 ? (reward / risk).toFixed(1) : '∞';
-
-  // Position size
   const posSize = qty * price;
+  const str = getStrength(prob, curDir);
 
-  // ── SIGNAL STRENGTH (minimum 77%) ──
-  function getStrength(p) {
-    if(p < 55)  return {txt:'❌ DO NOT TRADE',     cls:'sig-avoid',      note:'⚠️ Signal bahut weak — skip karo',             chip:'#550000'};
-    if(p < 65)  return {txt:'⚠️ WEAK SIGNAL',      cls:'sig-weak',       note:'⚠️ Below safe zone — avoid karo',              chip:'#553300'};
-    if(p < 77)  return {txt:'📊 BELOW MINIMUM',    cls:'sig-mod',        note:'Minimum 77% required — wait karo better setup', chip:'#554400'};
-    if(p < 80)  return {txt:'✅ BUY',               cls:'sig-min',        note:'Minimum met (77%+) — chhota lot lo',            chip:'#005533'};
-    if(p < 83)  return {txt:'⚡ STRONG BUY',        cls:'sig-strong',     note:'Strong signal (80%+) — normal lot lo',          chip:'#006600'};
-    if(p < 87)  return {txt:'💥 MEGA BUY',          cls:'sig-mega',       note:'MEGA signal (83%+) — zyada lot consider karo',  chip:'#007744'};
-    if(p < 91)  return {txt:'🌟 ULTRA STRONG BUY', cls:'sig-ultra',      note:'ULTRA signal (87%+) — high allocation karo',    chip:'#008855'};
-    return       {txt:'🔱 TRISHUL MAX BUY',         cls:'sig-max',        note:'MAXIMUM signal (91%+) — FULL capital deploy!',  chip:'#c9a000'};
-  }
-  const str = getStrength(prob);
+  // Store for trade confirm overlay
+  lastCalc = {name, dir:curDir, entry, sl, tsl, t1, t2, t3, rr1, rr2, rr3, qty, posSize, prob, mode:curMode};
 
   // Update DOM
-  document.getElementById('rStock').textContent  = '👁 ' + name.toUpperCase();
   const modeLabels = {average:'AVERAGE MODE', intraday:'INTRADAY MODE', fixed:'FIXED MODE', scalp:'SCALP MODE'};
-  document.getElementById('rMode').textContent   = modeLabels[curMode] || 'MODE';
-  document.getElementById('rSig').textContent    = prob + '% Probability';
-  document.getElementById('rSig').className      = 'res-sig';
-  document.getElementById('rSig').style.color    = prob >= 77 ? 'var(--gn)' : '#888';
+  document.getElementById('rStock').textContent = '👁 ' + name.toUpperCase();
+  document.getElementById('rMode').textContent  = modeLabels[curMode];
+  document.getElementById('rSig').textContent   = prob + '% Probability';
+  document.getElementById('rSig').style.color   = prob >= 85 ? 'var(--gn)' : '#888';
 
   const badge = document.getElementById('sigBadge');
-  badge.textContent  = str.txt;
-  badge.className    = 'sig-badge ' + str.cls;
+  badge.textContent = str.txt;
+  badge.className   = 'sig-badge ' + str.cls;
   document.getElementById('minNote').textContent = str.note;
 
   const chip = document.getElementById('probChip');
-  chip.textContent = prob + '%';
-  chip.style.background = str.chip;
-  chip.style.color = prob >= 77 ? '#fff' : '#ccc';
+  chip.textContent       = prob + '%';
+  chip.style.background  = str.chip;
+  chip.style.color       = '#fff';
 
   document.getElementById('probFill').style.width = prob + '%';
 
-  document.getElementById('vEntry').textContent = '₹' + entry.toFixed(2);
-  document.getElementById('vSL').textContent    = '₹' + sl.toFixed(2);
-  document.getElementById('vT1').textContent    = '₹' + target.toFixed(2);
+  const fmt = v => '₹' + v.toFixed(2);
+  document.getElementById('vEntry').textContent = fmt(entry);
+  document.getElementById('vSL').textContent    = fmt(sl);
+  document.getElementById('vTSL').textContent   = fmt(tsl);
+  document.getElementById('vT1').textContent    = fmt(t1);
+  document.getElementById('vT2').textContent    = fmt(t2);
+  document.getElementById('vT3').textContent    = fmt(t3);
+  document.getElementById('lT1').textContent    = 'T1 · 1:'+rr1;
+  document.getElementById('lT2').textContent    = 'T2 · 1:'+rr2;
+  document.getElementById('lT3').textContent    = 'T3 · 1:'+rr3;
 
   document.getElementById('posSize').textContent = '₹' + posSize.toLocaleString('en-IN');
-  document.getElementById('rrLive').textContent  = '1:' + rr;
+  document.getElementById('rrLive').textContent  = '1:' + rr1;
 
-  const secPct = Math.min(95, Math.round(prob * 0.85));
+  const secPct = Math.min(98, Math.round(prob * 0.88));
   document.getElementById('secVal').textContent  = secPct + '%';
   document.getElementById('secVal2').textContent = secPct + '%';
+  document.getElementById('volVal').textContent  = (curVol/avgVol).toFixed(1) + 'x';
 
-  const volRatio = (curVol / avgVol).toFixed(1);
-  document.getElementById('volVal').textContent  = volRatio + 'x';
-
-  toast('⚡ ' + name.toUpperCase() + ' — ' + modeLabels[curMode] + ' calculated!');
+  // Place button: disable if below 85%
+  const pb = document.getElementById('placeBtn');
+  if(prob < 85) {
+    pb.style.opacity = '0.4';
+    pb.textContent = '⛔ Signal too weak to trade (min 85%)';
+    pb.style.color = '#555';
+  } else {
+    pb.style.opacity = '1';
+    pb.textContent = '🔱 REVIEW & PLACE TRADE';
+    pb.style.color = 'var(--gn)';
+  }
 }
+
+function showTradeConfirm() {
+  if(!lastCalc.entry) { toast('⚠️ RUN POWER first'); return; }
+  if(lastCalc.prob < 85) { toast('⛔ Minimum 85% required to trade'); return; }
+  const l = lastCalc;
+  const fmt = v => '₹' + v.toFixed(2);
+  const str = getStrength(l.prob, l.dir);
+  document.getElementById('tcSub').textContent = (l.name||'STOCK') + ' · ' + l.dir + ' · ' + l.prob + '% · ' + str.txt;
+  document.getElementById('tcStock').textContent = l.name || 'STOCK';
+  document.getElementById('tcDir').textContent   = l.dir === 'BUY' ? '▲ BUY / LONG' : '▼ SELL / SHORT';
+  document.getElementById('tcDir').style.color   = l.dir === 'BUY' ? 'var(--gn)' : 'var(--rd)';
+  document.getElementById('tcEntry').textContent = fmt(l.entry);
+  document.getElementById('tcSL').textContent    = fmt(l.sl);
+  document.getElementById('tcTSL').textContent   = fmt(l.tsl);
+  document.getElementById('tcT1').textContent    = fmt(l.t1) + '  (1:'+l.rr1+')';
+  document.getElementById('tcT2').textContent    = fmt(l.t2) + '  (1:'+l.rr2+')';
+  document.getElementById('tcT3').textContent    = fmt(l.t3) + '  (1:'+l.rr3+')';
+  document.getElementById('tcPos').textContent   = l.qty + ' qty · ₹' + (l.posSize||0).toLocaleString('en-IN');
+  document.getElementById('tcRR').textContent    = '1:' + l.rr1 + ' / 1:' + l.rr2 + ' / 1:' + l.rr3;
+  document.getElementById('tradeOv').classList.add('show');
+}
+
+function executeTrade() {
+  // Save to trade log in localStorage — NO silent auto-execute
+  const l = lastCalc;
+  const trades = JSON.parse(localStorage.getItem('t_trade_log') || '[]');
+  trades.unshift({
+    id: Date.now(),
+    stock: l.name, dir: l.dir, entry: l.entry, sl: l.sl, tsl: l.tsl,
+    t1: l.t1, t2: l.t2, t3: l.t3, qty: l.qty,
+    prob: l.prob, mode: l.mode, ts: new Date().toLocaleString('en-IN'),
+    status: 'PENDING'
+  });
+  localStorage.setItem('t_trade_log', JSON.stringify(trades.slice(0,50)));
+  document.getElementById('tradeOv').classList.remove('show');
+  toast('✅ Trade logged! Broker se manually execute karo ya connected broker pe auto-fire hoga.');
+}
+
+// On page load: check if scanner sent a signal
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    const sig = JSON.parse(localStorage.getItem('t_signal') || 'null');
+    if(sig && Date.now() - sig.ts < 10 * 60 * 1000) { // valid for 10 minutes
+      document.getElementById('iName').value = sig.name || '';
+      curDir = sig.direction || 'BUY';
+      setDir(curDir);
+      const banner = document.getElementById('scBanner');
+      banner.style.display = 'flex';
+      document.getElementById('scBIco').textContent   = sig.icon || '⚡';
+      document.getElementById('scBNm').textContent    = sig.scanner + ' — ' + sig.direction + ' SIGNAL';
+      document.getElementById('scBMeta').textContent  = sig.win + '/' + sig.total + ' wins today · auto-loaded';
+      document.getElementById('scBWin').textContent   = sig.winRate + '%';
+      localStorage.removeItem('t_signal'); // clear after loading
+    }
+  } catch(e) {}
+  runPower();
+});
 
 function setNav(el) {
   document.querySelectorAll('.bn').forEach(n => n.classList.remove('on'));
