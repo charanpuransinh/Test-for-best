@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TRISHUL :: Loading</title>
 
-<!-- Auto-redirect after 1.5 seconds -->
-<meta http-equiv="refresh" content="1.5;url=1_login.html">
+<!-- JS handles redirect below — no meta refresh needed -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -148,8 +147,8 @@ html, body {
 <div class="version">v1.0.0 · CHARAN · MOGAL INDUSTRIES</div>
 
 <script>
-  // If already logged in → skip login, go directly to app
-  const isLoggedIn = localStorage.getItem('t_session') === 'active';
+  // sessionStorage clears when APK is fully closed — always shows login on fresh open
+  const isLoggedIn = sessionStorage.getItem('t_session') === 'active';
   setTimeout(() => {
     window.location.href = isLoggedIn ? 'main_app.html' : '1_login.html';
   }, 1500);

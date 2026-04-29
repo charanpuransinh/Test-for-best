@@ -317,13 +317,73 @@ Client ID: <b style="color:var(--gold)">1111293264</b> · UCC: <b style="color:v
 }
 
 function genToken(){
+  if(!selBroker){showToast('⚠️ Select a broker first');return;}
   if(!document.getElementById('aUid').value.trim()){showToast('⚠️ Enter User ID first');return;}
-  showLoad('🔑 GENERATING TOKEN...');
+  const id=selBroker.id;
+  if(id==='angel'){
+    const uid=document.getElementById('aUid').value.trim();
+    const key=document.getElementById('aKey').value.trim();
+    const totp=document.getElementById('aTotp').value.trim();
+    if(!key){showToast('⚠️ SmartAPI Key required');return;}
+    if(!totp){showToast('⚠️ TOTP Secret required for token');return;}
+    showLoad('🔑 ANGEL ONE — TOKEN STEPS...');
+    setTimeout(()=>{
+      hideLoad();
+      alert(
+        '😇 ANGEL ONE TOKEN — HOW TO GET:\n\n'+
+        '1️⃣  smartapi.angelbroking.com → Login\n'+
+        '2️⃣  My Account → My Apps → Trishul Pro\n'+
+        '3️⃣  Add Whitelist IP: 3.110.190.2\n'+
+        '4️⃣  Click "Generate Token" on that page\n'+
+        '5️⃣  Copy the Access Token\n'+
+        '6️⃣  Paste it in the Token field above\n\n'+
+        'Client ID: '+uid+'\n'+
+        'API Key: '+key.substring(0,6)+'****\n\n'+
+        '⚠️  Token expires daily at midnight.\n'+
+        'Tomorrow subah phir generate karna hoga.'
+      );
+    },800);
+    return;
+  }
+  if(id==='dhan'){
+    showLoad('💙 DHAN TOKEN STEPS...');
+    setTimeout(()=>{
+      hideLoad();
+      alert(
+        '💙 DHAN ACCESS TOKEN — HOW TO GET:\n\n'+
+        '1️⃣  dhanhq.co → Login → Developer\n'+
+        '2️⃣  My Apps → Trishul Pro App\n'+
+        '3️⃣  Generate Access Token (30-day validity)\n'+
+        '4️⃣  Copy token → paste in Token field above\n\n'+
+        'Client ID: 1111293264\n'+
+        'UCC: DNNV38291K\n\n'+
+        '✅  Dhan token = 30 din valid, daily refresh needed nahin'
+      );
+    },600);
+    return;
+  }
+  if(id==='zerodha'){
+    showLoad('🟢 ZERODHA TOKEN...');
+    setTimeout(()=>{
+      hideLoad();
+      alert(
+        '🟢 ZERODHA KITE TOKEN:\n\n'+
+        '1️⃣  kite.trade → My Apps → Trishul Pro\n'+
+        '2️⃣  Login via OAuth → copy request_token from URL\n'+
+        '3️⃣  Use API Key + Secret to generate access_token\n'+
+        '4️⃣  Paste access_token above\n\n'+
+        '⚠️  Token expires daily 6 AM IST'
+      );
+    },600);
+    return;
+  }
+  // Other brokers — demo token
+  showLoad('🔑 GENERATING DEMO TOKEN...');
   setTimeout(()=>{
     hideLoad();
-    document.getElementById('aTok').value='TK'+Math.random().toString(36).substr(2,18).toUpperCase();
-    showToast('✅ Token generated!');
-  },1500);
+    document.getElementById('aTok').value='DEMO-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).substr(2,8).toUpperCase();
+    showToast('✅ Demo token set — paste real token for live trading');
+  },1200);
 }
 
 function connectBroker(){
@@ -395,7 +455,7 @@ function doLogin(){
   setTimeout(()=>{showLoad('🔐 LAYER 3 — BROKER API...');
   setTimeout(()=>{
     hideLoad();
-    localStorage.setItem('t_session','active');
+    sessionStorage.setItem('t_session','active');
     window.location.href='main_app.html';
   },800);},800);},800);
 }
@@ -415,7 +475,7 @@ function doReg(){
   setTimeout(()=>{hideLoad();showToast('✅ Done! Login karo');setTab('login',document.querySelectorAll('.tab')[0]);},1500);
 }
 
-function doBio(){showLoad('👆 BIOMETRIC SCAN...');setTimeout(()=>{hideLoad();localStorage.setItem('t_session','active');window.location.href='main_app.html';},1200);}
+function doBio(){showLoad('👆 BIOMETRIC SCAN...');setTimeout(()=>{hideLoad();sessionStorage.setItem('t_session','active');window.location.href='main_app.html';},1200);}
 function panicExit(){if(confirm('🚨 PANIC EXIT — All positions close?'))showToast('🚨 All CLOSED!');}
 function showLoad(t){document.getElementById('ltxt').textContent=t;document.getElementById('lov').classList.add('sh');}
 function hideLoad(){document.getElementById('lov').classList.remove('sh');}
