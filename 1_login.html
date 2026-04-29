@@ -184,13 +184,15 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse
         <div class="api-field full"><label>TOTP SECRET (2FA)</label><input id="aTotp" placeholder="Base32 TOTP Secret"></div>
       </div>
       <div class="tok-row">
-        <input id="aTok" placeholder="Access Token (auto-generated)">
+        <input id="aTok" placeholder="Access Token (auto-generated or paste)">
         <button class="gen-btn" onclick="genToken()">🔑 GET TOKEN</button>
       </div>
+      <div id="tokStatus" style="display:none;font-size:8px;margin-top:4px;padding:5px 8px;background:#0a0300;border-left:2px solid var(--or);color:var(--or);letter-spacing:.3px;"></div>
       <!-- Broker-specific help note -->
       <div id="bkHelp" style="display:none;margin-top:8px;background:#0a0500;border:1px solid var(--bg2);padding:9px 10px;font-size:9px;color:var(--dm);line-height:1.6;letter-spacing:.3px;"></div>
-      <div style="display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:9px;">
+      <div style="display:grid;grid-template-columns:1fr auto auto;gap:6px;margin-top:9px;">
         <button class="con-btn" id="conBtn" onclick="connectBroker()" style="margin-top:0">🔗 CONNECT BROKER</button>
+        <button id="refreshTokBtn" style="display:none;background:#001a0a;border:1px solid var(--gn);color:var(--gn);padding:10px 8px;font-size:8px;font-weight:700;cursor:pointer;letter-spacing:.3px;white-space:nowrap;" onclick="genToken()">🔄 TOKEN</button>
         <button style="background:var(--b3);border:1px solid #550000;color:#ff6666;padding:10px 9px;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;" onclick="disconnectBroker()">🔌 DC</button>
       </div>
     </div>
@@ -284,13 +286,21 @@ function selBrok(i){
   // Broker-specific help notes
   const helpEl=document.getElementById('bkHelp');
   const helpNotes={
-    angel:`😇 <b style="color:var(--gold)">ANGEL ONE SmartAPI — Setup Guide:</b><br>
-1️⃣ Login → smartapi.angelbroking.com<br>
-2️⃣ Create App → App Name: <b style="color:var(--gold)">Trishul Pro</b><br>
-3️⃣ Add Whitelist IP: <b style="color:var(--gn)">3.110.190.2</b> (AWS Mumbai)<br>
-4️⃣ Copy API Key → paste above<br>
-5️⃣ Enable TOTP in Angel One app → copy secret<br>
-Client ID: <b style="color:var(--gold)">C116947</b> (already filled)`,
+    angel:(()=>{
+      const cr=brokerCreds['angel']||{};
+      const since=cr.connectedAt?'<br>🟢 Last connected: <b style="color:var(--gn)">'+cr.connectedAt+'</b>':'';
+      const tokPreview=cr.tok?'<br>🔑 Token: <b style="color:var(--gn)">'+cr.tok.slice(0,16)+'...</b>  <span style="color:var(--rd);font-size:8px">⚠️ Expires daily midnight</span>':'<br>⚠️ Token: <b style="color:var(--rd)">Not set</b>';
+      return`😇 <b style="color:var(--gold)">ANGEL ONE SmartAPI:</b>`+
+      `<br>1️⃣ smartapi.angelbroking.com → Create App → <b style="color:var(--gold)">Trishul Pro</b>`+
+      `<br>2️⃣ Whitelist IP: <b style="color:var(--gn)">3.110.190.2</b>`+
+      `<br>3️⃣ Copy SmartAPI Key → paste in API Key field`+
+      `<br>4️⃣ Angel One App → My Profile → TOTP → copy Base32 secret`+
+      `<br>5️⃣ Fill Client ID + Password + API Key + TOTP Secret`+
+      `<br>6️⃣ Click <b style="color:var(--gold)">🔑 GET TOKEN</b> → then <b style="color:var(--gold)">🔗 CONNECT</b>`+
+      `<br>━━━━━━━━━━━━━━━━━━`+
+      `<br>Client ID: <b style="color:var(--gold)">C116947</b>`+
+      tokPreview+since;
+    })(),
     zerodha:`🟢 <b style="color:var(--gold)">ZERODHA Kite Connect:</b><br>
 1️⃣ kite.trade → My Apps → Create App<br>
 2️⃣ Redirect URL: https://trishulpro.vercel.app<br>
@@ -312,89 +322,201 @@ Client ID: <b style="color:var(--gold)">1111293264</b> · UCC: <b style="color:v
   const note=helpNotes[selBroker.id];
   if(note){helpEl.style.display='block';helpEl.innerHTML=note;}
   else{helpEl.style.display='none';}
+  // Angel One: show token refresh button + expiry warning
+  const refreshBtn=document.getElementById('refreshTokBtn');
+  const tokStatus=document.getElementById('tokStatus');
+  if(selBroker.id==='angel'){
+    refreshBtn.style.display='block';
+    if(c.tok){
+      const now=new Date();
+      const midnight=new Date();midnight.setHours(23,59,59,0);
+      const hoursLeft=Math.floor((midnight-now)/3600000);
+      tokStatus.style.display='block';
+      tokStatus.innerHTML=`⚠️ Angel One token <b>roz midnight pe expire hota hai</b>. Aaj <b>${hoursLeft}h</b> baki hai. Subah dobara <b>🔑 GET TOKEN</b> dabao.`;
+    }else{
+      tokStatus.style.display='block';
+      tokStatus.innerHTML='⚠️ Token missing — <b>🔑 GET TOKEN</b> dabao phir <b>🔗 CONNECT</b> karo';
+    }
+  }else{
+    refreshBtn.style.display='none';
+    tokStatus.style.display='none';
+  }
   document.getElementById('bkPanel').classList.add('show');
   document.getElementById('bkPanel').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function genToken(){
+// ── TOTP Generator (RFC 6238) using Web Crypto API ──
+async function computeTOTP(base32Secret){
+  const B32='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  const clean=base32Secret.toUpperCase().replace(/[\s=]/g,'');
+  let bits='';
+  for(const c of clean){const idx=B32.indexOf(c);if(idx<0)continue;bits+=idx.toString(2).padStart(5,'0');}
+  const bytes=[];
+  for(let i=0;i+7<bits.length;i+=8)bytes.push(parseInt(bits.slice(i,i+8),2));
+  if(!bytes.length)throw new Error('Invalid TOTP secret');
+  const t=Math.floor(Date.now()/1000/30);
+  const counter=new ArrayBuffer(8);
+  const dv=new DataView(counter);
+  dv.setUint32(0,Math.floor(t/4294967296)>>>0,false);
+  dv.setUint32(4,t>>>0,false);
+  const ck=await crypto.subtle.importKey('raw',new Uint8Array(bytes),{name:'HMAC',hash:'SHA-1'},false,['sign']);
+  const sig=new Uint8Array(await crypto.subtle.sign('HMAC',ck,counter));
+  const off=sig[19]&0xf;
+  const code=(((sig[off]&0x7f)<<24)|(sig[off+1]<<16)|(sig[off+2]<<8)|sig[off+3])%1000000;
+  return code.toString().padStart(6,'0');
+}
+
+// ── Angel One real token fetch via SmartAPI ──
+async function angelOneGetToken(){
+  const uid=document.getElementById('aUid').value.trim();
+  const pwd=document.getElementById('aPwd').value.trim();
+  const key=document.getElementById('aKey').value.trim();
+  const totpSecret=document.getElementById('aTotp').value.trim();
+
+  if(!uid||!key){showToast('⚠️ Client ID + API Key required');return null;}
+  if(!pwd){showToast('⚠️ Angel One password required');return null;}
+
+  let totp='';
+  if(totpSecret){
+    showLoad('🔢 TOTP GENERATE HO RAHA HAI...');
+    try{
+      totp=await computeTOTP(totpSecret);
+    }catch(e){
+      hideLoad();
+      showToast('⚠️ TOTP secret invalid — manually enter 6-digit code');
+      return null;
+    }
+  }else{
+    showToast('⚠️ TOTP Secret (Base32) enter karo for auto-token');
+    return null;
+  }
+
+  showLoad('🌐 ANGEL ONE API CONNECT...');
+  try{
+    const res=await fetch('https://apiconnect.angelbroking.com/rest/auth/angelbroking/user/v1/loginByPassword',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Accept':'application/json',
+        'X-UserType':'USER',
+        'X-SourceID':'WEB',
+        'X-ClientLocalIP':'127.0.0.1',
+        'X-ClientPublicIP':'3.110.190.2',
+        'X-MACAddress':'00:00:00:00:00:00',
+        'X-PrivateKey':key
+      },
+      body:JSON.stringify({clientcode:uid,password:pwd,totp:totp,state:'TRISHUL_'+Date.now()})
+    });
+    const data=await res.json();
+    if(data.status===true&&data.data&&data.data.jwtToken){
+      hideLoad();
+      const tk=data.data.jwtToken;
+      document.getElementById('aTok').value=tk;
+      showToast('✅ Angel One JWT Token generated!');
+      return tk;
+    }else{
+      hideLoad();
+      const msg=data.message||data.errorcode||'Login failed';
+      showToast('❌ Angel One: '+msg);
+      // Still show the TOTP so user can try manually
+      alert('😇 Angel One Login Failed:\n'+msg+'\n\nAgar manually token lena ho:\n1. smartapi.angelbroking.com → Login\n2. My Apps → Trishul Pro → Generate Token\n\nYour TOTP (valid 30 sec): '+totp+'\nClient ID: '+uid);
+      return null;
+    }
+  }catch(err){
+    hideLoad();
+    // CORS or network error — show manual fallback with computed TOTP
+    alert(
+      '😇 ANGEL ONE — TOKEN KAISE MILEGA:\n\n'+
+      '1️⃣  smartapi.angelbroking.com → Login karo\n'+
+      '2️⃣  My Account → My Apps → Trishul Pro\n'+
+      '3️⃣  "Generate Token" dabao\n'+
+      '4️⃣  Token copy karo → wapas aao → Token field mein paste karo\n\n'+
+      '━━━━━━━━━━━━━━━━━━━━\n'+
+      '✅  Tumhara TOTP (abhi valid, 30 sec mein expire):\n'+
+      '    '+totp+'\n'+
+      '━━━━━━━━━━━━━━━━━━━━\n'+
+      'Client ID: '+uid+'\n'+
+      'API Key: '+key.slice(0,6)+'****\n'+
+      '⚠️  Token roz midnight ko expire hota hai'
+    );
+    showToast('TOTP: '+totp+' — copy karo (30 sec valid)');
+    return null;
+  }
+}
+
+async function genToken(){
   if(!selBroker){showToast('⚠️ Select a broker first');return;}
   if(!document.getElementById('aUid').value.trim()){showToast('⚠️ Enter User ID first');return;}
   const id=selBroker.id;
+
   if(id==='angel'){
-    const uid=document.getElementById('aUid').value.trim();
-    const key=document.getElementById('aKey').value.trim();
-    const totp=document.getElementById('aTotp').value.trim();
-    if(!key){showToast('⚠️ SmartAPI Key required');return;}
-    if(!totp){showToast('⚠️ TOTP Secret required for token');return;}
-    showLoad('🔑 ANGEL ONE — TOKEN STEPS...');
-    setTimeout(()=>{
-      hideLoad();
-      alert(
-        '😇 ANGEL ONE TOKEN — HOW TO GET:\n\n'+
-        '1️⃣  smartapi.angelbroking.com → Login\n'+
-        '2️⃣  My Account → My Apps → Trishul Pro\n'+
-        '3️⃣  Add Whitelist IP: 3.110.190.2\n'+
-        '4️⃣  Click "Generate Token" on that page\n'+
-        '5️⃣  Copy the Access Token\n'+
-        '6️⃣  Paste it in the Token field above\n\n'+
-        'Client ID: '+uid+'\n'+
-        'API Key: '+key.substring(0,6)+'****\n\n'+
-        '⚠️  Token expires daily at midnight.\n'+
-        'Tomorrow subah phir generate karna hoga.'
-      );
-    },800);
+    await angelOneGetToken();
     return;
   }
   if(id==='dhan'){
-    showLoad('💙 DHAN TOKEN STEPS...');
-    setTimeout(()=>{
-      hideLoad();
-      alert(
-        '💙 DHAN ACCESS TOKEN — HOW TO GET:\n\n'+
-        '1️⃣  dhanhq.co → Login → Developer\n'+
-        '2️⃣  My Apps → Trishul Pro App\n'+
-        '3️⃣  Generate Access Token (30-day validity)\n'+
-        '4️⃣  Copy token → paste in Token field above\n\n'+
-        'Client ID: 1111293264\n'+
-        'UCC: DNNV38291K\n\n'+
-        '✅  Dhan token = 30 din valid, daily refresh needed nahin'
-      );
-    },600);
+    hideLoad();
+    alert(
+      '💙 DHAN ACCESS TOKEN — HOW TO GET:\n\n'+
+      '1️⃣  dhanhq.co → Login → Developer Section\n'+
+      '2️⃣  My Apps → Create / Open "Trishul Pro"\n'+
+      '3️⃣  Generate Access Token (30-day valid)\n'+
+      '4️⃣  Copy karo → Token field mein paste karo\n\n'+
+      'Client ID: 1111293264\n'+
+      'UCC: DNNV38291K\n\n'+
+      '✅  Dhan token 30 din valid — roz refresh nahin karna'
+    );
     return;
   }
   if(id==='zerodha'){
-    showLoad('🟢 ZERODHA TOKEN...');
-    setTimeout(()=>{
-      hideLoad();
-      alert(
-        '🟢 ZERODHA KITE TOKEN:\n\n'+
-        '1️⃣  kite.trade → My Apps → Trishul Pro\n'+
-        '2️⃣  Login via OAuth → copy request_token from URL\n'+
-        '3️⃣  Use API Key + Secret to generate access_token\n'+
-        '4️⃣  Paste access_token above\n\n'+
-        '⚠️  Token expires daily 6 AM IST'
-      );
-    },600);
+    alert(
+      '🟢 ZERODHA KITE TOKEN:\n\n'+
+      '1️⃣  kite.trade → My Apps → Trishul Pro\n'+
+      '2️⃣  OAuth Login → URL mein request_token copy karo\n'+
+      '3️⃣  API Key + Secret se access_token banao\n'+
+      '4️⃣  Paste above\n\n'+
+      '⚠️  Token roz 6 AM IST pe expire hota hai'
+    );
     return;
   }
-  // Other brokers — demo token
-  showLoad('🔑 GENERATING DEMO TOKEN...');
+  showLoad('🔑 DEMO TOKEN SET...');
   setTimeout(()=>{
     hideLoad();
     document.getElementById('aTok').value='DEMO-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).substr(2,8).toUpperCase();
-    showToast('✅ Demo token set — paste real token for live trading');
-  },1200);
+    showToast('✅ Demo token set — real token paste karo live trading ke liye');
+  },800);
 }
 
-function connectBroker(){
+async function connectBroker(){
   if(!selBroker){showToast('⚠️ Select a broker first');return;}
   const uid=document.getElementById('aUid').value.trim();
   const pwd=document.getElementById('aPwd').value.trim();
   if(!uid){showToast('⚠️ Enter User ID / Client ID');return;}
   if(!pwd){showToast('⚠️ Password required');return;}
-  showLoad('🔗 CONNECTING '+selBroker.nm.toUpperCase()+'...');
+
+  // Angel One: auto-generate token if TOTP secret provided and token empty
+  if(selBroker.id==='angel'){
+    const tokField=document.getElementById('aTok');
+    const totpSecret=document.getElementById('aTotp').value.trim();
+    if(!tokField.value.trim()&&totpSecret){
+      const tk=await angelOneGetToken();
+      if(!tk){return;} // failed — user needs to paste manually
+    }else if(!tokField.value.trim()&&!totpSecret){
+      showToast('⚠️ Token ya TOTP Secret required');
+      return;
+    }
+  }
+
+  // Dhan: API Key field = access token (required)
+  if(selBroker.id==='dhan'){
+    const tk=document.getElementById('aKey').value.trim();
+    if(!tk){showToast('⚠️ Dhan Access Token required in API Key field');return;}
+    document.getElementById('aTok').value=tk; // mirror to tok field
+  }
+
+  showLoad('🔗 SAVING '+selBroker.nm.toUpperCase()+'...');
   setTimeout(()=>{
     hideLoad();
+    const now=new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true});
     conStatus[selBroker.id]=true;
     brokerCreds[selBroker.id]={
       uid:uid,pwd:pwd,
@@ -403,17 +525,18 @@ function connectBroker(){
       vend:document.getElementById('aVend').value,
       totp:document.getElementById('aTotp').value,
       tok:document.getElementById('aTok').value,
+      connectedAt:now,
     };
     localStorage.setItem('t_brokers',JSON.stringify(conStatus));
     localStorage.setItem('t_broker_creds',JSON.stringify(brokerCreds));
     document.getElementById('bkDot').classList.add('on');
-    document.getElementById('bkSt').textContent='Connected ✅';
+    document.getElementById('bkSt').textContent='Connected ✅  ('+now+')';
     document.getElementById('bkSt').style.color='var(--gn)';
     document.getElementById('conBtn').className='con-btn done';
     document.getElementById('conBtn').textContent='✅ '+selBroker.nm.toUpperCase()+' CONNECTED';
     renderBrokers();
-    showToast('✅ '+selBroker.nm+' connected!');
-  },2000);
+    showToast('✅ '+selBroker.nm+' saved! Token: '+document.getElementById('aTok').value.slice(0,12)+'...');
+  },1000);
 }
 
 function disconnectBroker(){
