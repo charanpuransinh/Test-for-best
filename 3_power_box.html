@@ -58,8 +58,26 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
 .bar:nth-child(3){height:22px;}
 .bar:nth-child(4){height:20px;}
 .bar:nth-child(5){height:16px;}
-.res-sig{font-size:11px;font-weight:800;letter-spacing:1px;margin-bottom:8px;}
+.res-sig{font-size:10px;font-weight:800;letter-spacing:.5px;margin-bottom:8px;}
 .cg{color:var(--gn);}
+
+/* SIGNAL STRENGTH BADGE */
+.sig-badge{display:block;padding:10px 12px;text-align:center;font-family:'Orbitron',sans-serif;font-weight:700;letter-spacing:1.5px;margin-bottom:10px;font-size:12px;}
+.sig-avoid{background:#1a0000;border:2px solid var(--rd);color:var(--rd);}
+.sig-weak{background:#1a0a00;border:2px solid var(--or);color:var(--or);}
+.sig-mod{background:#1a1500;border:2px solid #665500;color:#aa8800;}
+.sig-min{background:#001a00;border:2px solid #00664a;color:#00aa77;font-size:11px;}
+.sig-strong{background:#002a00;border:2px solid var(--gn);color:var(--gn);animation:sigGlow 2s ease-in-out infinite;}
+.sig-mega{background:#001a10;border:2px solid #00ffaa;color:#00ffaa;animation:sigGlow 1.5s ease-in-out infinite;}
+.sig-ultra{background:#00100a;border:2px solid var(--gn);color:var(--gn);animation:sigGlow 1s ease-in-out infinite;box-shadow:0 0 12px rgba(0,200,83,.3);}
+.sig-max{background:linear-gradient(135deg,#001500,#000a00);border:2px solid var(--gold);color:var(--gold);animation:sigMaxGlow 1s ease-in-out infinite;box-shadow:0 0 18px rgba(245,197,24,.4);}
+.sig-strong-sell{background:#2a0000;border:2px solid var(--rd);color:var(--rd);animation:sigGlow 2s ease-in-out infinite;}
+.sig-mega-sell{background:#1a0000;border:2px solid #ff6666;color:#ff6666;animation:sigGlow 1.5s ease-in-out infinite;}
+.sig-ultra-sell{background:#110000;border:2px solid var(--rd);color:var(--rd);animation:sigGlow 1s ease-in-out infinite;box-shadow:0 0 12px rgba(255,61,61,.3);}
+.sig-max-sell{background:linear-gradient(135deg,#1a0000,#0a0000);border:2px solid var(--gold);color:var(--gold);animation:sigMaxGlow 1s ease-in-out infinite;box-shadow:0 0 18px rgba(255,61,61,.3);}
+@keyframes sigGlow{50%{box-shadow:0 0 14px rgba(0,200,83,.4);}}
+@keyframes sigMaxGlow{0%,100%{box-shadow:0 0 12px rgba(245,197,24,.4);}50%{box-shadow:0 0 24px rgba(245,197,24,.8);}}
+.min-note{font-size:8px;color:#555;text-align:center;padding:3px 0 6px;letter-spacing:.5px;}
 .prob{display:flex;flex-direction:column;gap:4px;}
 .prob-l{font-size:8px;color:var(--dm);letter-spacing:1.5px;font-weight:700;}
 .prob-bar{height:8px;background:var(--br);border-radius:2px;overflow:hidden;}
@@ -162,7 +180,9 @@ html,body{height:100%;background:#000;overflow:hidden;color:var(--tx);}
             <div class="bars">
               <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
             </div>
-            <div class="res-sig cg" id="rSig">✅ NORMAL</div>
+            <div class="res-sig" id="rSig">⚡ RUNNING...</div>
+            <div class="sig-badge sig-mod" id="sigBadge">📊 CALCULATING...</div>
+            <div class="min-note" id="minNote">Minimum required: 77% accuracy</div>
             <div class="prob">
               <div class="prob-l">PROBABILITY</div>
               <div class="prob-bar"><div class="prob-fill" id="probFill" style="width:85%"></div></div>
@@ -294,15 +314,38 @@ function runPower() {
   // Position size
   const posSize = qty * price;
 
+  // ── SIGNAL STRENGTH (minimum 77%) ──
+  function getStrength(p) {
+    if(p < 55)  return {txt:'❌ DO NOT TRADE',     cls:'sig-avoid',      note:'⚠️ Signal bahut weak — skip karo',             chip:'#550000'};
+    if(p < 65)  return {txt:'⚠️ WEAK SIGNAL',      cls:'sig-weak',       note:'⚠️ Below safe zone — avoid karo',              chip:'#553300'};
+    if(p < 77)  return {txt:'📊 BELOW MINIMUM',    cls:'sig-mod',        note:'Minimum 77% required — wait karo better setup', chip:'#554400'};
+    if(p < 80)  return {txt:'✅ BUY',               cls:'sig-min',        note:'Minimum met (77%+) — chhota lot lo',            chip:'#005533'};
+    if(p < 83)  return {txt:'⚡ STRONG BUY',        cls:'sig-strong',     note:'Strong signal (80%+) — normal lot lo',          chip:'#006600'};
+    if(p < 87)  return {txt:'💥 MEGA BUY',          cls:'sig-mega',       note:'MEGA signal (83%+) — zyada lot consider karo',  chip:'#007744'};
+    if(p < 91)  return {txt:'🌟 ULTRA STRONG BUY', cls:'sig-ultra',      note:'ULTRA signal (87%+) — high allocation karo',    chip:'#008855'};
+    return       {txt:'🔱 TRISHUL MAX BUY',         cls:'sig-max',        note:'MAXIMUM signal (91%+) — FULL capital deploy!',  chip:'#c9a000'};
+  }
+  const str = getStrength(prob);
+
   // Update DOM
   document.getElementById('rStock').textContent  = '👁 ' + name.toUpperCase();
   const modeLabels = {average:'AVERAGE MODE', intraday:'INTRADAY MODE', fixed:'FIXED MODE', scalp:'SCALP MODE'};
   document.getElementById('rMode').textContent   = modeLabels[curMode] || 'MODE';
-  document.getElementById('rSig').textContent    = prob >= 70 ? '✅ STRONG BUY' : prob >= 55 ? '⚡ NORMAL' : '⚠ WEAK';
-  document.getElementById('rSig').className      = 'res-sig ' + (prob >= 55 ? 'cg' : '');
+  document.getElementById('rSig').textContent    = prob + '% Probability';
+  document.getElementById('rSig').className      = 'res-sig';
+  document.getElementById('rSig').style.color    = prob >= 77 ? 'var(--gn)' : '#888';
+
+  const badge = document.getElementById('sigBadge');
+  badge.textContent  = str.txt;
+  badge.className    = 'sig-badge ' + str.cls;
+  document.getElementById('minNote').textContent = str.note;
+
+  const chip = document.getElementById('probChip');
+  chip.textContent = prob + '%';
+  chip.style.background = str.chip;
+  chip.style.color = prob >= 77 ? '#fff' : '#ccc';
 
   document.getElementById('probFill').style.width = prob + '%';
-  document.getElementById('probChip').textContent  = prob + '%';
 
   document.getElementById('vEntry').textContent = '₹' + entry.toFixed(2);
   document.getElementById('vSL').textContent    = '₹' + sl.toFixed(2);

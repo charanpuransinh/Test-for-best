@@ -327,15 +327,39 @@ Client ID: <b style="color:var(--gold)">1111293264</b> · UCC: <b style="color:v
   const tokStatus=document.getElementById('tokStatus');
   if(selBroker.id==='angel'){
     refreshBtn.style.display='block';
-    if(c.tok){
-      const now=new Date();
+    const now=new Date();
+    const todayMidnight=new Date();todayMidnight.setHours(0,0,0,0);
+
+    // Detect expired token: if stored on different day = definitely expired
+    let tokenExpired=false;
+    if(c.tokenDay!==undefined){
+      tokenExpired=(c.tokenDay!==now.getDate());
+    }else if(c.connectedAt){
+      try{
+        const parts=c.connectedAt.match(/(\d+)\s+(\w+)/);
+        if(parts&&parseInt(parts[1])!==now.getDate()) tokenExpired=true;
+      }catch(e){}
+    }
+
+    tokStatus.style.display='block';
+    if(!c.tok){
+      tokStatus.style.borderLeftColor='var(--rd)';
+      tokStatus.style.color='var(--rd)';
+      tokStatus.innerHTML='❌ <b>Token missing!</b> — <b>🔑 GET TOKEN</b> dabao phir <b>🔗 CONNECT</b> karo';
+    }else if(tokenExpired){
+      tokStatus.style.borderLeftColor='var(--rd)';
+      tokStatus.style.color='var(--rd)';
+      tokStatus.innerHTML='🔴 <b>TOKEN EXPIRED!</b> — Kal raat midnight pe expire ho gaya.<br>👉 <b>🔄 TOKEN</b> button dabao → naaya token lo → phir <b>🔗 CONNECT</b>';
+      document.getElementById('conBtn').textContent='⚠️ TOKEN EXPIRED — RENEW FIRST';
+      document.getElementById('conBtn').style.borderColor='var(--rd)';
+      document.getElementById('conBtn').style.color='var(--rd)';
+    }else{
       const midnight=new Date();midnight.setHours(23,59,59,0);
       const hoursLeft=Math.floor((midnight-now)/3600000);
-      tokStatus.style.display='block';
-      tokStatus.innerHTML=`⚠️ Angel One token <b>roz midnight pe expire hota hai</b>. Aaj <b>${hoursLeft}h</b> baki hai. Subah dobara <b>🔑 GET TOKEN</b> dabao.`;
-    }else{
-      tokStatus.style.display='block';
-      tokStatus.innerHTML='⚠️ Token missing — <b>🔑 GET TOKEN</b> dabao phir <b>🔗 CONNECT</b> karo';
+      const minsLeft=Math.floor(((midnight-now)%3600000)/60000);
+      tokStatus.style.borderLeftColor='var(--or)';
+      tokStatus.style.color='var(--or)';
+      tokStatus.innerHTML=`⚠️ Token aaj <b>midnight pe expire hoga</b>. Abhi <b>${hoursLeft}h ${minsLeft}m</b> baki hai.<br>🔑 Kal subah <b>🔄 TOKEN</b> dabao (TOTP secret se auto-generate hoga).`;
     }
   }else{
     refreshBtn.style.display='none';
@@ -526,6 +550,7 @@ async function connectBroker(){
       totp:document.getElementById('aTotp').value,
       tok:document.getElementById('aTok').value,
       connectedAt:now,
+      tokenDay:new Date().getDate(), // store day number for expiry check
     };
     localStorage.setItem('t_brokers',JSON.stringify(conStatus));
     localStorage.setItem('t_broker_creds',JSON.stringify(brokerCreds));

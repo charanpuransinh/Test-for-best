@@ -851,15 +851,15 @@ function aiPauseAll(){
 // ─────────────────────────────────────────────────────────
 const COMBO_STOCKS=['RELIANCE','TCS','HDFC','INFY','BAJFINANCE','ICICIBANK','AXISBANK','HDFCBANK','WIPRO','LTIM','SBIN','ADANIENT','KOTAKBANK','MARUTI','ONGC'];
 
-// Accuracy lookup by combo count
+// Accuracy lookup by combo count — Minimum threshold: 77% (= QUAD x4)
 const COMBO_META={
-  1:{level:'SINGLE',  icon:'⚪',acc:52, color:'#666',   hint:'Ek hi scanner — low confidence, avoid trading'},
-  2:{level:'DOUBLE',  icon:'🔶',acc:65, color:'var(--orange)', hint:'2 scanners agree — thoda confidence hai, chhoti size lo'},
-  3:{level:'TRIPLE',  icon:'🔥',acc:75, color:'var(--yellow)',  hint:'3 scanners agree — good signal! Normal lot size le sakte ho'},
-  4:{level:'QUAD',    icon:'⚡',acc:80, color:'var(--yellow)',  hint:'4 scanners agree — strong! Confidence high hai'},
-  5:{level:'MEGA',    icon:'💥',acc:83, color:'var(--green)',   hint:'5 scanners agree — MEGA signal! Zyada lot size consider karo'},
-  6:{level:'APEX',    icon:'🌟',acc:87, color:'var(--green)',   hint:'6 scanners agree — APEX level! Very rare, very strong'},
-  7:{level:'ULTIMATE',icon:'🔱',acc:91, color:'var(--yellow)',  hint:'7+ scanners agree — ULTIMATE! Yeh din mein 1-2 baar aata hai — full allocation lo'},
+  1:{level:'SINGLE',  icon:'⚪',acc:52, color:'#555',              hint:'❌ 52% — Do NOT trade. Ek hi scanner, koi signal nahin'},
+  2:{level:'DOUBLE',  icon:'🔶',acc:65, color:'var(--orange)',     hint:'❌ 65% — Minimum 77% required. Wait karo better confluence ke liye'},
+  3:{level:'TRIPLE',  icon:'🔥',acc:75, color:'#aa8800',           hint:'⚠️ 75% — Just below 77% minimum. Patience rakho — QUAD ka wait karo'},
+  4:{level:'QUAD',    icon:'⚡',acc:80, color:'var(--yellow)',      hint:'✅ 80% — Minimum met! Normal lot size lo — 4 scanners agree kar rahe hain'},
+  5:{level:'MEGA',    icon:'💥',acc:83, color:'var(--green)',       hint:'⚡ 83% — MEGA signal! 5 scanners agree — zyada lot consider karo'},
+  6:{level:'APEX',    icon:'🌟',acc:87, color:'#00ffcc',           hint:'🌟 87% — APEX! Very rare, very strong — high allocation karo'},
+  7:{level:'ULTIMATE',icon:'🔱',acc:91, color:'var(--yellow)',      hint:'🔱 91% — ULTIMATE! Din mein 1-2 baar aata hai — FULL capital deploy karo'},
 };
 
 let comboOnlyMode=false;
@@ -896,12 +896,14 @@ function renderCombo(){
       <span class="combo-badge-txt" style="color:${c.color}">${c.level} COMBO ×${c.count}</span>
     </div>
     <div class="combo-dir">Direction: <b style="color:${dirColor};font-size:13px">${dirLabel}</b></div>
-    <div class="combo-bar-wrap">
-      <div class="combo-bar">
+    <div class="combo-bar-wrap" style="position:relative">
+      <div class="combo-bar" style="position:relative">
         <div class="combo-bar-fill" style="width:${c.acc}%;background:${c.color}"></div>
+        <div style="position:absolute;top:-4px;bottom:-4px;left:77%;width:2px;background:#ff4444;"></div>
       </div>
       <div class="combo-acc-lbl" style="color:${c.color}">~${c.acc}%</div>
     </div>
+    <div style="font-size:8px;color:#ff4444;margin-top:3px;letter-spacing:.3px">▲ 77% minimum line (red bar) — iske upar hi trade karo</div>
     <div class="combo-hint">${c.icon} ${c.hint}</div>`;
 
   // Scanner chips — green=in-combo-buy, red=in-combo-sell, grey=neutral
@@ -915,7 +917,7 @@ function renderCombo(){
 
 function addComboSignal(forced){
   const c=computeCombo();
-  if(!forced&&c.count<2) return;
+  if(!forced&&c.count<4) return; // minimum 4 scanners = 80% = above 77% threshold
   const stock=COMBO_STOCKS[Math.floor(Math.random()*COMBO_STOCKS.length)];
   const now=new Date().toLocaleTimeString('en-IN',{hour12:false}).slice(0,5);
   // Higher combo = higher P&L potential
@@ -991,12 +993,13 @@ setInterval(autoRefresh,30000);
 
 // Seed today's combo signals on load
 function seedInitialSignals(){
+  // Only seeds with count>=4 (77%+ minimum threshold)
   const seeds=[
-    {stock:'RELIANCE',count:5,dir:'BUY', time:'09:47'},
-    {stock:'TCS',     count:3,dir:'BUY', time:'10:23'},
-    {stock:'HDFC',    count:7,dir:'BUY', time:'11:02'},
-    {stock:'INFY',    count:4,dir:'SELL',time:'11:48'},
-    {stock:'BAJFIN',  count:3,dir:'BUY', time:'13:31'},
+    {stock:'RELIANCE', count:5,dir:'BUY', time:'09:47'},
+    {stock:'HDFC',     count:7,dir:'BUY', time:'11:02'},
+    {stock:'INFY',     count:4,dir:'SELL',time:'11:48'},
+    {stock:'BAJFIN',   count:5,dir:'BUY', time:'13:31'},
+    {stock:'HDFCBANK', count:6,dir:'BUY', time:'14:22'},
   ];
   comboSignals=seeds.map(s=>{
     const meta=COMBO_META[Math.min(s.count,7)];
