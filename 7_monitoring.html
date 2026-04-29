@@ -313,6 +313,48 @@ html, body {
 .ai-rec-row{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border-1);}
 .ai-rec-ico{font-size:16px;flex-shrink:0;margin-top:1px;}
 .ai-rec-txt{font-size:10px;color:var(--ink-1);line-height:1.5;}
+
+/* ── TRISHUL COMBO ENGINE ── */
+.combo-box{background:#000;border:2px solid var(--yellow);margin:8px;overflow:hidden;}
+.combo-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:linear-gradient(90deg,rgba(255,214,0,.1),transparent);border-bottom:1px solid var(--border-2);}
+.combo-title{font-family:var(--font-disp);font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:.1em;}
+.combo-live{font-size:8px;color:var(--green);letter-spacing:.15em;display:flex;align-items:center;gap:4px;}
+.combo-level-row{padding:12px 14px;border-bottom:1px solid var(--border-1);}
+.combo-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;margin-bottom:8px;}
+.combo-badge.single{background:rgba(102,102,102,.2);border:1px solid #555;}
+.combo-badge.double{background:rgba(255,145,0,.12);border:1px solid var(--orange);}
+.combo-badge.triple{background:rgba(255,214,0,.12);border:1px solid var(--yellow);}
+.combo-badge.mega{background:rgba(0,230,118,.12);border:1px solid var(--green);}
+.combo-badge.ultimate{background:rgba(255,214,0,.2);border:2px solid var(--yellow);animation:gbadge 1.5s ease-in-out infinite;}
+@keyframes gbadge{50%{box-shadow:0 0 20px rgba(255,214,0,.5);}}
+.combo-badge-icon{font-size:18px;}
+.combo-badge-txt{font-family:var(--font-disp);font-size:15px;font-weight:800;letter-spacing:.04em;}
+.combo-dir{font-size:10px;color:var(--ink-2);margin-bottom:8px;}
+.combo-bar-wrap{display:flex;align-items:center;gap:10px;}
+.combo-bar{flex:1;height:8px;background:var(--bg-card-2);border-radius:4px;overflow:hidden;}
+.combo-bar-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.combo-acc-lbl{font-family:var(--font-disp);font-size:18px;font-weight:800;white-space:nowrap;}
+.combo-hint{font-size:8px;color:var(--ink-3);margin-top:6px;letter-spacing:.2px;}
+.combo-chips{display:flex;flex-wrap:wrap;gap:5px;padding:9px 14px;border-bottom:1px solid var(--border-1);background:var(--bg-card);}
+.cc-chip{padding:4px 8px;font-size:8px;font-weight:700;letter-spacing:.1em;border:1px solid var(--border-2);color:var(--ink-3);transition:all .3s;}
+.cc-chip.in-buy{background:rgba(0,230,118,.15);border-color:var(--green);color:var(--green);}
+.cc-chip.in-sell{background:rgba(255,23,68,.15);border-color:var(--red);color:var(--red);}
+.cc-chip.neutral{opacity:.35;}
+.combo-signals{padding:6px 14px 10px;}
+.csig-hd{font-size:8px;color:var(--ink-3);letter-spacing:.2em;font-weight:700;padding:6px 0 5px;border-bottom:1px solid var(--border-1);margin-bottom:4px;}
+.csig-row{display:grid;grid-template-columns:42px auto 1fr auto 56px;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--border-1);}
+.csig-row:last-child{border-bottom:0;}
+.csig-time{font-size:9px;color:var(--ink-3);font-weight:600;}
+.csig-lv{font-size:8px;font-weight:700;padding:2px 5px;letter-spacing:.08em;}
+.csig-lv.triple{background:rgba(255,214,0,.2);color:var(--yellow);}
+.csig-lv.mega{background:rgba(0,230,118,.2);color:var(--green);}
+.csig-lv.ultimate{background:rgba(255,214,0,.35);color:var(--yellow);animation:gbadge 1.5s infinite;}
+.csig-lv.double{background:rgba(255,145,0,.2);color:var(--orange);}
+.csig-stock{font-family:var(--font-disp);font-size:11px;font-weight:700;color:var(--ink-0);}
+.csig-dir{font-size:10px;font-weight:800;text-align:center;}
+.csig-pnl{font-family:var(--font-disp);font-size:11px;font-weight:800;text-align:right;}
+.csig-pnl.g{color:var(--green);} .csig-pnl.r{color:var(--red);}
+.combo-act{display:flex;gap:6px;padding:10px 14px;border-top:1px solid var(--border-1);}
 .ai-rec-txt b{color:var(--yellow);}
 .ai-rec-txt .g{color:var(--green);}
 .ai-rec-txt .r{color:var(--red);}
@@ -509,6 +551,31 @@ html, body {
   </div>
 
   <div id="scannerPerfGrid" style="background:var(--bg-page);"></div>
+
+  <!-- TRISHUL COMBO ENGINE -->
+  <div class="sec-head">
+    <div class="sec-mark"></div>
+    <div class="sec-num">SEC.04B</div>
+    <div class="sec-title">🔱 Trishul Combo Engine</div>
+    <div class="sec-meta" id="comboMeta">COMPUTING...</div>
+  </div>
+
+  <div class="combo-box">
+    <div class="combo-hd">
+      <div class="combo-title">🔱 SCANNER CONFLUENCE</div>
+      <div class="combo-live"><span class="ai-dot"></span>REAL-TIME</div>
+    </div>
+    <div class="combo-level-row" id="comboLevelRow"></div>
+    <div class="combo-chips" id="comboChips"></div>
+    <div class="combo-signals">
+      <div class="csig-hd">TODAY'S COMBO SIGNALS</div>
+      <div id="comboSignalsList"></div>
+    </div>
+    <div class="combo-act">
+      <button class="ai-act-btn green" style="font-size:10px" onclick="forceComboScan()">🔱 FORCE COMBO SCAN</button>
+      <button class="ai-act-btn" id="comboOnlyBtn" style="font-size:10px" onclick="toggleComboOnly()">⚡ COMBO ONLY MODE</button>
+    </div>
+  </div>
 
   <!-- AI RECOMMENDATIONS -->
   <div class="sec-head">
@@ -778,19 +845,175 @@ function aiPauseAll(){
   }
 }
 
+// ─────────────────────────────────────────────────────────
+// 🔱 TRISHUL COMBO ENGINE
+// Jab multiple scanners ek saath same direction agree karein
+// ─────────────────────────────────────────────────────────
+const COMBO_STOCKS=['RELIANCE','TCS','HDFC','INFY','BAJFINANCE','ICICIBANK','AXISBANK','HDFCBANK','WIPRO','LTIM','SBIN','ADANIENT','KOTAKBANK','MARUTI','ONGC'];
+
+// Accuracy lookup by combo count
+const COMBO_META={
+  1:{level:'SINGLE',  icon:'⚪',acc:52, color:'#666',   hint:'Ek hi scanner — low confidence, avoid trading'},
+  2:{level:'DOUBLE',  icon:'🔶',acc:65, color:'var(--orange)', hint:'2 scanners agree — thoda confidence hai, chhoti size lo'},
+  3:{level:'TRIPLE',  icon:'🔥',acc:75, color:'var(--yellow)',  hint:'3 scanners agree — good signal! Normal lot size le sakte ho'},
+  4:{level:'QUAD',    icon:'⚡',acc:80, color:'var(--yellow)',  hint:'4 scanners agree — strong! Confidence high hai'},
+  5:{level:'MEGA',    icon:'💥',acc:83, color:'var(--green)',   hint:'5 scanners agree — MEGA signal! Zyada lot size consider karo'},
+  6:{level:'APEX',    icon:'🌟',acc:87, color:'var(--green)',   hint:'6 scanners agree — APEX level! Very rare, very strong'},
+  7:{level:'ULTIMATE',icon:'🔱',acc:91, color:'var(--yellow)',  hint:'7+ scanners agree — ULTIMATE! Yeh din mein 1-2 baar aata hai — full allocation lo'},
+};
+
+let comboOnlyMode=false;
+let comboSignals=[];
+
+function computeCombo(){
+  const active=scannerData.filter(s=>s.active);
+  // Each scanner fires BUY/SELL/NEUTRAL based on win rate probability
+  const signals=active.map(s=>{
+    const r=Math.random()*100;
+    if(r<s.win*0.55) return 'BUY';
+    if(r>100-s.win*0.3) return 'SELL';
+    return 'NEUTRAL';
+  });
+  const buyIdxs=active.filter((_,i)=>signals[i]==='BUY');
+  const sellIdxs=active.filter((_,i)=>signals[i]==='SELL');
+  const direction=buyIdxs.length>=sellIdxs.length?'BUY':'SELL';
+  const inCombo=direction==='BUY'?buyIdxs:sellIdxs;
+  const count=Math.min(inCombo.length,7);
+  const meta=COMBO_META[count]||COMBO_META[1];
+  return{direction,count,inCombo,allActive:active,...meta};
+}
+
+function renderCombo(){
+  const c=computeCombo();
+  const dirColor=c.direction==='BUY'?'var(--green)':'var(--red)';
+  const dirLabel=c.direction==='BUY'?'▲ BULLISH — BUY SIGNAL':'▼ BEARISH — SELL SIGNAL';
+
+  $('comboMeta').textContent=c.level+' ×'+c.count;
+
+  $('comboLevelRow').innerHTML=`
+    <div class="combo-badge ${c.level.toLowerCase()}" style="border-color:${c.color}">
+      <span class="combo-badge-icon">${c.icon}</span>
+      <span class="combo-badge-txt" style="color:${c.color}">${c.level} COMBO ×${c.count}</span>
+    </div>
+    <div class="combo-dir">Direction: <b style="color:${dirColor};font-size:13px">${dirLabel}</b></div>
+    <div class="combo-bar-wrap">
+      <div class="combo-bar">
+        <div class="combo-bar-fill" style="width:${c.acc}%;background:${c.color}"></div>
+      </div>
+      <div class="combo-acc-lbl" style="color:${c.color}">~${c.acc}%</div>
+    </div>
+    <div class="combo-hint">${c.icon} ${c.hint}</div>`;
+
+  // Scanner chips — green=in-combo-buy, red=in-combo-sell, grey=neutral
+  $('comboChips').innerHTML=c.allActive.map(s=>{
+    const isIn=c.inCombo.some(x=>x.id===s.id);
+    const cls=isIn?(c.direction==='BUY'?'in-buy':'in-sell'):'neutral';
+    const arrow=isIn?(c.direction==='BUY'?'▲':'▼'):'·';
+    return`<div class="cc-chip ${cls}">${arrow} ${s.nm}</div>`;
+  }).join('');
+}
+
+function addComboSignal(forced){
+  const c=computeCombo();
+  if(!forced&&c.count<2) return;
+  const stock=COMBO_STOCKS[Math.floor(Math.random()*COMBO_STOCKS.length)];
+  const now=new Date().toLocaleTimeString('en-IN',{hour12:false}).slice(0,5);
+  // Higher combo = higher P&L potential
+  const base=c.count>=7?900:c.count>=5?400:c.count>=3?180:80;
+  const pnl=Math.floor(Math.random()*base+base*0.5);
+  // Combo signals are more profitable — 80% win rate on combo
+  const win=Math.random()<(c.acc/100);
+  comboSignals.unshift({time:now,level:c.level,badge:c.level.toLowerCase(),stock,dir:c.direction,pnl:win?pnl:-Math.floor(pnl*0.35),count:c.count});
+  if(comboSignals.length>8) comboSignals.pop();
+  renderComboSignals();
+}
+
+function renderComboSignals(){
+  if(!comboSignals.length){
+    $('comboSignalsList').innerHTML=`
+      <div style="padding:14px 0;text-align:center;font-size:9px;color:var(--ink-3)">
+        ⏳ Scanner confluence ka wait kar raha hai...<br>
+        <span style="color:var(--ink-4)">Jab 3+ scanners agree karenge → signal yahan aayega</span>
+      </div>`;
+    return;
+  }
+  $('comboSignalsList').innerHTML=comboSignals.map(s=>`
+    <div class="csig-row">
+      <span class="csig-time">${s.time}</span>
+      <span class="csig-lv ${s.badge}">${s.level}</span>
+      <span class="csig-stock">${s.stock}</span>
+      <span class="csig-dir" style="color:${s.dir==='BUY'?'var(--green)':'var(--red)'}">${s.dir==='BUY'?'▲':'▼'}</span>
+      <span class="csig-pnl ${s.pnl>=0?'g':'r'}">${s.pnl>=0?'+₹'+s.pnl:'-₹'+Math.abs(s.pnl)}</span>
+    </div>`).join('');
+}
+
+function forceComboScan(){
+  $('comboMeta').textContent='SCANNING...';
+  $('comboLevelRow').innerHTML='<div style="padding:8px 0;font-size:9px;color:var(--ink-3)">🔄 All 9 scanners querying...</div>';
+  fluctuateScanners();
+  setTimeout(()=>{
+    renderCombo();
+    addComboSignal(true);
+    renderScannerPerf();
+    updateAIThought();
+    renderAIRecs();
+  },1400);
+}
+
+function toggleComboOnly(){
+  comboOnlyMode=!comboOnlyMode;
+  const btn=$('comboOnlyBtn');
+  if(comboOnlyMode){
+    btn.style.background='rgba(255,214,0,.2)';
+    btn.style.borderColor='var(--yellow)';
+    btn.textContent='⚡ COMBO ONLY: ON';
+    btn.style.color='var(--yellow)';
+  }else{
+    btn.style.background='';
+    btn.style.borderColor='';
+    btn.textContent='⚡ COMBO ONLY MODE';
+    btn.style.color='';
+  }
+}
+
 // Auto-refresh every 30 seconds
 function autoRefresh(){
   fluctuateScanners();
   renderScannerPerf();
   updateAIThought();
   renderAIRecs();
+  renderCombo();
+  // Add combo signal if 3+ scanners agree
+  const c=computeCombo();
+  if(c.count>=3) addComboSignal(false);
 }
 setInterval(autoRefresh,30000);
+
+// Seed today's combo signals on load
+function seedInitialSignals(){
+  const seeds=[
+    {stock:'RELIANCE',count:5,dir:'BUY', time:'09:47'},
+    {stock:'TCS',     count:3,dir:'BUY', time:'10:23'},
+    {stock:'HDFC',    count:7,dir:'BUY', time:'11:02'},
+    {stock:'INFY',    count:4,dir:'SELL',time:'11:48'},
+    {stock:'BAJFIN',  count:3,dir:'BUY', time:'13:31'},
+  ];
+  comboSignals=seeds.map(s=>{
+    const meta=COMBO_META[Math.min(s.count,7)];
+    const base=s.count>=7?900:s.count>=5?400:s.count>=3?180:80;
+    const win=Math.random()<meta.acc/100;
+    const pnl=Math.floor(Math.random()*base+base*0.5);
+    return{time:s.time,level:meta.level,badge:meta.level.toLowerCase(),stock:s.stock,dir:s.dir,pnl:win?pnl:-Math.floor(pnl*0.35),count:s.count};
+  });
+  renderComboSignals();
+}
 
 // Init
 renderScannerPerf();
 updateAIThought();
 renderAIRecs();
+renderCombo();
+seedInitialSignals();
 </script>
 </body>
 </html>
