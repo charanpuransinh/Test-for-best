@@ -1,23 +1,31 @@
 {
   "version": 2,
-  "framework": null,
-  "buildCommand": null,
-  "outputDirectory": ".",
-  "installCommand": null,
-  "devCommand": null,
-  "rewrites": [
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/app", "destination": "/main_app.html" },
-    { "source": "/login", "destination": "/1_login.html" }
-  ],
-  "headers": [
+  "builds": [
     {
-      "source": "/(.*\\.html)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Pragma", "value": "no-cache" },
-        { "key": "Expires", "value": "0" }
-      ]
+      "src": "gemini_backend.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/analyze",
+      "dest": "gemini_backend.py"
+    },
+    {
+      "src": "/patterns",
+      "dest": "gemini_backend.py"
+    },
+    {
+      "src": "/",
+      "dest": "index.html"
+    },
+    {
+      "src": "/(.*\\.html)",
+      "dest": "/$1"
     }
   ]
 }

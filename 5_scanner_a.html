@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>TRISHUL PRO - Scanner A (Volume)</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; border-radius:0 !important; }
+:root { --gold:#FFD700; --gold2:#c9a000; --bg:#0a0a0a; --bg2:#080808; --border:#1e1a00; --text:#f4f4f4; --dim:#777; --green:#00c853; --red:#ff3d3d; --orange:#ff6d00; }
+html,body { height:100%; background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; overflow:hidden; }
+.app { height:100vh; max-width:430px; margin:0 auto; display:flex; flex-direction:column; }
+.topbar { flex-shrink:0; background:var(--bg2); border-bottom:2px solid var(--gold); padding:8px 12px; display:flex; align-items:center; justify-content:space-between; }
+.tb-title { font-family:'Orbitron',sans-serif; font-size:13px; font-weight:900; color:var(--gold); letter-spacing:2px; }
+.tb-sub { font-size:8px; color:var(--dim); letter-spacing:1px; }
+.tb-status { display:flex; align-items:center; gap:4px; font-size:9px; color:var(--dim); }
+.g-dot { width:6px; height:6px; background:var(--green); animation:blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.search-bar { flex-shrink:0; padding:6px 8px; background:var(--bg); display:flex; gap:6px; border-bottom:1px solid var(--border); }
+.search-input { flex:1; background:var(--bg2); border:1px solid var(--border); color:var(--gold); padding:6px 10px; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; outline:none; }
+.search-input:focus { border-color:var(--gold); }
+.search-btn { background:linear-gradient(135deg,var(--gold2),var(--gold)); color:#000; border:none; padding:6px 16px; font-family:'Orbitron',sans-serif; font-size:10px; font-weight:700; cursor:pointer; letter-spacing:1px; }
+.status-bar { flex-shrink:0; padding:4px 8px; background:#000; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; font-size:9px; }
+.st-loading { width:8px; height:8px; border:1px solid var(--dim); border-top-color:var(--gold); border-radius:50%; animation:spin 0.6s linear infinite; display:none; }
+.st-loading.active { display:block; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.st-text { color:var(--dim); flex:1; }
+.st-symbol { color:var(--gold); font-weight:700; }
+.st-price { color:var(--green); font-family:'JetBrains Mono',monospace; }
+.page-switcher { flex-shrink:0; display:flex; background:var(--bg2); border-bottom:1px solid var(--border); }
+.page-tab { flex:1; padding:6px; text-align:center; font-family:'Orbitron',sans-serif; font-size:9px; color:var(--dim); cursor:pointer; letter-spacing:2px; border-right:1px solid var(--border); }
+.page-tab:last-child { border-right:none; }
+.page-tab.active { color:var(--gold); background:#1a1500; border-bottom:2px solid var(--gold); }
+.scanner-grid { flex:1; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(2,1fr); border:2px solid var(--gold); margin:4px; overflow:hidden; }
+.sc-box { background:var(--bg); border:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:8px 4px; gap:3px; cursor:pointer; position:relative; overflow:hidden; }
+.sc-box:active { background:#0d0d00; }
+.sc-box::after { content:''; position:absolute; top:0; left:15%; right:15%; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+.sc-box.bull { background:linear-gradient(135deg,#0a0a0a,#001a0a); border-color:var(--green); }
+.sc-box.bear { background:linear-gradient(135deg,#0a0a0a,#1a0000); border-color:var(--red); }
+.sc-icon { font-size:18px; line-height:1; filter:drop-shadow(0 0 4px rgba(255,215,0,0.4)); }
+.sc-name { font-family:'Orbitron',sans-serif; font-size:9px; font-weight:700; color:var(--text); letter-spacing:0.5px; text-align:center; line-height:1.1; white-space:pre-line; }
+.sc-result { display:flex; flex-direction:column; align-items:center; gap:2px; width:100%; }
+.sc-signal { font-size:10px; font-weight:700; letter-spacing:1px; }
+.sc-signal.bull { color:var(--green); }
+.sc-signal.bear { color:var(--red); }
+.sc-signal.neu { color:var(--orange); }
+.sc-signal.empty { color:var(--dim); }
+.sc-value { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--dim); }
+.sc-pattern { font-size:7px; color:var(--dim); opacity:0.8; text-align:center; }
+.bottom-nav { flex-shrink:0; display:flex; background:var(--bg2); border-top:2px solid var(--gold); }
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; padding:6px 4px; cursor:pointer; gap:2px; font-size:7px; color:var(--dim); letter-spacing:1px; font-weight:700; }
+.nav-icon { font-size:16px; }
+.nav-item.active { color:var(--gold); }
+.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.94); display:none; align-items:center; justify-content:center; z-index:100; padding:14px; }
+.modal-bg.show { display:flex; }
+.modal-box { background:var(--bg2); border:2px solid var(--gold); width:100%; max-width:400px; max-height:90vh; overflow-y:auto; }
+.m-header { display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--border); }
+.m-title { font-family:'Orbitron',sans-serif; font-size:13px; color:var(--gold); letter-spacing:1px; }
+.m-close { background:none; border:1px solid var(--border); color:var(--dim); width:28px; height:28px; cursor:pointer; font-size:16px; }
+.m-body { padding:12px; font-size:11px; line-height:1.6; }
+.m-section { margin-bottom:12px; }
+.m-label { font-size:8px; color:var(--dim); letter-spacing:2px; margin-bottom:4px; }
+.m-signal-box { padding:12px; border:2px solid var(--border); margin-bottom:8px; text-align:center; }
+.m-signal-box.bull { border-color:var(--green); background:#001a0a; }
+.m-signal-box.bear { border-color:var(--red); background:#1a0000; }
+.m-signal-box.neu { border-color:var(--orange); background:#1a0800; }
+.m-signal-big { font-family:'Orbitron',sans-serif; font-size:18px; font-weight:900; letter-spacing:2px; }
+.m-signal-big.bull { color:var(--green); }
+.m-signal-big.bear { color:var(--red); }
+.m-signal-big.neu { color:var(--orange); }
+.m-details { background:#000; padding:8px; border:1px solid var(--border); font-family:'JetBrains Mono',monospace; font-size:10px; }
+.m-detail-row { display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid #111; }
+.m-detail-row:last-child { border-bottom:none; }
+.m-detail-key { color:var(--dim); }
+.m-detail-val { color:var(--gold); }
+.m-pattern-desc { background:#0a0a00; padding:8px; border-left:3px solid var(--gold); font-size:10px; color:var(--dim); }
+.m-btn { width:100%; background:linear-gradient(135deg,var(--gold2),var(--gold)); color:#000; border:none; padding:10px; margin-top:10px; font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; letter-spacing:2px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+<div class="modal-box">
+  <div class="m-header"><div class="m-title" id="mTitle">SCANNER</div><button class="m-close" onclick="closeModal()">✕</button></div>
+  <div class="m-body" id="mBody">Loading...</div>
+</div></div>
+<div class="app">
+  <div class="topbar">
+    <div><div class="tb-title">🔱 TRISHUL PRO</div><div class="tb-sub">SCANNER A · VOLUME</div></div>
+    <div class="tb-status"><div class="g-dot"></div><span>AI ACTIVE</span></div>
+  </div>
+  <div class="search-bar">
+    <input type="text" class="search-input" id="symbolInput" placeholder="RELIANCE / TCS / SBIN..."/>
+    <button class="search-btn" onclick="runAnalysis()">RUN</button>
+  </div>
+  <div class="status-bar">
+    <div class="st-loading" id="stLoading"></div>
+    <span class="st-text" id="stText">Symbol डालें → RUN दबाएं</span>
+    <span class="st-symbol" id="stSymbol"></span>
+    <span class="st-price" id="stPrice"></span>
+  </div>
+  <div class="page-switcher">
+    <div class="page-tab active">A · VOLUME</div>
+    <div class="page-tab" onclick="goPage('b')">B · PRICE</div>
+    <div class="page-tab" onclick="goPage('c')">C · INDICATOR</div>
+  </div>
+  <div class="scanner-grid" id="scannerGrid"></div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goHome()"><div class="nav-icon">🏠</div>HOME</div>
+    <div class="nav-item active"><div class="nav-icon">📡</div>SIGNAL</div>
+    <div class="nav-item" onclick="goChart()"><div class="nav-icon">📊</div>CHART</div>
+    <div class="nav-item" onclick="goWatch()"><div class="nav-icon">⭐</div>WATCH</div>
+    <div class="nav-item" onclick="goAdmin()"><div class="nav-icon">⚙️</div>ADMIN</div>
+  </div>
+</div>
+<script>
+const BACKEND = window.location.protocol === 'file:' ? 'http://localhost:5000' : window.location.origin;
+const GROUP = 'A';
+const SCANNERS = [
+  { idx:0, name:'WYCKOFF\nVSA', icon:'📊', pattern:'Wyckoff VSA', desc:'Volume confirms price। Accumulation/Distribution zones।' },
+  { idx:1, name:'SEPA', icon:'🚀', pattern:'SEPA', desc:'Volume surge on momentum breakout। US Champion strategy।' },
+  { idx:2, name:'CAN SLIM', icon:'💹', pattern:'CAN SLIM', desc:'Volume 50% above avg on up-days।' },
+  { idx:3, name:'TRIN\nINDEX', icon:'📈', pattern:'TRIN/Arms Index', desc:'Market breadth + volume breadth।' },
+  { idx:4, name:'OBV', icon:'📉', pattern:'OBV', desc:'On-Balance Volume। Volume precedes price।' },
+  { idx:5, name:'WEIS\nWAVE', icon:'〰️', pattern:'Weis Wave', desc:'Cumulative volume per price wave।' },
+];
+let lastResults = null;
+function renderGrid() {
+  document.getElementById('scannerGrid').innerHTML = SCANNERS.map((sc,i) => `
+    <div class="sc-box" id="box-${i}" onclick="openModal(${i})">
+      <div><div class="sc-icon">${sc.icon}</div><div class="sc-name">${sc.name}</div></div>
+      <div class="sc-result" id="result-${i}">
+        <div class="sc-signal empty">– – –</div>
+        <div class="sc-pattern">${sc.pattern}</div>
+      </div>
+    </div>`).join('');
+}
+function getSignalClass(signal) {
+  if (!signal) return 'empty';
+  const s = signal.toUpperCase();
+  if (s.includes('BULL') || s.includes('BUY') || s.includes('ACCUM') || s.includes('STRONG') || s.includes('PEAK')) return 'bull';
+  if (s.includes('BEAR') || s.includes('SELL') || s.includes('DIST') || s.includes('WEAK') || s.includes('TROUGH')) return 'bear';
+  return 'neu';
+}
+function updateBox(idx, result) {
+  const box = document.getElementById(`box-${idx}`);
+  const resultDiv = document.getElementById(`result-${idx}`);
+  if (!result || result.error) {
+    box.className = 'sc-box';
+    resultDiv.innerHTML = `<div class="sc-signal empty">ERROR</div><div class="sc-pattern">${SCANNERS[idx].pattern}</div>`;
+    return;
+  }
+  const sigClass = getSignalClass(result.signal);
+  const shortSignal = result.signal ? result.signal.split(' - ')[0].substring(0,8) : '–';
+  box.className = `sc-box ${sigClass === 'bull' || sigClass === 'bear' ? sigClass : ''}`;
+  let displayValue = '';
+  const skipKeys = ['signal', 'pattern', 'legend', 'error'];
+  for (const [k, v] of Object.entries(result)) {
+    if (!skipKeys.includes(k) && typeof v !== 'object') { displayValue = `${v}`; break; }
+  }
+  resultDiv.innerHTML = `<div class="sc-signal ${sigClass}">${shortSignal}</div><div class="sc-value">${displayValue}</div>`;
+}
+async function runAnalysis() {
+  const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
+  if (!symbol) { document.getElementById('stText').textContent = '⚠️ Symbol डालें!'; return; }
+  document.getElementById('stLoading').classList.add('active');
+  document.getElementById('stText').textContent = 'Fetching...';
+  document.getElementById('stSymbol').textContent = symbol;
+  document.getElementById('stPrice').textContent = '';
+  SCANNERS.forEach((_, i) => {
+    document.getElementById(`result-${i}`).innerHTML = `<div class="sc-signal empty">...</div><div class="sc-pattern">Loading</div>`;
+  });
+  try {
+    const response = await fetch(`${BACKEND}/analyze?symbol=${symbol}`);
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    lastResults = data;
+    document.getElementById('stText').textContent = '✅';
+    document.getElementById('stPrice').textContent = `₹${data.last_price}`;
+    SCANNERS.forEach((sc, i) => { if (data[GROUP] && data[GROUP][i]) updateBox(i, data[GROUP][i]); });
+  } catch (e) {
+    document.getElementById('stText').textContent = '❌ Backend offline';
+    SCANNERS.forEach((_, i) => {
+      const box = document.getElementById(`box-${i}`);
+      box.className = 'sc-box';
+      document.getElementById(`result-${i}`).innerHTML = `<div class="sc-signal bear">OFFLINE</div><div class="sc-pattern">${SCANNERS[i].pattern}</div>`;
+    });
+  } finally {
+    document.getElementById('stLoading').classList.remove('active');
+  }
+}
+function openModal(idx) {
+  const sc = SCANNERS[idx];
+  document.getElementById('mTitle').textContent = `${sc.icon} ${sc.name.replace('\n', ' ')}`;
+  let bodyHTML = '';
+  if (lastResults && lastResults[GROUP] && lastResults[GROUP][idx]) {
+    const result = lastResults[GROUP][idx];
+    const sigClass = getSignalClass(result.signal);
+    bodyHTML = `
+      <div class="m-section"><div class="m-label">SYMBOL</div>
+        <div style="font-size:14px;font-weight:700;color:var(--gold)">${lastResults.symbol}</div>
+        <div style="font-size:14px;font-weight:700;color:var(--green)">₹${lastResults.last_price}</div></div>
+      <div class="m-signal-box ${sigClass}"><div class="m-signal-big ${sigClass}">${result.signal || 'NEUTRAL'}</div></div>
+      <div class="m-section"><div class="m-label">📊 DETAILS</div><div class="m-details">`;
+    const skipKeys = ['signal', 'pattern', 'legend'];
+    for (const [k, v] of Object.entries(result)) {
+      if (!skipKeys.includes(k) && typeof v !== 'object') {
+        bodyHTML += `<div class="m-detail-row"><span class="m-detail-key">${k}</span><span class="m-detail-val">${v}</span></div>`;
+      }
+    }
+    bodyHTML += `</div></div>
+      <div class="m-section"><div class="m-label">📖 PATTERN</div>
+        <div class="m-pattern-desc"><strong style="color:var(--gold)">${sc.pattern}</strong><br>${sc.desc}</div></div>`;
+  } else {
+    bodyHTML = `<div class="m-section"><div class="m-label">⚠️ NO DATA</div>
+      <div style="color:var(--orange);font-size:13px">Run analysis first!</div></div>
+      <div class="m-section"><div class="m-label">📖 ABOUT</div>
+        <div class="m-pattern-desc"><strong style="color:var(--gold)">${sc.pattern}</strong><br>${sc.desc}</div></div>`;
+  }
+  bodyHTML += `<button class="m-btn" onclick="closeModal()">✕ CLOSE</button>`;
+  document.getElementById('mBody').innerHTML = bodyHTML;
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeModal() { document.getElementById('modalBg').classList.remove('show'); }
+function goPage(p) { window.location.href = `5_scanner_${p}.html`; }
+function goHome() { window.location.href = '2_home_page.html'; }
+function goChart() { window.location.href = '4_chart_page.html'; }
+function goWatch() { window.location.href = '6_watchlist.html'; }
+function goAdmin() { window.location.href = '8_control_panel.html'; }
+document.getElementById('symbolInput').addEventListener('keydown', e => { if (e.key === 'Enter') runAnalysis(); });
+renderGrid();
+</script>
+</body>
+</html>
