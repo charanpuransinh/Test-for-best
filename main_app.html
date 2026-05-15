@@ -54,7 +54,6 @@ html,body{height:100%;background:#000;overflow:hidden;}
 .bn-i{font-size:17px;line-height:1;}
 .bn-t{font-size:7px;font-weight:800;letter-spacing:.5px;margin-top:2px;}
 
-/* swipe hint bar */
 .swipe-dots{
   position:absolute;bottom:56px;left:50%;transform:translateX(-50%);
   display:flex;gap:4px;z-index:9;pointer-events:none;
@@ -67,7 +66,7 @@ html,body{height:100%;background:#000;overflow:hidden;}
 <div class="shell">
   <div class="swiper" id="swiper">
     <div class="slide"><iframe src="2_home_page.html"       title="HOME"   loading="eager"></iframe></div>
-    <div class="slide"><iframe src="5_scanner.html"         title="SIGNAL" loading="eager"></iframe></div>
+    <div class="slide"><iframe src="5_scanner_a.html"       title="SIGNAL" loading="eager"></iframe></div>
     <div class="slide"><iframe src="3_power_box.html"       title="POWER"  loading="lazy"></iframe></div>
     <div class="slide"><iframe src="4_chart_page.html"      title="CHART"  loading="lazy"></iframe></div>
     <div class="slide"><iframe src="6_watchlist.html"       title="WATCH"  loading="lazy"></iframe></div>
@@ -99,7 +98,6 @@ function goSlide(idx){
   setActive(idx);
 }
 
-/* Update nav on scroll-snap settle */
 let scrollTimer;
 swiper.addEventListener('scroll', ()=>{
   clearTimeout(scrollTimer);
@@ -109,7 +107,6 @@ swiper.addEventListener('scroll', ()=>{
   }, 80);
 }, {passive:true});
 
-/* Lazy-load iframes when sliding near them */
 swiper.addEventListener('scroll', ()=>{
   const idx = Math.round(swiper.scrollLeft / swiper.clientWidth);
   [-1,0,1].forEach(d=>{
@@ -120,7 +117,6 @@ swiper.addEventListener('scroll', ()=>{
   });
 }, {passive:true});
 
-/* Handle postMessage from child iframes (sector → chart navigation) */
 window.addEventListener('message', e => {
   if (!e.data || e.data.type !== 'goto') return;
   const page = e.data.page;
